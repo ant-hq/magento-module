@@ -1,0 +1,14 @@
+{
+	"name": "anthq/ant",
+    "description": "Magento integration module for Ant",
+    "require": {
+        "anthq/anthq-sdk-php": "dev-master"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:/ant-hq/anthq-sdk-php"
+        }
+    ],
+    "license": "MIT"
+}
