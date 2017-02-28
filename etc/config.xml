@@ -7,6 +7,7 @@
         </AntHQ_Ant>
     </modules>
     <global>
+        <!-- Hooks into the Magento Event System -->
         <events>
             <!-- Catalogue Product Events -->
             <catalog_product_save_commit_after>
@@ -18,6 +19,15 @@
                     </save>
                 </observers>
             </catalog_product_save_commit_after>
+            <catalog_product_delete_after>
+                <observers>
+                    <delete>
+                        <type>singleton</type>
+                        <class>AntHQ_Ant_Observer_CatalogProductObserver</class>
+                        <method>delete</method>
+                    </delete>
+                </observers>
+            </catalog_product_delete_after>
             <!-- Order Events -->
             <order_save_commit_after>
                 <observers>
