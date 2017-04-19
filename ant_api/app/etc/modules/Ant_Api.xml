@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Ant_Api>
+            <active>true</active>
+            <codePool>local</codePool>
+        </Ant_Api>
+    </modules>
+</config>

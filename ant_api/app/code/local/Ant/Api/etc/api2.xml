@@ -1,0 +1,222 @@
+<?xml version="1.0"?>
+<config>
+    <api2>
+        <resource_groups>
+            <ant_api translate="title" module="Ant_Api">
+                <title>Ant API</title>
+                <sort_order>10</sort_order>
+            </ant_api>
+        </resource_groups>
+        <resources>
+            <ant_api translate="title" module="Ant_Api">
+                <group>ant_api</group>
+                <model>ant_api/api2_product</model>
+                <title>Products API</title>
+                <sort_order>10</sort_order>
+                <privileges>
+                    <admin>
+                        <retrieve>1</retrieve>
+                        <create>1</create>
+                    </admin>
+                </privileges>
+                <attributes>
+                    <id>Product Id</id>
+                    <name>Product Name</name>
+                </attributes>
+                <force_attributes>
+                    <admin>
+                        <id>1</id>
+                        <sku>1</sku>
+                        <name>1</name>
+                        <description>1</description>
+                        <tax>1</tax>
+                        <attribute_set_id>1</attribute_set_id>
+                        <full_price>1</full_price>
+                        <supply_price>1</supply_price>
+                        <markup>1</markup>
+                        <images>1</images>
+                        <quantity>1</quantity>
+                        <inventories>1</inventories>
+                        <brand>1</brand>
+                        <supplier>1</supplier>
+                        <variants>1</variants>
+                        <options>1</options>
+                        <type>1</type>
+                    </admin>
+                </force_attributes>
+                <routes>
+                    <route_collection>
+                        <route>/ant/products</route>
+                        <action_type>collection</action_type>
+                    </route_collection>
+                </routes>
+                <versions>1</versions>
+            </ant_api>
+            <product_count translate="title" module="Ant_Api">
+                <group>ant_api</group>
+                <model>ant_api/api2_productcount</model>
+                <title>Products Count  API</title>
+                <sort_order>11</sort_order>
+                <privileges>
+                    <admin>
+                        <retrieve>1</retrieve>
+                    </admin>
+                </privileges>
+                <attributes>
+                    <count>Count Items</count>
+                    <page_count>Page Count</page_count>
+                    <page_size>Page Size</page_size>
+                </attributes>
+                <force_attributes>
+                    <admin>
+                        <count>1</count>
+                        <page_count>1</page_count>
+                        <page_size>1</page_size>
+                    </admin>
+                </force_attributes>
+                <routes>
+                    <route_collection>
+                        <route>/ant/products/count</route>
+                        <action_type>collection</action_type>
+                    </route_collection>
+                </routes>
+                <versions>1</versions>
+            </product_count>
+            <product_entity translate="title" module="Ant_Api">
+                <group>ant_api</group>
+                <model>ant_api/api2_productentity</model>
+                <title>Products Entity  API</title>
+                <sort_order>12</sort_order>
+                <privileges>
+                    <admin>
+                        <retrieve>1</retrieve>
+                        <update>1</update>
+                        <delete>1</delete>
+                    </admin>
+                </privileges>
+                <attributes>
+                    <id_product>Id Product</id_product>
+                </attributes>
+                    <force_attributes>
+                    <admin>
+                        <id>1</id>
+                        <sku>1</sku>
+                        <name>1</name>
+                        <description>1</description>
+                        <tax>1</tax>
+                        <full_price>1</full_price>
+                        <supply_price>1</supply_price>
+                        <markup>1</markup>
+                        <images>1</images>
+                        <quantity>1</quantity>
+                        <inventories>1</inventories>
+                        <brand>1</brand>
+                        <supplier>1</supplier>
+                        <variants>1</variants>
+                        <options>1</options>
+                    </admin>
+                </force_attributes>
+                <routes>
+                    <route_entity>
+                        <route>/ant/product/:id_product</route>
+                        <action_type>entity</action_type>
+                    </route_entity>
+                </routes>
+                <versions>1</versions>
+            </product_entity>
+            <product_image translate="title" module="Ant_Api">
+                <group>ant_api</group>
+                <model>ant_api/api2_productimage</model>
+                <title>Products Image  API</title>
+                <sort_order>13</sort_order>
+                <privileges>
+                    <admin>
+                        <create>1</create>
+                        <update>1</update>
+                        <delete>1</delete>
+                        <retrieve>1</retrieve>
+                    </admin>
+                </privileges>
+                <attributes>
+                    <id_product>Id Product</id_product>
+                </attributes>
+                <force_attributes>
+                    <admin>
+                        <url>1</url>
+                        <label>1</label>
+                        <exclude>1</exclude>
+                        <types>1</types>
+                    </admin>
+                </force_attributes>
+                <routes>
+                    <route_entity>
+                        <route>/ant/product_images/:id_product/:position</route>
+                        <action_type>entity</action_type>
+                    </route_entity>
+                    <route_collection>
+                        <route>/ant/product_images/:id_product</route>
+                        <action_type>collection</action_type>
+                    </route_collection>
+                </routes>
+                <versions>1</versions>
+            </product_image>
+            <webhook translate="title" module="Ant_Api">
+                <group>ant_api</group>
+                <model>ant_api/api2_webhook</model>
+                <title>Webhook Service  API</title>
+                <sort_order>14</sort_order>
+                <privileges>
+                    <admin>
+                        <create>1</create>
+                        <retrieve>1</retrieve>
+                    </admin>
+                </privileges>
+                <force_attributes>
+                    <admin>
+                        <url>1</url>
+                        <action>1</action>
+                    </admin>
+                </force_attributes>
+                <routes>
+                    <route_collection>
+                        <route>/ant/webhooks</route>
+                        <action_type>collection</action_type>
+                    </route_collection>
+                </routes>
+                <versions>1</versions>
+            </webhook>
+        </resources>
+        <!--<catalog translate="title" module="api2">
+            <title>Catalog</title>
+            <sort_order>10</sort_order>
+        </catalog>
+        <resources>
+            <ant_api translate="title" module="Ant_Api">
+                <group>ant_api</group>
+                <model>ant_api/api2_product</model>
+                <title>Products API</title>
+                <sort_order>10</sort_order>
+                <privileges>
+                    <admin>
+                        <create>1</create>
+                        <retrieve>1</retrieve>
+                        <delete>1</delete>
+                    </admin>
+                </privileges>
+                <attributes>
+                    <product_id>Product ID</product_id>
+                    <sku>Sku</sku>
+                    <page>Page</page>
+                    <limit>Limit</limit>
+                </attributes>
+                <routes>
+                    <route_collection>
+                        <route>/ant/products</route>
+                        <action_type>collection</action_type>
+                    </route_collection>
+                </routes>
+                <versions>1</versions>
+            </ant_api>
+        </resources>-->
+    </api2>
+</config>
