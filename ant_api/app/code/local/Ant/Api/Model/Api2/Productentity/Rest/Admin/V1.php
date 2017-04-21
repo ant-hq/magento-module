@@ -42,7 +42,8 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         $idProduct=$this->getRequest()->getParam("id_product");
         $product = Mage::getModel("catalog/product")->load($idProduct);
         // attribute set and product type cannot be updated
-        $arrayToExclude=array("id","images","inventories","tax","full_price");
+        $arrayToExclude=array("id","images","inventories","full_price","tags","tax","meta","manage_stock","special_price","product_options","categories","product_type");
+        $helperAnt = Mage::helper("ant_api");
         try {
             if($product->getTypeId()=="simple") {
                 foreach($data as $key=>$value){
@@ -56,6 +57,23 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                 if($this->_checkAttribute("full_price",$data)) {
                     $product->setPrice($data["full_price"]);
                 }
+                if($this->_checkAttribute("special_price",$data)) {
+                    $product->setSpecialPrice($data["special_price"]);
+                }
+                if($this->_checkAttribute("tags",$data)) {
+                    $stringTags = "";
+                    foreach ($data["tags"] as $_tags) {
+                        $stringTags .= $_tags . ",";
+                    }
+                    $product->setMetaKeyword($stringTags);
+                }
+                if($this->_checkAttribute("meta",$data)) {
+                    $stringMeta="";
+                    foreach($data["meta"] as $_meta){
+                        $stringMeta.=$_meta.",";
+                    }
+                    $product->setMetaDescription($stringMeta);
+                }
                 //Image
                 $count=0;
                 if($this->_checkAttribute("images",$data)) {
@@ -64,7 +82,6 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                         if($this->_checkAttribute("id",$_image) && $this->_checkAttribute("url",$_image) && $this->_checkAttribute("position",$_image)) {
                             $urlImageInput = $_image["url"];
                             $position = $_image["position"];
-                            $helperAnt = Mage::helper("ant_api");
                             $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
                             $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
                             $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
@@ -116,10 +133,27 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     }
                 }
                 //QTY
+                if($this->_checkAttribute("categories",$data)) {
+                    $categories = $data["categories"];
+                    $arrayCategoryIds = array();
+                    foreach ($categories as $_cate) {
+                        $arrayCategoryIds[] = $helperAnt->getCategory($_cate);
+                    }
+                    $product->setCategoryIds($arrayCategoryIds);
+                }
                 if($this->_checkAttribute("inventories",$data)) {
                     if($this->_checkAttribute("quantity",$data["inventories"])) {
                         $qty = $data["inventories"]["quantity"];
-                        $product->setStockData(array('qty' => $qty));
+                        $managerStock=1;
+                        if($this->_checkAttribute("manage_stock",$data)) {
+                            $managerStock=$data["manage_stock"];
+                        }
+                        $product->setStockData(array(
+                            'use_config_manage_stock' => 0,
+                            'manage_stock' => $managerStock,
+                            'is_in_stock' => 1,
+                            'qty' => $qty
+                        ));
                     }
                 }
                 $product->save();
@@ -136,6 +170,23 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                 if($this->_checkAttribute("full_price",$data)) {
                     $product->setPrice($data["full_price"]);
                 }
+                if($this->_checkAttribute("special_price",$data)) {
+                    $product->setSpecialPrice($data["special_price"]);
+                }
+                if($this->_checkAttribute("tags",$data)) {
+                    $stringTags = "";
+                    foreach ($data["tags"] as $_tags) {
+                        $stringTags .= $_tags . ",";
+                    }
+                    $product->setMetaKeyword($stringTags);
+                }
+                if($this->_checkAttribute("meta",$data)) {
+                    $stringMeta="";
+                    foreach($data["meta"] as $_meta){
+                        $stringMeta.=$_meta.",";
+                    }
+                    $product->setMetaDescription($stringMeta);
+                }
                 //Image
                 $count=0;
                 if($this->_checkAttribute("images",$data)) {
@@ -144,7 +195,6 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                         if($this->_checkAttribute("id",$_image) && $this->_checkAttribute("url",$_image) && $this->_checkAttribute("position",$_image)) {
                             $urlImageInput = $_image["url"];
                             $position = $_image["position"];
-                            $helperAnt = Mage::helper("ant_api");
                             $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
                             $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
                             $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
@@ -199,7 +249,33 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                 if($this->_checkAttribute("inventories",$data)) {
                     if($this->_checkAttribute("quantity",$data["inventories"])) {
                         $qty = $data["inventories"]["quantity"];
-                        $product->setStockData(array('qty' => $qty));
+                        $managerStock=1;
+                        if($this->_checkAttribute("manage_stock",$data)) {
+                            $managerStock=$data["manage_stock"];
+                        }
+                        $product->setStockData(array(
+                            'use_config_manage_stock' => 0,
+                            'qty' => $qty,
+                            'manage_stock' => $managerStock, //manage stock
+                            'is_in_stock' => 1 //Stock Availability
+                        ));
+                    }
+                }
+                if($this->_checkAttribute("product_options",$data)) {
+                    $product_options = $data["product_options"];
+                    foreach ($product_options as $p_opt) {
+                        $nameAttribute = $p_opt["name"];
+                        $p_values = $p_opt["values"];
+                        $valStringArray = array();
+                        foreach ($p_values as $_val) {
+                            $v = $_val["name"];
+                            $valStringArray[] = $v;
+                        }
+                        if (!$helperAnt->checkExistAttribute($nameAttribute)) {
+                            $helperAnt->createAttribute($nameAttribute, $nameAttribute, -1, -1, -1, $valStringArray);
+                        } else {
+                            //$helperAnt->updateAttributeValue($nameAttribute, $valStringArray);
+                        }
                     }
                 }
                 //assign simple product to configruable product
@@ -221,11 +297,14 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
     }
     public function setSimpleProductToConfigruableProduct($idProduct,$data){
         $product = Mage::getModel("catalog/product")->load($idProduct);
-        $arrayToExclude=array("id","images","inventories","tax","full_price");
+        $arrayToExclude = array("id","product_name","images", "inventories", "tax", "full_price");
         foreach($data as $key=>$value){
             if(!in_array($key,$arrayToExclude)){
                 $product->setData($key, $value);
             }
+        }
+        if($this->_checkAttribute("product_name",$data)) {
+            $product->setName($data["product_name"]);
         }
         if($this->_checkAttribute("tax",$data)) {
             $product->setTaxClassId($data["tax"]);
@@ -233,16 +312,24 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         if($this->_checkAttribute("full_price",$data)){
             $product->setPrice($data["full_price"]);
         }
-        if($this->_checkAttribute("options",$data)){
+        if ($this->_checkAttribute("options", $data)) {
             $codeArray = $data["options"];
-                foreach ($codeArray as $_item) {
-                    $product->setData($_item["code"], $_item["value"]);
-                }
+            foreach ($codeArray as $_item) {
+                $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
+                $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
+                $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
+                $product->setData($_item["code"],$value);
+            }
         }
         if($this->_checkAttribute("inventories",$data)) {
             if($this->_checkAttribute("quantity",$data["inventories"])) {
                 $qty = $data["inventories"]["quantity"];
-                $product->setStockData(array('qty' => $qty));
+                $product->setStockData(array(
+                    'use_config_manage_stock' => 0, //'Use config settings' checkbox
+                    'manage_stock' => 1, //manage stock
+                    'is_in_stock' => 1, //Stock Availability
+                    'qty' => $qty
+                ));
             }
         }
         $product->save();

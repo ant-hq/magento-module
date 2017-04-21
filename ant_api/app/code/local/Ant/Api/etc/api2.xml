@@ -42,6 +42,19 @@
                         <variants>1</variants>
                         <options>1</options>
                         <type>1</type>
+                        <product_type>1</product_type>
+                        <manage_stock>1</manage_stock>
+                        <special_price>1</special_price>
+                        <product_options>1</product_options>
+                        <categories>1</categories>
+                        <tags>1</tags>
+                        <meta>1</meta>
+                        <weight>1</weight>
+                        <visibility>1</visibility>
+                        <short_description>1</short_description>
+                        <store_front_url>1</store_front_url>
+                        <backend_url>1</backend_url>
+                        <product_name>1</product_name>
                     </admin>
                 </force_attributes>
                 <routes>
@@ -114,6 +127,20 @@
                         <supplier>1</supplier>
                         <variants>1</variants>
                         <options>1</options>
+                        <type>1</type>
+                        <product_type>1</product_type>
+                        <manage_stock>1</manage_stock>
+                        <special_price>1</special_price>
+                        <product_options>1</product_options>
+                        <categories>1</categories>
+                        <tags>1</tags>
+                        <meta>1</meta>
+                        <weight>1</weight>
+                        <visibility>1</visibility>
+                        <short_description>1</short_description>
+                        <store_front_url>1</store_front_url>
+                        <backend_url>1</backend_url>
+                        <product_name>1</product_name>
                     </admin>
                 </force_attributes>
                 <routes>
