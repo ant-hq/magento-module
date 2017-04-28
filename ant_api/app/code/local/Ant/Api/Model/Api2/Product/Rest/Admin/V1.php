@@ -167,7 +167,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     $isErrorImage=false;
                     if(count($dataImage) > 0) {
                         foreach ($dataImage as $_image) {
-                            if ($this->_validateImages("id", $_image) == "" && $this->_validateImages("url", $_image) == "" && $this->_validateImages("position", $_image) == "") {
+                            if ($this->_validateImages("url", $_image) == "" && $this->_validateImages("position", $_image) == "") {
                                 $urlImageInput = $_image["url"];
                                 $position = $_image["position"];
                                 $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
@@ -246,7 +246,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     $count = 0;
                     $isErrorImage=false;
                     foreach ($dataImage as $_image) {
-                        if ($this->_validateImages("id", $_image) == "" && $this->_validateImages("url", $_image) == "" && $this->_validateImages("position", $_image) == "") {
+                        if ($this->_validateImages("url", $_image) == "" && $this->_validateImages("position", $_image) == "") {
                             $urlImageInput = $_image["url"];
                             $position = $_image["position"];
                             $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
