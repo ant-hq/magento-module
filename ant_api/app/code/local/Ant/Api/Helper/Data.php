@@ -286,8 +286,9 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $options[$idProduct] = array();
             foreach ($productAttributeOption as $optionValues) {
                 $val = trim($optionValues['option_title']);
+                $attributeModel = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product',$optionValues["attribute_code"]);
                 $options[$idProduct][] = array(
-                    $optionValues['sku'] => array("attribute_code" => $optionValues['attribute_code'] ,"value" => $val)
+                    $optionValues['sku'] => array("attribute_code" => $attributeModel->getStoreLabel(0) ,"value" => $val)
                 );
             }
         }
