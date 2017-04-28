@@ -287,11 +287,13 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             foreach ($productAttributeOption as $optionValues) {
                 $val = trim($optionValues['option_title']);
                 $attributeModel = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product',$optionValues["attribute_code"]);
+                $position_of_value=$this->getPositionByValue($val,$optionValues["attribute_code"]);
                 $options[$idProduct][] = array(
-                    $optionValues['sku'] => array("attribute_code" => $attributeModel->getStoreLabel(0) ,"value" => $val)
+                    $optionValues['sku'] => array("attribute_code" => $attributeModel->getStoreLabel(0) ,"value" => $val,"position" => $position_of_value,"code" => $optionValues["attribute_code"])
                 );
             }
         }
+        $arrayProductOptions=array();
         foreach($childProducts as $child) {
             $arrayChildProduct=array();
             $childProduct=Mage::getModel("catalog/product")->load($child->getid());
@@ -312,7 +314,16 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                         "code" => $attribute[$child->getsku()]["attribute_code"],
                         "value" => $attribute[$child->getsku()]["value"]
                     );
+                    $arrayValues=array(
+                        "name" => $attribute[$child->getsku()]["value"],
+                        "position" => $attribute[$child->getsku()]["position"]
+                    );
                     $arrayOptionsAll[]=$arrayOptions;
+                    $key=$arrayOptions['code']."|".$attribute[$child->getsku()]['code'];
+                    if (!isset($arrayProductOptions[$key])) {
+                        $arrayProductOptions[$key] = [];
+                    }
+                    $arrayProductOptions[$key][] = $arrayValues;
                 }
             }
             $arrayChildProduct["options"]=$arrayOptionsAll;
@@ -341,21 +352,13 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         }
         $arrayDetailProduct["categories"]=$arrayCategory;
         $arrayDetailProduct["product_options"]=array();
-        $firstVariant=$arrayDetailProduct["variants"][0]["options"];
-        foreach($firstVariant as $_first){
-            $codeAttribute=$_first["code"];
-            $arrayRetValue=$this->getValueAttributeByCode($codeAttribute);
-            $arrayValueFilter=array();
-            foreach($arrayRetValue as $_filterValue){
-                $arrayValueFilter[]=array(
-                    "name"=>$_filterValue["value"],
-                    "position"=>$_filterValue["position"]
-                );
-            }
+        foreach($arrayProductOptions as $_key => $values){
+            $arrayKey=explode("|",$_key);
+            $arrayRetValue=$this->getValueAttributeByCode($arrayKey[1]);
             $arrayParent=array(
-                "name"=>$_first["code"],
+                "name"=>$arrayKey[0],
                 "position"=>$arrayRetValue[0]["position_parent"],
-                "values"=>$arrayValueFilter
+                "values"=>$values
             );
             $arrayDetailProduct["product_options"][]=$arrayParent;
         }
@@ -571,6 +574,22 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         }
 
         return false;
+    }
+    public function getPositionByValue($value,$attribute_code){
+        $attribute_model        = Mage::getModel('eav/entity_attribute');
+        $attribute_options_model= Mage::getModel('eav/entity_attribute_source_table') ;
+        $attribute_code         = $attribute_model->getIdByCode('catalog_product', $attribute_code);
+        $attribute              = $attribute_model->load($attribute_code);
+        $attribute_table        = $attribute_options_model->setAttribute($attribute);
+        $options                = $attribute_options_model->getAllOptions(false);
+
+        foreach($options as $option)
+        {
+            if ($option['label'] == $value)
+            {
+                return $option["value"];
+            }
+        }
     }
     public function getValueAttributeByCode($attributeName){
         $attribute_model        = Mage::getModel('eav/entity_attribute');
