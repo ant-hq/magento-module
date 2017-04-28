@@ -4,7 +4,7 @@
  *
  * @author EdgeWorks Team
  */
-
+set_time_limit(0);
 class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 {
     /**
