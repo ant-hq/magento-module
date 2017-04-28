@@ -26,9 +26,12 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
         $products = array();
         foreach($collectionProduct as $_product){
             $idProduct=$_product->getId();
+
             switch ($_product->getTypeId()){
                 case "simple":
-                $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
+                    if(empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
+                        $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
+                    }
                 break;
                 case "configurable":
                     $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
