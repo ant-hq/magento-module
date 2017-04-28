@@ -592,6 +592,11 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         }
         return $valueArray;
     }
+    public function getRootCategory(){
+        $dataParent=Mage::getModel("catalog/category")->getCollection()->addFieldToFilter("level",array("eq"=>1))->getFirstItem();
+        $parentId = $dataParent->getId();
+        return $parentId;
+    }
     public function getCategory($categoryData){
         $modelCategory = Mage::getModel('catalog/category');
         $entityCategory=null;

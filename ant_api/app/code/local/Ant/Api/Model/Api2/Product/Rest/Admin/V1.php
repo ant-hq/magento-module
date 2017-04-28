@@ -80,17 +80,10 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
         if(!$this->_checkAttribute("full_price",$data)){
             $stringError.="Product full_price can not be empty , ";
         }
-        if(!$this->_checkAttribute("inventories",$data)){
-            $stringError.="Product inventories can not be empty , ";
-        }
-        if(!$this->_checkAttribute("quantity",$data["inventories"])){
-            $stringError.="Product quantity can not be empty , ";
-        }
-        if(!$this->_checkAttribute("images",$data)){
-            $stringError.="Product image can not be empty , ";
-        }
-        if(!$this->_checkAttribute("categories",$data)){
-            $stringError.="Product Categories can not be empty , ";
+        if(isset($data["inventories"])) {
+            if (!$this->_checkAttribute("quantity", $data["inventories"])) {
+                $stringError .= "Product quantity can not be empty , ";
+            }
         }
         if($product){
             $stringError.="Product has sku ".$data['sku']." has existed.Please check your sku data on product listing";
@@ -170,44 +163,63 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     $count = 0;
                     $product->setMediaGallery(array('images' => array(), 'values' => array()));
                     $isErrorImage=false;
-                    if(count($dataImage) > 0) {
-                        foreach ($dataImage as $_image) {
-                            if ($this->_validateImages("url", $_image) == "" && $this->_validateImages("position", $_image) == "") {
-                                $urlImageInput = $_image["url"];
-                                $position = $_image["position"];
-                                $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
-                                $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
-                                $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
-                                if ($count == 0) {
-                                    $product->addImageToMediaGallery($absolutePathImage, array('image', 'thumbnail', 'small_image'), true, false);
+                    if(isset($data["images"])) {
+                        if (count($dataImage) > 0) {
+                            foreach ($dataImage as $_image) {
+                                if ($this->_validateImages("url", $_image) == "" && $this->_validateImages("position",
+                                        $_image) == ""
+                                ) {
+                                    $urlImageInput = $_image["url"];
+                                    $position = $_image["position"];
+                                    $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
+                                    $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
+                                    $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
+                                    if ($count == 0) {
+                                        $product->addImageToMediaGallery($absolutePathImage,
+                                            array('image', 'thumbnail', 'small_image'), true, false);
+                                    } else {
+                                        $product->addImageToMediaGallery($absolutePathImage, null, true, false);
+                                    }
+                                    $count++;
                                 } else {
-                                    $product->addImageToMediaGallery($absolutePathImage, null, true, false);
+                                    $isErrorImage = true;
+                                    break;
                                 }
-                                $count++;
-                            } else {
-                                $isErrorImage = true;
-                                break;
                             }
                         }
                     }
-                    else{
-                        $isErrorImage=true;
-                        $this->_criticalCustom("attribute image is not array or empty value", "400");
+                    if(isset($data["categories"])) {
+                        $categories = $data["categories"];
+                        $arrayCategoryIds = array();
+                        foreach ($categories as $_cate) {
+                            $arrayCategoryIds[] = $helperAnt->getCategory($_cate);
+                        }
+                        if (count($arrayCategoryIds) > 0) {
+                            $product->setCategoryIds($arrayCategoryIds);
+                        } else {
+                            $product->setCategoryIds($helperAnt->getRootCategory());
+                        }
+                    }else{
+                        $product->setCategoryIds($helperAnt->getRootCategory());
                     }
-                    $categories = $data["categories"];
-                    $arrayCategoryIds=array();
-                    foreach($categories as $_cate) {
-                        $arrayCategoryIds[]=$helperAnt->getCategory($_cate);
+                    if(isset($data["inventories"])) {
+                        $qty = $data["inventories"]["quantity"];
+                        $product->setStockData(array(
+                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
+                                'manage_stock' => $data["manage_stock"], //manage stock
+                                'is_in_stock' => 1, //Stock Availability
+                                'qty' => $qty //qty
+                            )
+                        );
+                    }else{
+                        $product->setStockData(array(
+                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
+                                'manage_stock' => 0, //manage stock
+                                'is_in_stock' => 1, //Stock Availability
+                                'qty' => 0 //qty
+                            )
+                        );
                     }
-                    $product->setCategoryIds($arrayCategoryIds);
-                    $qty = $data["inventories"]["quantity"];
-                    $product->setStockData(array(
-                            'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                            'manage_stock' => $data["manage_stock"], //manage stock
-                            'is_in_stock' => 1, //Stock Availability
-                            'qty' => $qty //qty
-                        )
-                    );
                     if($isErrorImage==false) {
                         $product->save();
                     }
@@ -250,39 +262,65 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     $dataImage = $data["images"];
                     $count = 0;
                     $isErrorImage=false;
-                    foreach ($dataImage as $_image) {
-                        if ($this->_validateImages("url", $_image) == "" && $this->_validateImages("position", $_image) == "") {
-                            $urlImageInput = $_image["url"];
-                            $position = $_image["position"];
-                            $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
-                            $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
-                            $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
-                            //$product->addImageToMediaGallery($absolutePathImage, array('image', 'thumbnail', 'small_image'), false, false);
-                            if ($count == 0) {
-                                $product->addImageToMediaGallery($absolutePathImage, array('image', 'thumbnail', 'small_image'), true, false);
-                            } else {
-                                $product->addImageToMediaGallery($absolutePathImage, null, true, false);
+                    if(isset($data["images"])) {
+                        if (count($dataImage) > 0) {
+                            foreach ($dataImage as $_image) {
+                                if ($this->_validateImages("url", $_image) == "" && $this->_validateImages("position",
+                                        $_image) == ""
+                                ) {
+                                    $urlImageInput = $_image["url"];
+                                    $position = $_image["position"];
+                                    $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
+                                    $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
+                                    $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
+                                    //$product->addImageToMediaGallery($absolutePathImage, array('image', 'thumbnail', 'small_image'), false, false);
+                                    if ($count == 0) {
+                                        $product->addImageToMediaGallery($absolutePathImage,
+                                            array('image', 'thumbnail', 'small_image'), true, false);
+                                    } else {
+                                        $product->addImageToMediaGallery($absolutePathImage, null, true, false);
+                                    }
+                                    $count++;
+                                } else {
+                                    $isErrorImage = true;
+                                    break;
+                                }
                             }
-                            $count++;
-                        }else {
-                            $isErrorImage = true;
-                            break;
                         }
                     }
-                    $qty = $data["inventories"]["quantity"];
-                    $categories = $data["categories"];
-                    $arrayCategoryIds=array();
-                    foreach($categories as $_cate) {
-                        $arrayCategoryIds[]=$helperAnt->getCategory($_cate);
+
+                    if(isset($data["categories"])) {
+                        $categories = $data["categories"];
+                        $arrayCategoryIds = array();
+                        foreach ($categories as $_cate) {
+                            $arrayCategoryIds[] = $helperAnt->getCategory($_cate);
+                        }
+                        if (count($arrayCategoryIds) > 0) {
+                            $product->setCategoryIds($arrayCategoryIds);
+                        } else {
+                            $product->setCategoryIds($helperAnt->getRootCategory());
+                        }
+                    }else{
+                        $product->setCategoryIds($helperAnt->getRootCategory());
                     }
-                    $product->setCategoryIds($arrayCategoryIds);
-                    $product->setStockData(array(
-                            'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                            'manage_stock' => $data["manage_stock"], //manage stock
-                            'is_in_stock' => 1, //Stock Availability
-                            'qty' => $qty //qty
-                        )
-                    );
+                    if(isset($data["inventories"])) {
+                        $qty = $data["inventories"]["quantity"];
+                        $product->setStockData(array(
+                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
+                                'manage_stock' => $data["manage_stock"], //manage stock
+                                'is_in_stock' => 1, //Stock Availability
+                                'qty' => $qty //qty
+                            )
+                        );
+                    }else{
+                        $product->setStockData(array(
+                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
+                                'manage_stock' => 0, //manage stock
+                                'is_in_stock' => 1, //Stock Availability
+                                'qty' => 0 //qty
+                            )
+                        );
+                    }
                     //Check Product Options is Exist Or Not
                     if($this->_checkAttribute("product_options",$data)) {
                         $product_options = $data["product_options"];
