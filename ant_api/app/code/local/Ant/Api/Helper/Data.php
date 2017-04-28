@@ -179,6 +179,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
         $modelDetailProduct = Mage::getModel("catalog/product");
         $detailProduct = $modelDetailProduct->load($idProduct);
+        $suffix = Mage::getStoreConfig('catalog/seo/product_url_suffix');
         $arrayDetailProduct = array();
         $arrayDetailProduct["id"] = $detailProduct->getid();
         $arrayDetailProduct["name"] = $detailProduct->getname();
@@ -186,8 +187,8 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayDetailProduct["description"] = $detailProduct->getdescription();
         $arrayDetailProduct["short_description"] = $detailProduct->getShortDescription();
         $arrayDetailProduct["visibility"] = $detailProduct->getVisibility();
-        $arrayDetailProduct["store_front_url"] = Mage::getUrl().$detailProduct->getUrlKey();
-        $arrayDetailProduct["backend_url"] = $detailProduct->getProductUrl();
+        $arrayDetailProduct["store_front_url"] = Mage::getUrl().$detailProduct->getUrlKey().$suffix;
+        $arrayDetailProduct["backend_url"] = Mage::getBaseUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getid()."/";
         $arrayDetailProduct["weight"] = $detailProduct->getWeight();
         $arrayDetailProduct["full_price"] = $detailProduct->getFinalPrice();
         $arrayDetailProduct["special_price"] = $detailProduct->getSpecialPrice();
@@ -244,6 +245,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     public function setTheHashConfigruableProduct($idProduct){
         $modelDetailProduct = Mage::getModel("catalog/product");
         $detailProduct = $modelDetailProduct->load($idProduct);
+        $suffix = Mage::getStoreConfig('catalog/seo/product_url_suffix');
         $arrayDetailProduct = array();
         $arrayDetailProduct["id"] = $detailProduct->getid();
         $arrayDetailProduct["name"] = $detailProduct->getname();
@@ -252,8 +254,8 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayDetailProduct["full_price"] = $detailProduct->getFinalPrice();
         $arrayDetailProduct["short_description"] = $detailProduct->getShortDescription();
         $arrayDetailProduct["visibility"] = $detailProduct->getVisibility();
-        $arrayDetailProduct["store_front_url"] = Mage::getUrl().$detailProduct->getUrlKey();
-        $arrayDetailProduct["backend_url"] = $detailProduct->getProductUrl();
+        $arrayDetailProduct["store_front_url"] = Mage::getUrl().$detailProduct->getUrlKey().$suffix;
+        $arrayDetailProduct["backend_url"] = Mage::getBaseUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getid()."/";
         $arrayDetailProduct["weight"] = $detailProduct->getWeight();
         $arrayDetailProduct["special_price"] = $detailProduct->getSpecialPrice();
         $arrayTags=explode(",",$detailProduct->getMetaKeyword());

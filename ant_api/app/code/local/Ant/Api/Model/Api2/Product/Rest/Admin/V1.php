@@ -28,14 +28,16 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
             $idProduct=$_product->getId();
             switch ($_product->getTypeId()){
                 case "simple":
-                $products[$idProduct] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
+                $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
                 break;
                 case "configurable":
-                    $products[$idProduct] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
+                    $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
                     break;
             }
         }
-        return $products;
+        $arrayParent=array();
+        $arrayParent["products"]=$products;
+        return $arrayParent;
     }
     protected function _criticalCustom($message, $code = null)
     {
