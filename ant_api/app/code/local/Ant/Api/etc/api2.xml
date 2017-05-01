@@ -214,37 +214,5 @@
                 <versions>1</versions>
             </webhook>
         </resources>
-        <!--<catalog translate="title" module="api2">
-            <title>Catalog</title>
-            <sort_order>10</sort_order>
-        </catalog>
-        <resources>
-            <ant_api translate="title" module="Ant_Api">
-                <group>ant_api</group>
-                <model>ant_api/api2_product</model>
-                <title>Products API</title>
-                <sort_order>10</sort_order>
-                <privileges>
-                    <admin>
-                        <create>1</create>
-                        <retrieve>1</retrieve>
-                        <delete>1</delete>
-                    </admin>
-                </privileges>
-                <attributes>
-                    <product_id>Product ID</product_id>
-                    <sku>Sku</sku>
-                    <page>Page</page>
-                    <limit>Limit</limit>
-                </attributes>
-                <routes>
-                    <route_collection>
-                        <route>/ant/products</route>
-                        <action_type>collection</action_type>
-                    </route_collection>
-                </routes>
-                <versions>1</versions>
-            </ant_api>
-        </resources>-->
     </api2>
 </config>
