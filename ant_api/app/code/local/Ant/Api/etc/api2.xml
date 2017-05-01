@@ -55,6 +55,7 @@
                         <store_front_url>1</store_front_url>
                         <backend_url>1</backend_url>
                         <product_name>1</product_name>
+                        <products>1</products>
                     </admin>
                 </force_attributes>
                 <routes>
