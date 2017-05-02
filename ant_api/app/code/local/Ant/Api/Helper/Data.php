@@ -1431,7 +1431,6 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     public function getDataWebHook($condition){
         $modelWebhook=Mage::getModel("ant_api/webhook");
         $data=$modelWebhook->getCollection()->addFieldToFilter("ant_api_webhook_action",array("like"=>"%".$condition."%"));
-        echo (string)$data->getSelect();
         return $data;
     }
     public function autoGenerate($isSetup = false){
