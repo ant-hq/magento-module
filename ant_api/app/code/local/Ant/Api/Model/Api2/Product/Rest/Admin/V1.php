@@ -97,22 +97,21 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
         $stringError="";
         $product=Mage::getModel("catalog/product")->loadByAttribute("sku",$data["sku"]);
         if(!$this->_checkAttribute("product_name",$data)){
-            $stringError="Product name can not be empty , ";
+            $stringError="Product variant name can not be empty , ";
         }
         if(!$this->_checkAttribute("sku",$data)){
-            $stringError.="Product sku can not be empty , ";
+            $stringError.="Product variant sku can not be empty , ";
         }
         if(!$this->_checkAttribute("full_price",$data)){
-            $stringError.="Product full_price can not be empty , ";
+            $stringError.="Product variant full_price can not be empty , ";
         }
-        if(!$this->_checkAttribute("inventories",$data)){
-            $stringError.="Product inventories can not be empty , ";
-        }
-        if(!$this->_checkAttribute("quantity",$data["inventories"])){
-            $stringError.="Product quantity can not be empty , ";
+        if(isset($data["inventories"])) {
+            if (!$this->_checkAttribute("quantity", $data["inventories"])) {
+                $stringError .= "Product variant quantity can not be empty , ";
+            }
         }
         if($product){
-            $stringError.="Product has sku ".$data['sku']." has existed.Please check your sku data on product listing";
+            $stringError.="Product variant has sku ".$data['sku']." has existed.Please check your sku data on product listing";
         }
         if($stringError != "") {
             $this->_criticalCustom($stringError, "400");
@@ -405,6 +404,8 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                 $product->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
                 if ($this->_checkAttribute("tax", $data)) {
                     $product->setTaxClassId($data["tax"]);
+                }else{
+                    $product->setTaxClassId(1);
                 }
                 if ($this->_checkAttribute("full_price", $data)) {
                     $product->setPrice($data["full_price"]);
@@ -428,6 +429,14 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                             'qty' => $qty //qty
                         ));
                     }
+                }else{
+                    $product->setStockData(array(
+                            'use_config_manage_stock' => 0, //'Use config settings' checkbox
+                            'manage_stock' => 0, //manage stock
+                            'is_in_stock' => 1, //Stock Availability
+                            'qty' => 0 //qty
+                        )
+                    );
                 }
                 $product->save();
                 return $product->getId();
@@ -447,6 +456,8 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
             $product->setName($data["product_name"]);
             if ($this->_checkAttribute("tax", $data)) {
                 $product->setTaxClassId($data["tax"]);
+            }else{
+                $product->setTaxClassId(1);
             }
             if ($this->_checkAttribute("full_price", $data)) {
                 $product->setPrice($data["full_price"]);
@@ -470,6 +481,14 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                         'qty' => $qty //qty
                     ));
                 }
+            }else{
+                $product->setStockData(array(
+                        'use_config_manage_stock' => 0, //'Use config settings' checkbox
+                        'manage_stock' => 0, //manage stock
+                        'is_in_stock' => 1, //Stock Availability
+                        'qty' => 0 //qty
+                    )
+                );
             }
             $product->save();
             return $product->getId();
