@@ -1420,7 +1420,12 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $image_name=basename($url); // replace https tp http
         $image_type = "jpg"; //find the image extension
         $filename   = "upload_api"; //give a new name, you can modify as per your requirement
-        $filePathOnDir   = Mage::getBaseDir('media') . DS  . $filename. DS . $image_name; //path for temp storage folder: ./media/import/ , absolute path
+        $directoryName = Mage::getBaseDir("var") . DS . $filename;
+        if(!is_dir($directoryName)){
+            //Directory does not exist, so lets create it.
+            mkdir($directoryName, 0755);
+        }
+        $filePathOnDir   = Mage::getBaseDir('var') . DS  . $filename. DS . $image_name; //path for temp storage folder: ./media/import/ , absolute path
         file_put_contents($filePathOnDir,file_get_contents($url)); //store the image from external url to the temp storage folder file_get_contents(trim($image_url))
         $absolutePath=$filePathOnDir;
         return array(
