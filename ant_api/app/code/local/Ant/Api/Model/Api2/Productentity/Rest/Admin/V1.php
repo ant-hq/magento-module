@@ -38,27 +38,47 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
             $this->_critical(self::RESOURCE_INTERNAL_ERROR);
         }
     }
-    protected function _validateDataBeforeUpdate($data){
+    protected function _validateDataBeforeUpdate($data,$skuCheck){
         $stringError="";
         $product=null;
-        if(isset($data["sku"])) {
-            $product = Mage::getModel("catalog/product")->loadByAttribute("sku", $data["sku"]);
-        }
-        if(isset($data["name"]) && ($data["name"] == null || trim($data["name"]) == "")){
-                $stringError .= "Product name can not be empty , ";
-        }
-        if(isset($data["sku"]) && ($data["sku"] == null || trim($data["sku"]) == "")){
-            $stringError.="Product sku can not be empty , ";
-        }
-        if(isset($data["description"]) && ($data["description"] == null || trim($data["description"]) == "")){
-            $stringError.="Product description can not be empty , ";
-        }
-        if(isset($data["full_price"]) && ($data["full_price"] == null || trim($data["full_price"]) == "")){
-            $stringError.="Product full_price can not be empty , ";
-        }
-        if(isset($data["inventories"]) && !is_array($data["inventories"])) {
-            if (!$this->_checkAttribute("quantity", $data["inventories"]) || trim($data["inventories"]["quantity"]) == "") {
-                $stringError .= "Product quantity can not be empty , ";
+        foreach($data as $key=>$value){
+            switch ($key){
+                case "name":
+                    if($data[$key] == NULL || $data[$key] == null || trim($data[$key]) == "" || trim(strtolower($data[$key])) === "null"){
+                        $stringError .= "Product name can not be empty , ";
+                    }
+                    break;
+                case "sku":
+                    if($data[$key] == NULL || $data[$key] == null || trim($data[$key]) == "" || trim(strtolower($data[$key])) === "null"){
+                        $stringError .= "Product sku can not be empty , ";
+                    }else {
+                        $product = Mage::getModel("catalog/product")->loadByAttribute("sku", $data["sku"]);
+                        if ($product->getSku() == $skuCheck) {
+                            $product = null;
+                        }
+                    }
+                    break;
+                case "description":
+                    if($data[$key] == NULL || $data[$key] == null || trim($data[$key]) == "" || trim(strtolower($data[$key])) === "null"){
+                        $stringError.="Product description can not be empty , ";
+                    }
+                    break;
+                case "full_price":
+                    if($data[$key] == NULL || $data[$key] == null || trim($data[$key]) == "" || trim(strtolower($data[$key])) === "null"){
+                        $stringError.="Product full_price can not be empty , ";
+                    }
+                    break;
+                case "inventories":
+                    if($data[$key] == NULL || $data[$key] == null || trim($data[$key]) == "" || trim(strtolower($data[$key])) === "null"){
+                        $stringError.="Product inventory can not be empty , ";
+                    }
+                    if(is_array($data["inventories"])) {
+                        if (!$this->_checkAttribute("quantity", $data["inventories"]) || trim($data["inventories"]["quantity"]) == "") {
+                            $stringError .= "Product quantity can not be empty , ";
+                        }
+                    }
+                    break;
+
             }
         }
         if($product){
@@ -75,8 +95,9 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         // attribute set and product type cannot be updated
         $arrayToExclude=array("id","images","inventories","full_price","tags","tax","meta","manage_stock","special_price","product_options","categories","product_type");
         $helperAnt = Mage::helper("ant_api");
+        $skuCheck=$product->getSku();
         try {
-            if($this->_validateDataBeforeUpdate($data) == "") {
+            if($this->_validateDataBeforeUpdate($data,$skuCheck) == "") {
                 if ($product->getTypeId() == "simple") {
                     foreach ($data as $key => $value) {
                         if (!in_array($key, $arrayToExclude)) {
