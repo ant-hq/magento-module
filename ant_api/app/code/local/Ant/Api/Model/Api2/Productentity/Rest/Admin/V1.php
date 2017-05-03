@@ -38,6 +38,37 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
             $this->_critical(self::RESOURCE_INTERNAL_ERROR);
         }
     }
+    protected function _validateDataBeforeUpdate($data){
+        $stringError="";
+        $product=null;
+        if(isset($data["sku"])) {
+            $product = Mage::getModel("catalog/product")->loadByAttribute("sku", $data["sku"]);
+        }
+        if(isset($data["name"]) && ($data["name"] == null || trim($data["name"]) == "")){
+                $stringError .= "Product name can not be empty , ";
+        }
+        if(isset($data["sku"]) && ($data["sku"] == null || trim($data["sku"]) == "")){
+            $stringError.="Product sku can not be empty , ";
+        }
+        if(isset($data["description"]) && ($data["description"] == null || trim($data["description"]) == "")){
+            $stringError.="Product description can not be empty , ";
+        }
+        if(isset($data["full_price"]) && ($data["full_price"] == null || trim($data["full_price"]) == "")){
+            $stringError.="Product full_price can not be empty , ";
+        }
+        if(isset($data["inventories"]) && !is_array($data["inventories"])) {
+            if (!$this->_checkAttribute("quantity", $data["inventories"]) || trim($data["inventories"]["quantity"]) == "") {
+                $stringError .= "Product quantity can not be empty , ";
+            }
+        }
+        if($product){
+            $stringError.="Product has sku ".$data['sku']." has existed.Please check your sku data on product listing";
+        }
+        if($stringError != "") {
+            $this->_criticalCustom($stringError, "400");
+        }
+        return $stringError;
+    }
     protected function _update(array $data){
         $idProduct=$this->getRequest()->getParam("id_product");
         $product = Mage::getModel("catalog/product")->load($idProduct);
@@ -45,248 +76,259 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         $arrayToExclude=array("id","images","inventories","full_price","tags","tax","meta","manage_stock","special_price","product_options","categories","product_type");
         $helperAnt = Mage::helper("ant_api");
         try {
-            if($product->getTypeId()=="simple") {
-                foreach($data as $key=>$value){
-                    if(!in_array($key,$arrayToExclude)) {
-                        $product->setData($key, $value);
+            if($this->_validateDataBeforeUpdate($data) == "") {
+                if ($product->getTypeId() == "simple") {
+                    foreach ($data as $key => $value) {
+                        if (!in_array($key, $arrayToExclude)) {
+                            $product->setData($key, $value);
+                        }
                     }
-                }
-                if($this->_checkAttribute("tax",$data)) {
-                    $product->setTaxClassId($data["tax"]);
-                }
-                if($this->_checkAttribute("full_price",$data)) {
-                    $product->setPrice($data["full_price"]);
-                }
-                if($this->_checkAttribute("special_price",$data)) {
-                    $product->setSpecialPrice($data["special_price"]);
-                }
-                if($this->_checkAttribute("tags",$data)) {
-                    $stringTags = "";
-                    foreach ($data["tags"] as $_tags) {
-                        $stringTags .= $_tags . ",";
+                    if ($this->_checkAttribute("tax", $data)) {
+                        $product->setTaxClassId($data["tax"]);
                     }
-                    $product->setMetaKeyword($stringTags);
-                }
-                if($this->_checkAttribute("meta",$data)) {
-                    $stringMeta="";
-                    foreach($data["meta"] as $_meta){
-                        $stringMeta.=$_meta.",";
+                    if ($this->_checkAttribute("full_price", $data)) {
+                        $product->setPrice($data["full_price"]);
                     }
-                    $product->setMetaDescription($stringMeta);
-                }
-                //Image
-                $count=0;
-                if($this->_checkAttribute("images",$data)) {
-                    $dataImage=$data["images"];
-                    foreach($dataImage as $_image) {
-                        if($this->_checkAttribute("id",$_image) && $this->_checkAttribute("url",$_image) && $this->_checkAttribute("position",$_image)) {
-                            $urlImageInput = $_image["url"];
-                            $position = $_image["position"];
-                            $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
-                            $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
-                            $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
-                            $mediaApi = Mage::getModel("catalog/product_attribute_media_api");
-                            $mimeType = "";
-                            if (file_exists("$absolutePathImage")) {
-                                $pathInfo = pathinfo("$absolutePathImage");
-                                switch ($pathInfo['extension']) {
-                                    case 'png':
-                                        $mimeType = 'image/png';
-                                        break;
-                                    case 'jpg':
-                                        $mimeType = 'image/jpeg';
-                                        break;
-                                    case 'gif':
-                                        $mimeType = 'image/gif';
-                                        break;
+                    if ($this->_checkAttribute("special_price", $data)) {
+                        $product->setSpecialPrice($data["special_price"]);
+                    }
+                    if ($this->_checkAttribute("tags", $data)) {
+                        $stringTags = "";
+                        foreach ($data["tags"] as $_tags) {
+                            $stringTags .= $_tags . ",";
+                        }
+                        $product->setMetaKeyword($stringTags);
+                    }
+                    if ($this->_checkAttribute("meta", $data)) {
+                        $stringMeta = "";
+                        foreach ($data["meta"] as $_meta) {
+                            $stringMeta .= $_meta . ",";
+                        }
+                        $product->setMetaDescription($stringMeta);
+                    }
+                    //Image
+                    $count = 0;
+                    if ($this->_checkAttribute("images", $data)) {
+                        $dataImage = $data["images"];
+                        foreach ($dataImage as $_image) {
+                            if ($this->_checkAttribute("id", $_image) && $this->_checkAttribute("url",
+                                    $_image) && $this->_checkAttribute("position", $_image)
+                            ) {
+                                $urlImageInput = $_image["url"];
+                                $position = $_image["position"];
+                                $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
+                                $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
+                                $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
+                                $mediaApi = Mage::getModel("catalog/product_attribute_media_api");
+                                $mimeType = "";
+                                if (file_exists("$absolutePathImage")) {
+                                    $pathInfo = pathinfo("$absolutePathImage");
+                                    switch ($pathInfo['extension']) {
+                                        case 'png':
+                                            $mimeType = 'image/png';
+                                            break;
+                                        case 'jpg':
+                                            $mimeType = 'image/jpeg';
+                                            break;
+                                        case 'gif':
+                                            $mimeType = 'image/gif';
+                                            break;
+                                    }
                                 }
-                            }
-                            $items = $mediaApi->items($idProduct, Mage_Core_Model_App::ADMIN_STORE_ID);
-                            $isEmptyImage=true;
-                            foreach ($items as $item) {
-                                if ($item["position"] == $position) {
-                                    $isEmptyImage=false;
+                                $items = $mediaApi->items($idProduct, Mage_Core_Model_App::ADMIN_STORE_ID);
+                                $isEmptyImage = true;
+                                foreach ($items as $item) {
+                                    if ($item["position"] == $position) {
+                                        $isEmptyImage = false;
+                                        $count++;
+                                        $dataImage = array(
+                                            'file' => array(
+                                                'name' => $nameImage,
+                                                'content' => base64_encode(file_get_contents($absolutePathImage)),
+                                                'mime' => $mimeType
+                                            ),
+                                            'label' => $item["label"],
+                                            'position' => $position,
+                                            'types' => $item["types"],
+                                            'exclude' => 0
+                                        );
+                                        $mediaApi->update($idProduct, $item['file'], $dataImage,
+                                            Mage_Core_Model_App::ADMIN_STORE_ID);
+                                    }
+                                }
+                                if ($isEmptyImage) {
+                                    if ($count == 0) {
+                                        $product->addImageToMediaGallery($absolutePathImage,
+                                            array('image', 'thumbnail', 'small_image'), true, false);
+                                    } else {
+                                        $product->addImageToMediaGallery($absolutePathImage, null, true, false);
+                                    }
                                     $count++;
-                                    $dataImage = array(
-                                        'file' => array(
-                                            'name' => $nameImage,
-                                            'content' => base64_encode(file_get_contents($absolutePathImage)),
-                                            'mime' => $mimeType
-                                        ),
-                                        'label' => $item["label"],
-                                        'position' => $position,
-                                        'types' => $item["types"],
-                                        'exclude' => 0
-                                    );
-                                    $mediaApi->update($idProduct, $item['file'], $dataImage, Mage_Core_Model_App::ADMIN_STORE_ID);
                                 }
-                            }
-                            if($isEmptyImage){
-                                if ($count == 0){
-                                    $product->addImageToMediaGallery( $absolutePathImage , array('image', 'thumbnail', 'small_image'), true, false );
-                                }else {
-                                    $product->addImageToMediaGallery( $absolutePathImage , null, true, false );
-                                }
-                                $count++;
                             }
                         }
                     }
-                }
-                //QTY
-                if($this->_checkAttribute("categories",$data)) {
-                    $categories = $data["categories"];
-                    $arrayCategoryIds = array();
-                    foreach ($categories as $_cate) {
-                        $arrayCategoryIds[] = $helperAnt->getCategory($_cate);
-                    }
-                    $product->setCategoryIds($arrayCategoryIds);
-                }
-                if($this->_checkAttribute("inventories",$data)) {
-                    if($this->_checkAttribute("quantity",$data["inventories"])) {
-                        $qty = $data["inventories"]["quantity"];
-                        $managerStock=1;
-                        if($this->_checkAttribute("manage_stock",$data)) {
-                            $managerStock=$data["manage_stock"];
+                    //QTY
+                    if ($this->_checkAttribute("categories", $data)) {
+                        $categories = $data["categories"];
+                        $arrayCategoryIds = array();
+                        foreach ($categories as $_cate) {
+                            $arrayCategoryIds[] = $helperAnt->getCategory($_cate);
                         }
-                        $product->setStockData(array(
-                            'use_config_manage_stock' => 0,
-                            'manage_stock' => $managerStock,
-                            'is_in_stock' => 1,
-                            'qty' => $qty
-                        ));
+                        $product->setCategoryIds($arrayCategoryIds);
                     }
-                }
-                $product->save();
-            }
-            if($product->getTypeId()=="configurable"){
-                foreach($data as $key=>$value){
-                    if(!in_array($key,$arrayToExclude)) {
-                        $product->setData($key, $value);
-                    }
-                }
-                if($this->_checkAttribute("tax",$data)) {
-                    $product->setTaxClassId($data["tax"]);
-                }
-                if($this->_checkAttribute("full_price",$data)) {
-                    $product->setPrice($data["full_price"]);
-                }
-                if($this->_checkAttribute("special_price",$data)) {
-                    $product->setSpecialPrice($data["special_price"]);
-                }
-                if($this->_checkAttribute("tags",$data)) {
-                    $stringTags = "";
-                    foreach ($data["tags"] as $_tags) {
-                        $stringTags .= $_tags . ",";
-                    }
-                    $product->setMetaKeyword($stringTags);
-                }
-                if($this->_checkAttribute("meta",$data)) {
-                    $stringMeta="";
-                    foreach($data["meta"] as $_meta){
-                        $stringMeta.=$_meta.",";
-                    }
-                    $product->setMetaDescription($stringMeta);
-                }
-                //Image
-                $count=0;
-                if($this->_checkAttribute("images",$data)) {
-                    $dataImage=$data["images"];
-                    foreach($dataImage as $_image) {
-                        if($this->_checkAttribute("id",$_image) && $this->_checkAttribute("url",$_image) && $this->_checkAttribute("position",$_image)) {
-                            $urlImageInput = $_image["url"];
-                            $position = $_image["position"];
-                            $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
-                            $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
-                            $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
-                            $mediaApi = Mage::getModel("catalog/product_attribute_media_api");
-                            $mimeType = "";
-                            if (file_exists("$absolutePathImage")) {
-                                $pathInfo = pathinfo("$absolutePathImage");
-                                switch ($pathInfo['extension']) {
-                                    case 'png':
-                                        $mimeType = 'image/png';
-                                        break;
-                                    case 'jpg':
-                                        $mimeType = 'image/jpeg';
-                                        break;
-                                    case 'gif':
-                                        $mimeType = 'image/gif';
-                                        break;
-                                }
+                    if ($this->_checkAttribute("inventories", $data)) {
+                        if ($this->_checkAttribute("quantity", $data["inventories"])) {
+                            $qty = $data["inventories"]["quantity"];
+                            $managerStock = 1;
+                            if ($this->_checkAttribute("manage_stock", $data)) {
+                                $managerStock = $data["manage_stock"];
                             }
-                            $items = $mediaApi->items($idProduct, Mage_Core_Model_App::ADMIN_STORE_ID);
-                            $isEmptyImage=true;
-                            foreach ($items as $item) {
-                                if ($item["position"] == $position) {
+                            $product->setStockData(array(
+                                'use_config_manage_stock' => 0,
+                                'manage_stock' => $managerStock,
+                                'is_in_stock' => 1,
+                                'qty' => $qty
+                            ));
+                        }
+                    }
+                    $product->save();
+                }
+                if ($product->getTypeId() == "configurable") {
+                    foreach ($data as $key => $value) {
+                        if (!in_array($key, $arrayToExclude)) {
+                            $product->setData($key, $value);
+                        }
+                    }
+                    if ($this->_checkAttribute("tax", $data)) {
+                        $product->setTaxClassId($data["tax"]);
+                    }
+                    if ($this->_checkAttribute("full_price", $data)) {
+                        $product->setPrice($data["full_price"]);
+                    }
+                    if ($this->_checkAttribute("special_price", $data)) {
+                        $product->setSpecialPrice($data["special_price"]);
+                    }
+                    if ($this->_checkAttribute("tags", $data)) {
+                        $stringTags = "";
+                        foreach ($data["tags"] as $_tags) {
+                            $stringTags .= $_tags . ",";
+                        }
+                        $product->setMetaKeyword($stringTags);
+                    }
+                    if ($this->_checkAttribute("meta", $data)) {
+                        $stringMeta = "";
+                        foreach ($data["meta"] as $_meta) {
+                            $stringMeta .= $_meta . ",";
+                        }
+                        $product->setMetaDescription($stringMeta);
+                    }
+                    //Image
+                    $count = 0;
+                    if ($this->_checkAttribute("images", $data)) {
+                        $dataImage = $data["images"];
+                        foreach ($dataImage as $_image) {
+                            if ($this->_checkAttribute("id", $_image) && $this->_checkAttribute("url",
+                                    $_image) && $this->_checkAttribute("position", $_image)
+                            ) {
+                                $urlImageInput = $_image["url"];
+                                $position = $_image["position"];
+                                $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
+                                $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
+                                $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
+                                $mediaApi = Mage::getModel("catalog/product_attribute_media_api");
+                                $mimeType = "";
+                                if (file_exists("$absolutePathImage")) {
+                                    $pathInfo = pathinfo("$absolutePathImage");
+                                    switch ($pathInfo['extension']) {
+                                        case 'png':
+                                            $mimeType = 'image/png';
+                                            break;
+                                        case 'jpg':
+                                            $mimeType = 'image/jpeg';
+                                            break;
+                                        case 'gif':
+                                            $mimeType = 'image/gif';
+                                            break;
+                                    }
+                                }
+                                $items = $mediaApi->items($idProduct, Mage_Core_Model_App::ADMIN_STORE_ID);
+                                $isEmptyImage = true;
+                                foreach ($items as $item) {
+                                    if ($item["position"] == $position) {
+                                        $count++;
+                                        $isEmptyImage = false;
+                                        $dataImage = array(
+                                            'file' => array(
+                                                'name' => $nameImage,
+                                                'content' => base64_encode(file_get_contents($absolutePathImage)),
+                                                'mime' => $mimeType
+                                            ),
+                                            'label' => $item["label"],
+                                            'position' => $position,
+                                            'types' => $item["types"],
+                                            'exclude' => 0
+                                        );
+                                        $mediaApi->update($idProduct, $item['file'], $dataImage,
+                                            Mage_Core_Model_App::ADMIN_STORE_ID);
+                                    }
+                                }
+                                if ($isEmptyImage) {
+                                    if ($count == 0) {
+                                        $product->addImageToMediaGallery($absolutePathImage,
+                                            array('image', 'thumbnail', 'small_image'), true, false);
+                                    } else {
+                                        $product->addImageToMediaGallery($absolutePathImage, null, true, false);
+                                    }
                                     $count++;
-                                    $isEmptyImage=false;
-                                    $dataImage = array(
-                                        'file' => array(
-                                            'name' => $nameImage,
-                                            'content' => base64_encode(file_get_contents($absolutePathImage)),
-                                            'mime' => $mimeType
-                                        ),
-                                        'label' => $item["label"],
-                                        'position' => $position,
-                                        'types' => $item["types"],
-                                        'exclude' => 0
-                                    );
-                                    $mediaApi->update($idProduct, $item['file'], $dataImage, Mage_Core_Model_App::ADMIN_STORE_ID);
                                 }
                             }
-                            if($isEmptyImage){
-                                if ($count == 0){
-                                    $product->addImageToMediaGallery( $absolutePathImage , array('image', 'thumbnail', 'small_image'), true, false );
-                                }else {
-                                    $product->addImageToMediaGallery( $absolutePathImage , null, true, false );
-                                }
-                                $count++;
+                        }
+                    }
+                    //QTY
+                    if ($this->_checkAttribute("inventories", $data)) {
+                        if ($this->_checkAttribute("quantity", $data["inventories"])) {
+                            $qty = $data["inventories"]["quantity"];
+                            $managerStock = 1;
+                            if ($this->_checkAttribute("manage_stock", $data)) {
+                                $managerStock = $data["manage_stock"];
+                            }
+                            $product->setStockData(array(
+                                'use_config_manage_stock' => 0,
+                                'qty' => $qty,
+                                'manage_stock' => $managerStock, //manage stock
+                                'is_in_stock' => 1 //Stock Availability
+                            ));
+                        }
+                    }
+                    if ($this->_checkAttribute("product_options", $data)) {
+                        $product_options = $data["product_options"];
+                        foreach ($product_options as $p_opt) {
+                            $nameAttribute = $p_opt["name"];
+                            $p_values = $p_opt["values"];
+                            $valStringArray = array();
+                            foreach ($p_values as $_val) {
+                                $v = $_val["name"];
+                                $valStringArray[] = $v;
+                            }
+                            if (!$helperAnt->checkExistAttribute($nameAttribute)) {
+                                $helperAnt->createAttribute($nameAttribute, $nameAttribute, -1, -1, -1,
+                                    $valStringArray);
+                            } else {
+                                //$helperAnt->updateAttributeValue($nameAttribute, $valStringArray);
                             }
                         }
                     }
-                }
-                //QTY
-                if($this->_checkAttribute("inventories",$data)) {
-                    if($this->_checkAttribute("quantity",$data["inventories"])) {
-                        $qty = $data["inventories"]["quantity"];
-                        $managerStock=1;
-                        if($this->_checkAttribute("manage_stock",$data)) {
-                            $managerStock=$data["manage_stock"];
-                        }
-                        $product->setStockData(array(
-                            'use_config_manage_stock' => 0,
-                            'qty' => $qty,
-                            'manage_stock' => $managerStock, //manage stock
-                            'is_in_stock' => 1 //Stock Availability
-                        ));
-                    }
-                }
-                if($this->_checkAttribute("product_options",$data)) {
-                    $product_options = $data["product_options"];
-                    foreach ($product_options as $p_opt) {
-                        $nameAttribute = $p_opt["name"];
-                        $p_values = $p_opt["values"];
-                        $valStringArray = array();
-                        foreach ($p_values as $_val) {
-                            $v = $_val["name"];
-                            $valStringArray[] = $v;
-                        }
-                        if (!$helperAnt->checkExistAttribute($nameAttribute)) {
-                            $helperAnt->createAttribute($nameAttribute, $nameAttribute, -1, -1, -1, $valStringArray);
-                        } else {
-                            //$helperAnt->updateAttributeValue($nameAttribute, $valStringArray);
+                    //assign simple product to configruable product
+                    $dataVariants = $data["variants"];
+                    if ($dataVariants && is_array($dataVariants)) {
+                        foreach ($dataVariants as $_variant) {
+                            $id_variant = $_variant["id"];
+                            $this->setSimpleProductToConfigruableProduct($id_variant, $_variant);
                         }
                     }
+                    $product->save();
                 }
-                //assign simple product to configruable product
-                $dataVariants=$data["variants"];
-                if($dataVariants && is_array($dataVariants)) {
-                    foreach ($dataVariants as $_variant) {
-                        $id_variant = $_variant["id"];
-                        $this->setSimpleProductToConfigruableProduct($id_variant, $_variant);
-                    }
-                }
-                $product->save();
             }
         } catch (Mage_Eav_Model_Entity_Attribute_Exception $e) {
             $this->_critical(sprintf('Invalid attribute "%s": %s', $e->getAttributeCode(), $e->getMessage()),
