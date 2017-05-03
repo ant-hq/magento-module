@@ -5,9 +5,13 @@ class Ant_Api_Model_Observer{
         $idProduct=$product->getId();
         $urlDetected=Mage::helper('core/url')->getCurrentUrl();
         $arrayCreate=explode("set",$urlDetected);
+        $arrayEdit=explode("edit",$urlDetected);
         $isCreate=false;
         if(count($arrayCreate) > 1){
             $isCreate=true;
+        }
+        if(count($arrayEdit) > 1){
+            $isCreate=false;
         }
         $productType=$product->getTypeId();
         $helperAntApi=Mage::helper("ant_api");
