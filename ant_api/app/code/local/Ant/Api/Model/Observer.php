@@ -1,17 +1,21 @@
 <?php
 class Ant_Api_Model_Observer{
+    public function ProductSaveBefore($observer){
+        $product=$observer->getProduct();
+        $idProduct=$product->getId();
+        if(!$idProduct){
+            Mage::register('is_new_product',"new");
+        }
+        else{
+            Mage::register('is_new_product',"edit");
+        }
+    }
     public function ProductSaveAfter($observer){
         $product = $observer->getProduct();
         $idProduct=$product->getId();
-        $urlDetected=Mage::helper('core/url')->getCurrentUrl();
-        $arrayCreate=explode("set",$urlDetected);
-        $arrayEdit=explode("edit",$urlDetected);
         $isCreate=false;
-        if(count($arrayCreate) > 1){
+        if(Mage::registry('is_new_product')=="new"){
             $isCreate=true;
-        }
-        if(count($arrayEdit) > 1){
-            $isCreate=false;
         }
         $productType=$product->getTypeId();
         $helperAntApi=Mage::helper("ant_api");
@@ -49,6 +53,7 @@ class Ant_Api_Model_Observer{
                 }
                 break;
         }
+        Mage::unregister('is_new_product');
     }
     public function ProductDeleteAfter($observer){
         $product = $observer->getProduct();

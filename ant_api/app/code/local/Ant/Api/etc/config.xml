@@ -77,6 +77,14 @@
             </updates>
         </layout>
         <events>
+            <catalog_product_save_before>
+                <observers>
+                    <product_save_before_observer>
+                        <class>Ant_Api_Model_Observer</class>
+                        <method>ProductSaveBefore</method>
+                    </product_save_before_observer>
+                </observers>
+            </catalog_product_save_before>
             <catalog_product_save_after>
                 <observers>
                     <product_save_after_observer>
