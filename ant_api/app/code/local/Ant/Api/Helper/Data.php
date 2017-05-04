@@ -1408,7 +1408,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_NOSIGNAL, true);
         curl_setopt($ch, CURLOPT_TIMEOUT_MS, 3000);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS,$postData);
