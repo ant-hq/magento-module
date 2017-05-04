@@ -582,12 +582,14 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $attribute              = $attribute_model->load($attribute_code);
         $attribute_table        = $attribute_options_model->setAttribute($attribute);
         $options                = $attribute_options_model->getAllOptions(false);
-
+        $index=0;
         foreach($options as $option)
         {
+            $index++;
             if ($option['label'] == $value)
             {
-                return $option["value"];
+                //return $option["value"];
+                return $index;
             }
         }
     }
