@@ -342,6 +342,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     //Get Configruable Product
                     $dataVariants = $data["variants"];
                     $arrayProductIds = array();
+                    $errorOnChildProduct=false;
                     if ($dataVariants && is_array($dataVariants)) {
                         foreach ($dataVariants as $_variant) {
                             $arrayProductIds[] = $this->setSimpleProductToConfigruableProduct($_variant, $attributeSetId);
@@ -358,7 +359,6 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                         $product->setCanSaveConfigurableAttributes(true);
                         $product->setConfigurableAttributesData($configurableAttributesData);
                         $configurableProductsData = array();
-                        $errorOnChildProduct=false;
                         foreach ($arrayProductIds as $key => $value) {
                             if($value==false)
                             {
