@@ -31,16 +31,16 @@ class Ant_Api_Model_Api2_Product extends Mage_Api2_Model_Resource
                     $arrayNewItem=explode("|",$newItemLocation);
                     $idProduct=$arrayNewItem[0];
                     $typeProduct=$arrayNewItem[1];
-                    $products = array();
+                    $arrayParent=array();
+
                     if($typeProduct=="simple") {
-                        $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
+                        $arrayParent["product"] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
                     }else{
-                        $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
+                        $arrayParent["product"] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
                     }
                     //$this->getResponse()->setHeader('Location', $newItemLocation);
                     //$this->getResponse()->setHttpResponseCode(200);
-                    $arrayParent=array();
-                    $arrayParent["product"]=$products;
+
                     $this->getResponse()->clearHeaders()->setHeader('Content-type','application/json',true);
                     $this->getResponse()->setBody(json_encode($arrayParent));
                 } else {
