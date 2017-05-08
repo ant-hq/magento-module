@@ -222,6 +222,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     }
                     if($isErrorImage==false) {
                         $product->save();
+                        return $product->getId()."|simple";
                     }
                     unset($product);
                 }
@@ -372,6 +373,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     }
                     if ($isErrorImage == false && $errorOnChildProduct==false) {
                         $product->save();
+                        return $product->getId()."|configurable";
                     }
                     unset($product);
                 }

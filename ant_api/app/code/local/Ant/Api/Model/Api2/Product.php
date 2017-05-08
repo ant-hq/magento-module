@@ -28,8 +28,21 @@ class Ant_Api_Model_Api2_Product extends Mage_Api2_Model_Resource
                         $this->_critical(self::RESOURCE_REQUEST_DATA_INVALID);
                     }
                     $newItemLocation = $this->_create($filteredData);
-                    $this->getResponse()->setHeader('Location', $newItemLocation);
-                    $this->getResponse()->setHttpResponseCode(200);
+                    $arrayNewItem=explode("|",$newItemLocation);
+                    $idProduct=$arrayNewItem[0];
+                    $typeProduct=$arrayNewItem[1];
+                    $products = array();
+                    if($typeProduct=="simple") {
+                        $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
+                    }else{
+                        $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
+                    }
+                    //$this->getResponse()->setHeader('Location', $newItemLocation);
+                    //$this->getResponse()->setHttpResponseCode(200);
+                    $arrayParent=array();
+                    $arrayParent["product"]=$products;
+                    $this->getResponse()->clearHeaders()->setHeader('Content-type','application/json',true);
+                    $this->getResponse()->setBody(json_encode($arrayParent));
                 } else {
                     $this->_errorIfMethodNotExist('_multiCreate');
                     $filteredData = $this->getFilter()->collectionIn($requestData);
