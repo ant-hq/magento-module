@@ -1,59 +1,63 @@
 <?php
 class Ant_Api_Model_Observer{
     public function ProductSaveBefore($observer){
-        $product=$observer->getProduct();
-        $idProduct=$product->getId();
-        if(!$idProduct){
-            Mage::register('is_new_product',"new");
-        }
-        else{
-            Mage::register('is_new_product',"edit");
+        if(Mage::registry('is_new_product_api')=="noevent"){
+        }else {
+            $product = $observer->getProduct();
+            $idProduct = $product->getId();
+            if (!$idProduct) {
+                Mage::register('is_new_product', "new");
+            } else {
+                Mage::register('is_new_product', "edit");
+            }
         }
     }
     public function ProductSaveAfter($observer){
-        $product = $observer->getProduct();
-        $idProduct=$product->getId();
-        $isCreate=false;
-        if(Mage::registry('is_new_product')=="new"){
-            $isCreate=true;
+        if(Mage::registry('is_new_product_api')=="noevent"){
+        }else {
+            $product = $observer->getProduct();
+            $idProduct = $product->getId();
+            $isCreate = false;
+            if (Mage::registry('is_new_product') == "new") {
+                $isCreate = true;
+            }
+            $productType = $product->getTypeId();
+            $helperAntApi = Mage::helper("ant_api");
+            switch ($productType) {
+                case "simple":
+                    if ($isCreate) {
+                        $postData = $helperAntApi->setTheHashProductSimple($idProduct);
+                        $urlOfCreate = $helperAntApi->getDataWebHook("product.create");
+                        foreach ($urlOfCreate as $_url) {
+                            $helperAntApi->callUrl($_url, $postData);
+                        }
+                    } else {
+                        $postData = $helperAntApi->setTheHashProductSimple($idProduct);
+                        $urlOfCreate = $helperAntApi->getDataWebHook("product.update");
+                        foreach ($urlOfCreate as $_url) {
+                            $helperAntApi->callUrl($_url, $postData);
+                        }
+                    }
+                    break;
+                case "configurable":
+                    if ($isCreate) {
+                        $postData = $helperAntApi->setTheHashConfigruableProduct($idProduct);
+                        $urlOfCreate = $helperAntApi->getDataWebHook("product.create");
+                        foreach ($urlOfCreate as $_url) {
+                            $helperAntApi->callUrl($_url, $postData);
+                        }
+                    } else {
+                        $postData = $helperAntApi->setTheHashConfigruableProduct($idProduct);
+                        $urlOfCreate = $helperAntApi->getDataWebHook("product.update");
+                        foreach ($urlOfCreate as $_url) {
+                            $helperAntApi->callUrl($_url, $postData);
+                        }
+                    }
+                    break;
+            }
+            Mage::unregister('is_new_product');
         }
-        $productType=$product->getTypeId();
-        $helperAntApi=Mage::helper("ant_api");
-        switch ($productType){
-            case "simple":
-                if($isCreate){
-                    $postData=$helperAntApi->setTheHashProductSimple($idProduct);
-                    $urlOfCreate=$helperAntApi->getDataWebHook("product.create");
-                    foreach($urlOfCreate as $_url){
-                        $helperAntApi->callUrl($_url,$postData);
-                    }
-                }
-                else{
-                    $postData=$helperAntApi->setTheHashProductSimple($idProduct);
-                    $urlOfCreate=$helperAntApi->getDataWebHook("product.update");
-                    foreach($urlOfCreate as $_url){
-                        $helperAntApi->callUrl($_url,$postData);
-                    }
-                }
-                break;
-            case "configurable":
-                if($isCreate){
-                    $postData=$helperAntApi->setTheHashConfigruableProduct($idProduct);
-                    $urlOfCreate=$helperAntApi->getDataWebHook("product.create");
-                    foreach($urlOfCreate as $_url){
-                        $helperAntApi->callUrl($_url,$postData);
-                    }
-                }
-                else{
-                    $postData=$helperAntApi->setTheHashConfigruableProduct($idProduct);
-                    $urlOfCreate=$helperAntApi->getDataWebHook("product.update");
-                    foreach($urlOfCreate as $_url){
-                        $helperAntApi->callUrl($_url,$postData);
-                    }
-                }
-                break;
-        }
-        Mage::unregister('is_new_product');
+        Mage::unregister('is_new_product_api');
     }
     public function ProductDeleteAfter($observer){
         $product = $observer->getProduct();
