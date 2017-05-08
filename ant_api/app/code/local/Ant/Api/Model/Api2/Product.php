@@ -29,6 +29,7 @@ class Ant_Api_Model_Api2_Product extends Mage_Api2_Model_Resource
                     }
                     $newItemLocation = $this->_create($filteredData);
                     $this->getResponse()->setHeader('Location', $newItemLocation);
+                    $this->getResponse()->setHttpResponseCode(200);
                 } else {
                     $this->_errorIfMethodNotExist('_multiCreate');
                     $filteredData = $this->getFilter()->collectionIn($requestData);
