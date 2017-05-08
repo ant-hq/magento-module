@@ -9,10 +9,12 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
             Mage::app()->setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
             $mediaApi = Mage::getModel("catalog/product_attribute_media_api");
             $items = $mediaApi->items($idProduct,Mage_Core_Model_App::ADMIN_STORE_ID);
+            $index=0;
             foreach($items as $item) {
-                if($item["position"]==$position){
+                if($index + 1 ==$position){
                     $mediaApi->remove($idProduct,$item['file'],0,null);
                 }
+                $index++;
             }
         } catch (Mage_Core_Exception $e) {
             $this->_critical($e->getMessage(), Mage_Api2_Model_Server::HTTP_INTERNAL_ERROR);
@@ -52,8 +54,9 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
                 }
             }
             $items = $mediaApi->items($idProduct,Mage_Core_Model_App::ADMIN_STORE_ID);
+            $index=0;
             foreach($items as $item) {
-                if($item["position"]==$position){
+                if($index + 1 == $position){
                     $dataImage = array(
                         'file' => array(
                             'name' => $nameImage,
@@ -61,12 +64,13 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
                             'mime' => $mimeType
                         ),
                         'label' => $label,
-                        'position' => $position,
+                        'position' => $data["position"],
                         'types' => $types,
                         'exclude' => $exclude
                     );
                     $mediaApi->update($idProduct, $item['file'],$dataImage,Mage_Core_Model_App::ADMIN_STORE_ID);
                 }
+                $index++;
             }
             $product->save();
         } catch (Mage_Eav_Model_Entity_Attribute_Exception $e) {
