@@ -32,10 +32,19 @@ class Ant_Api_Model_Observer{
                             $helperAntApi->callUrl($_url, $postData);
                         }
                     } else {
-                        $postData = $helperAntApi->setTheHashProductSimple($idProduct);
-                        $urlOfCreate = $helperAntApi->getDataWebHook("product.update");
-                        foreach ($urlOfCreate as $_url) {
-                            $helperAntApi->callUrl($_url, $postData);
+                        if(empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
+                            $postData = $helperAntApi->setTheHashProductSimple($idProduct);
+                            $urlOfCreate = $helperAntApi->getDataWebHook("product.update");
+                            foreach ($urlOfCreate as $_url) {
+                                $helperAntApi->callUrl($_url, $postData);
+                            }
+                        }else{
+                            $ids=Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct);
+                            $postData = $helperAntApi->setTheHashConfigruableProduct($ids[0]);
+                            $urlOfCreate = $helperAntApi->getDataWebHook("product.update");
+                            foreach ($urlOfCreate as $_url) {
+                                $helperAntApi->callUrl($_url, $postData);
+                            }
                         }
                     }
                     break;

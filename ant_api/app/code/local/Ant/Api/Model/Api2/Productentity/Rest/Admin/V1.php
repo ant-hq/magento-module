@@ -53,8 +53,10 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                         $stringError .= "Product sku can not be empty , ";
                     }else {
                         $product = Mage::getModel("catalog/product")->loadByAttribute("sku", $data["sku"]);
-                        if ($product->getSku() == $skuCheck) {
-                            $product = null;
+                        if($product != null) {
+                            if ($product->getSku() == $skuCheck) {
+                                $product = null;
+                            }
                         }
                     }
                     break;
@@ -96,6 +98,9 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         $arrayToExclude=array("id","images","inventories","full_price","tags","tax","meta","manage_stock","special_price","product_options","categories","product_type");
         $helperAnt = Mage::helper("ant_api");
         $skuCheck=$product->getSku();
+        if($skuCheck==""){
+            $this->_criticalCustom("Product id not found.", "404");
+        }
         try {
             if($this->_validateDataBeforeUpdate($data,$skuCheck) == "") {
                 if ($product->getTypeId() == "simple") {
