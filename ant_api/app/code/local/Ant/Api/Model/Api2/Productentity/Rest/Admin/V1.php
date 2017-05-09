@@ -354,15 +354,18 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                             $id_variant = $_variant["id"];
                             $arrayProductIds[]=$this->setSimpleProductToConfigruableProduct($id_variant, $_variant,$attributeSetId);
                         }
+                        $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null,$product);
+                        foreach($childProducts as $child){
+                            $arrayProductIds[]=$child->getId();
+                        }
                         $arrayAttributeToset = array();
                         $firstData = $dataVariants[0]["options"];
                         foreach ($firstData as $first_options) {
                             $attribute = Mage::getSingleton('eav/config')->getAttribute(Mage_Catalog_Model_Product::ENTITY, $first_options["code"]);
                             $arrayAttributeToset[] = $attribute->getId();
                         }
-                        $product->getTypeInstance()->setUsedProductAttributeIds($arrayAttributeToset); //attribute ID of attribute 'color' in my store
+                        //$product->getTypeInstance()->setUsedProductAttributeIds($arrayAttributeToset); //attribute ID of attribute 'color' in my store
                         $configurableAttributesData = $product->getTypeInstance()->getConfigurableAttributesAsArray();
-
                         $product->setCanSaveConfigurableAttributes(true);
                         $product->setConfigurableAttributesData($configurableAttributesData);
                         $configurableProductsData = array();
@@ -376,6 +379,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
 
                             );
                         }
+
                         $product->setConfigurableProductsData($configurableProductsData);
                     }
                     $product->save();
@@ -394,6 +398,10 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         if(!$product->getId()){
             $isCreate=true;
             $product=Mage::getModel("catalog/product");
+            $product->setTypeId("simple");
+            $product->setCreatedAt(strtotime('now'));
+            $product->setStatus(1);
+            $product->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
         }
         $arrayToExclude = array("id","product_name","images", "inventories", "tax", "full_price");
         foreach($data as $key=>$value){
@@ -423,7 +431,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         if($this->_checkAttribute("inventories",$data)) {
             if($this->_checkAttribute("quantity",$data["inventories"])) {
                 $qty = $data["inventories"]["quantity"];
-                $product->setStockData(array(
+                    $product->setStockData(array(
                     'use_config_manage_stock' => 0, //'Use config settings' checkbox
                     'manage_stock' => 1, //manage stock
                     'is_in_stock' => 1, //Stock Availability
@@ -432,8 +440,9 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
             }
         }
         $product->save();
-        if($isCreate) {
-            return $product->getId();
+        if($isCreate==true) {
+            $id = $product->getId();
+            return $id;
         }
     }
 }
