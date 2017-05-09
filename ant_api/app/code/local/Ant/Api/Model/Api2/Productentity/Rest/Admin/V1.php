@@ -391,7 +391,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
     public function setSimpleProductToConfigruableProduct($idProduct,$data,$attributeSetId){
         $product = Mage::getModel("catalog/product")->load($idProduct);
         $isCreate=false;
-        if(!$product){
+        if(!$product->getId()){
             $isCreate=true;
             $product=Mage::getModel("catalog/product");
         }
