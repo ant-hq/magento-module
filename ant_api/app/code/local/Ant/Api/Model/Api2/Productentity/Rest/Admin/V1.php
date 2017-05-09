@@ -338,7 +338,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                                 $helperAnt->createAttribute($nameAttribute, $nameAttribute, -1, -1, -1,
                                     $valStringArray);
                             } else {
-                                //$helperAnt->updateAttributeValue($nameAttribute, $valStringArray);
+                                $helperAnt->updateAttributeValue($nameAttribute, $valStringArray);
                             }
                         }
                     }
