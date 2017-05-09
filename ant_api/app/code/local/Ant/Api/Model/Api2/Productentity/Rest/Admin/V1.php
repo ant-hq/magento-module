@@ -432,6 +432,8 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
             }
         }
         $product->save();
-        return $product->getId();
+        if($isCreate) {
+            return $product->getId();
+        }
     }
 }
