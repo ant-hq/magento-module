@@ -71,9 +71,6 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     }
                     break;
                 case "inventories":
-                    if($data[$key] == NULL || $data[$key] == null || trim($data[$key]) == "" || trim(strtolower($data[$key])) === "null"){
-                        $stringError.="Product inventory can not be empty , ";
-                    }
                     if(is_array($data["inventories"])) {
                         if (!$this->_checkAttribute("quantity", $data["inventories"]) || trim($data["inventories"]["quantity"]) == "") {
                             $stringError .= "Product quantity can not be empty , ";
