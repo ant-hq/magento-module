@@ -410,6 +410,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         if($this->_checkAttribute("full_price",$data)){
             $product->setPrice($data["full_price"]);
         }
+        $product->setAttributeSetId($attributeSetId); //ID of a attribute set named 'default'
         if ($this->_checkAttribute("options", $data)) {
             $codeArray = $data["options"];
             foreach ($codeArray as $_item) {
