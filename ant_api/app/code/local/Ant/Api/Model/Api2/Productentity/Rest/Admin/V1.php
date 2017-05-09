@@ -344,11 +344,36 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     }
                     //assign simple product to configruable product
                     $dataVariants = $data["variants"];
+                    $errorOnChildProduct=false;
+                    $arrayProductIds = array();
                     if ($dataVariants && is_array($dataVariants)) {
                         foreach ($dataVariants as $_variant) {
                             $id_variant = $_variant["id"];
                             $this->setSimpleProductToConfigruableProduct($id_variant, $_variant);
                         }
+                        $arrayAttributeToset = array();
+                        $firstData = $dataVariants[0]["options"];
+                        foreach ($firstData as $first_options) {
+                            $attribute = Mage::getSingleton('eav/config')->getAttribute(Mage_Catalog_Model_Product::ENTITY, $first_options["code"]);
+                            $arrayAttributeToset[] = $attribute->getId();
+                        }
+                        $product->getTypeInstance()->setUsedProductAttributeIds($arrayAttributeToset); //attribute ID of attribute 'color' in my store
+                        $configurableAttributesData = $product->getTypeInstance()->getConfigurableAttributesAsArray();
+
+                        $product->setCanSaveConfigurableAttributes(true);
+                        $product->setConfigurableAttributesData($configurableAttributesData);
+                        $configurableProductsData = array();
+                        foreach ($arrayProductIds as $key => $value) {
+                            if($value==false)
+                            {
+                                $errorOnChildProduct=true;
+                                break;
+                            }
+                            $configurableProductsData[$value] = array( //['value'] = id of a simple product associated with this configurable
+
+                            );
+                        }
+                        $product->setConfigurableProductsData($configurableProductsData);
                     }
                     $product->save();
                 }
@@ -362,6 +387,9 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
     }
     public function setSimpleProductToConfigruableProduct($idProduct,$data){
         $product = Mage::getModel("catalog/product")->load($idProduct);
+        if(!$product){
+            $product=Mage::getModel("catalog/product");
+        }
         $arrayToExclude = array("id","product_name","images", "inventories", "tax", "full_price");
         foreach($data as $key=>$value){
             if(!in_array($key,$arrayToExclude)){
