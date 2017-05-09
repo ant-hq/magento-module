@@ -518,11 +518,6 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                 $result = array('value' => $value);
                 $attribute->setData('option', $result);
                 $attribute->save();
-            } else {
-                $value['option'] = array($_opt,$_opt);
-                $result = array('value' => $value);
-                $attribute->setData('option', $result);
-                $attribute->save();
             }
         }
     }
@@ -569,7 +564,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         {
             if ($option['label'] == $arg_value)
             {
-                return $option['value'];
+                return true;
             }
         }
 

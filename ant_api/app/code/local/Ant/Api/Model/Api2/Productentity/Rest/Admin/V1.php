@@ -246,6 +246,9 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                         }
                         $product->setMetaDescription($stringMeta);
                     }
+                    $defaultAttributeSetId = Mage::getSingleton('eav/config')->getEntityType(Mage_Catalog_Model_Product::ENTITY)->getDefaultAttributeSetId();
+                    $attributeSetId = $defaultAttributeSetId;
+                    $product->setAttributeSetId($attributeSetId);
                     //Image
                     $count = 0;
                     if ($this->_checkAttribute("images", $data)) {
@@ -349,7 +352,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     if ($dataVariants && is_array($dataVariants)) {
                         foreach ($dataVariants as $_variant) {
                             $id_variant = $_variant["id"];
-                            $this->setSimpleProductToConfigruableProduct($id_variant, $_variant);
+                            $arrayProductIds[]=$this->setSimpleProductToConfigruableProduct($id_variant, $_variant,$attributeSetId);
                         }
                         $arrayAttributeToset = array();
                         $firstData = $dataVariants[0]["options"];
@@ -385,7 +388,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
             $this->_critical($e->getMessage(), Mage_Api2_Model_Server::HTTP_INTERNAL_ERROR);
         }
     }
-    public function setSimpleProductToConfigruableProduct($idProduct,$data){
+    public function setSimpleProductToConfigruableProduct($idProduct,$data,$attributeSetId){
         $product = Mage::getModel("catalog/product")->load($idProduct);
         if(!$product){
             $product=Mage::getModel("catalog/product");
