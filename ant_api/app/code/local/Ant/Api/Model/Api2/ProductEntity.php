@@ -110,6 +110,10 @@ class Ant_Api_Model_Api2_ProductEntity extends Mage_Api2_Model_Resource
             case self::ACTION_TYPE_ENTITY . self::OPERATION_DELETE:
                 $this->_errorIfMethodNotExist('_delete');
                 $this->_delete();
+                $id_product=$this->getRequest()->getParam("id_product");
+                $arrayParent["message"]="Deleted product [$id_product] successfully";
+                $this->getResponse()->clearHeaders()->setHeader('Content-type','application/json',true);
+                $this->getResponse()->setBody(json_encode($arrayParent));
                 break;
             case self::ACTION_TYPE_COLLECTION . self::OPERATION_DELETE:
                 $this->_errorIfMethodNotExist('_multiDelete');
