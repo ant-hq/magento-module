@@ -1334,7 +1334,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * Make the function helper for order hash
      *
      */
-    public function setTheHashOrder($order,$taxOnFrontEnd=null,$status=null){
+        public function setTheHashOrder($order,$taxOnFrontEnd=null,$status=null){
         $arrayOrder=array();
         $total_tax=0;
         $statusLabel="Pending";
@@ -1358,7 +1358,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayOrder["status"]=$statusLabel;
         $arrayOrder["items"]=array();
         foreach($order->getAllItems() as $_item){
-            $array["items"][]=array(
+            $arrayOrder["items"][]=array(
                 "id"=>$_item->getData("product_id"),
                 "type"=>$_item->getData("product_type"),
                 "inventories"=>array("quantity"=>$_item->getQtyToShip()),
