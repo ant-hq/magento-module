@@ -10,6 +10,7 @@ class Ant_Api_Model_Api2_WebHook_Rest_Admin_V1 extends Ant_Api_Model_Api2_WebHoo
             $webhook->setData("ant_api_webhook_url", $url);
             $webhook->setData("ant_api_webhook_action", $action);
             $webhook->save();
+            return $webhook->getId();
         }catch (Exception $e){
             $this->_critical($e->getMessage(),400);
         }

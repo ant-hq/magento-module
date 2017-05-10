@@ -29,6 +29,7 @@ class Ant_Api_Model_Api2_WebHook extends Mage_Api2_Model_Resource
                     }
                     $newItemLocation = $this->_create($filteredData);
                     $arrayParent=array();
+                    $arrayParent["id"]=$newItemLocation;
                     $arrayParent["url"]=$filteredData["url"];
                     $arrayParent["action"]=$filteredData["action"];
                     $arrayParent["result"]=true;
