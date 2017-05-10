@@ -354,10 +354,10 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                             $id_variant = $_variant["id"];
                             $arrayProductIds[]=$this->setSimpleProductToConfigruableProduct($id_variant, $_variant,$attributeSetId);
                         }
-                        $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null,$product);
+                        /*$childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null,$product);
                         foreach($childProducts as $child){
                             $arrayProductIds[]=$child->getId();
-                        }
+                        }*/
                         $arrayAttributeToset = array();
                         $firstData = $dataVariants[0]["options"];
                         foreach ($firstData as $first_options) {
@@ -370,11 +370,6 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                         $product->setConfigurableAttributesData($configurableAttributesData);
                         $configurableProductsData = array();
                         foreach ($arrayProductIds as $key => $value) {
-                            if($value==false)
-                            {
-                                $errorOnChildProduct=true;
-                                break;
-                            }
                             $configurableProductsData[$value] = array( //['value'] = id of a simple product associated with this configurable
 
                             );
@@ -440,9 +435,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
             }
         }
         $product->save();
-        if($isCreate==true) {
-            $id = $product->getId();
-            return $id;
-        }
+        $id = $product->getId();
+        return $id;
     }
 }

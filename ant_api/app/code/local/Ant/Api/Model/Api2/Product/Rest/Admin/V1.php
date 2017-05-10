@@ -387,8 +387,69 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
         }
     }
     public function setSimpleProductToConfigruableProduct($data,$attributeSetId){
+
         if(isset($data["id"])){
-            $this->setSimpleProductToConfigruableProductCaseUpdate($data["id"],$data);
+            $product=Mage::getModel("catalog/product")->load($data["id"]);
+            if($product->getId()){
+                $this->setSimpleProductToConfigruableProductCaseUpdate($data["id"],$data);
+            }
+            else{
+                if ($this->_validateVariantBeforeUpdate($data) == "") {
+                    $product = Mage::getModel("catalog/product");
+                    $arrayToExclude = array("id","product_name","images", "inventories", "tax", "full_price");
+                    foreach ($data as $key => $value) {
+                        if (!in_array($key, $arrayToExclude)) {
+                            $product->setData($key, $value);
+                        }
+                    }
+                    $product->setName($data["product_name"]);
+                    $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
+                    $product->setAttributeSetId($attributeSetId); //ID of a attribute set named 'default'
+                    $product->setTypeId("simple"); //product type
+                    $product->setCreatedAt(strtotime('now')); //product creation time
+                    $product->setStatus(1); //product status (1 - enabled, 2 - disabled)
+                    $product->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
+                    if ($this->_checkAttribute("tax", $data)) {
+                        $product->setTaxClassId($data["tax"]);
+                    }else{
+                        $product->setTaxClassId(1);
+                    }
+                    if ($this->_checkAttribute("full_price", $data)) {
+                        $product->setPrice($data["full_price"]);
+                    }
+                    if ($this->_checkAttribute("options", $data)) {
+                        $codeArray = $data["options"];
+                        foreach ($codeArray as $_item) {
+                            $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
+                            $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
+                            $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
+                            $product->setData($_item["code"],$value);
+                        }
+                    }
+                    if ($this->_checkAttribute("inventories", $data)) {
+                        if ($this->_checkAttribute("quantity", $data["inventories"])) {
+                            $qty = $data["inventories"]["quantity"];
+                            $product->setStockData(array(
+                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
+                                'manage_stock' => 1, //manage stock
+                                'is_in_stock' => 1, //Stock Availability
+                                'qty' => $qty //qty
+                            ));
+                        }
+                    }else{
+                        $product->setStockData(array(
+                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
+                                'manage_stock' => 0, //manage stock
+                                'is_in_stock' => 1, //Stock Availability
+                                'qty' => 0 //qty
+                            )
+                        );
+                    }
+                    $product->save();
+                    return $product->getId();
+                }
+                return false;
+            }
         }else {
             if ($this->_validateVariantBeforeUpdate($data) == "") {
                 $product = Mage::getModel("catalog/product");
