@@ -31,7 +31,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         $idProduct=$this->getRequest()->getParam("id_product");
         $product = Mage::getModel("catalog/product")->load($idProduct);
         try {
-            if(empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
+            if($product->getTypeId()=="simple") {
                 $product->delete();
             }else{
                 $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null,$product);
