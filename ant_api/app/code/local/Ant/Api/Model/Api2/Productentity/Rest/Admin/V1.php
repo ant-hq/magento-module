@@ -394,6 +394,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
             $isCreate=true;
             $product=Mage::getModel("catalog/product");
             $product->setTypeId("simple");
+            $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
             $product->setCreatedAt(strtotime('now'));
             $product->setStatus(1);
             $product->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
