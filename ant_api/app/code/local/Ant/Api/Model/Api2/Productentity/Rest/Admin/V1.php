@@ -363,10 +363,14 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                             $id_variant = $_variant["id"];
                             $arrayProductIds[]=$this->setSimpleProductToConfigruableProduct($id_variant, $_variant,$attributeSetId);
                         }
-                        /*$childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null,$product);
+                        $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null,$product);
                         foreach($childProducts as $child){
-                            $arrayProductIds[]=$child->getId();
-                        }*/
+                            if(!in_array($child->getId(),$arrayProductIds)) {
+                                $idDeleted=$child->getId();
+                                $productDeleted=Mage::getModel("catalog/product")->load($idDeleted);
+                                $productDeleted->delete();
+                            }
+                        }
                         $arrayAttributeToset = array();
                         $firstData = $dataVariants[0]["options"];
                         foreach ($firstData as $first_options) {
