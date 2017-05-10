@@ -31,7 +31,16 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         $idProduct=$this->getRequest()->getParam("id_product");
         $product = Mage::getModel("catalog/product")->load($idProduct);
         try {
-            $product->delete();
+            if(empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
+                $product->delete();
+            }else{
+                $product->delete();
+                $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null,$product);
+                foreach($childProducts as $child){
+                    $childProduct=Mage::getModel("catalog/product")->load($child->getId());
+                    $childProduct->delete();
+                }
+            }
         } catch (Mage_Core_Exception $e) {
             $this->_critical($e->getMessage(), Mage_Api2_Model_Server::HTTP_INTERNAL_ERROR);
         } catch (Exception $e) {
