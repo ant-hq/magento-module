@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Ant_Api>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
         </Ant_Api>
     </modules>
     <global>
@@ -157,6 +157,14 @@
                     </sales_order_creditmemo_save_after_observer>
                 </observers>
             </sales_order_creditmemo_save_after>
+            <sales_order_payment_cancel>
+                <observers>
+                    <sales_order_payment_cancel_observer>
+                        <class>Ant_Api_Model_Observer</class>
+                        <method>SaveCancelOrderAfter</method>
+                    </sales_order_payment_cancel_observer>
+                </observers>
+            </sales_order_payment_cancel>
             <controller_action_postdispatch_adminhtml_sales_order_hold>
                 <observers>
                     <controller_action_postdispatch_adminhtml_sales_order_hold_observer>

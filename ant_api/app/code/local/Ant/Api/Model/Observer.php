@@ -185,6 +185,15 @@ class Ant_Api_Model_Observer{
             $helperAntApi->callUrl($_url,$postData);
         }
     }
+    public function SaveCancelOrderAfter($observer){
+        $order=$order = $observer->getPayment()->getOrder();
+        $helperAntApi=Mage::helper("ant_api");
+        $postData=$helperAntApi->setTheHashOrder($order,null,Mage_Sales_Model_Order::STATE_CANCELED);
+        $urlOfCreateCustomer=$helperAntApi->getDataWebHook("order.update");
+        foreach($urlOfCreateCustomer as $_url){
+            $helperAntApi->callUrl($_url,$postData);
+        }
+    }
     public function SaveHoldOrderAfter($observer){
         $order=$observer->getHold();
         $helperAntApi=Mage::helper("ant_api");
