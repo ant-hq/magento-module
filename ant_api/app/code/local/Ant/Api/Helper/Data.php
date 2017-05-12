@@ -1400,9 +1400,20 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayOrder["payment"]["payment_code"]=$order->getPayment()->getMethodInstance()->getCode();
         $arrayOrder["payment"]["payment_title"]=$order->getPayment()->getMethodInstance()->getTitle();
         $arrayOrder["payment"]["payment_provider"]=$order->getPayment()->getData('cc_type');
+        $arrayOrder["shipping_other_data"]=array();
+        foreach($shippingAddress->getData() as $key => $val){
+            $arrayOrder["shipping_other_data"][$key] = $val;
+        }
+        $arrayOrder["payment_other_data"]=array();
+        $payment=$order->getPayment();
+        foreach($payment->getData() as $key => $val){
+            if($key!="method_instance") {
+                $arrayOrder["payment_other_data"][$key] = $val;
+            }
+        }
         $arrayOrder["other_data"] = array();
         $order = Mage::getModel("sales/order")->load($order->getId());
-            foreach($order->getData() as $key => $val){
+        foreach($order->getData() as $key => $val){
             $arrayOrder["other_data"][$key] = $val;
         }
         return $arrayOrder;
