@@ -1,5 +1,5 @@
 <?php
-class Ant_Api_Block_Adminhtml_webhook extends Mage_Adminhtml_Block_Widget_Grid_Container
+class Ant_Api_Block_Adminhtml_Webhook extends Mage_Adminhtml_Block_Widget_Grid_Container
 {
     public function __construct(){
         parent::__construct();

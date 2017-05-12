@@ -1,5 +1,5 @@
 <?php
-class Ant_Api_Adminhtml_webhookController extends Mage_Adminhtml_Controller_Action{
+class Ant_Api_Adminhtml_WebhookController extends Mage_Adminhtml_Controller_Action{
     protected function _initAction(){
         $this->loadLayout()->_setActiveMenu("api/webhook")->_addBreadcrumb($this->__('Web-Hooks'),$this->__("Web-Hooks"));
         return $this;
