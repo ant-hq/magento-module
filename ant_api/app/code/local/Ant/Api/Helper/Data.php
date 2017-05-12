@@ -1334,7 +1334,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * Make the function helper for order hash
      *
      */
-        public function setTheHashOrder($order,$taxOnFrontEnd=null,$status=null){
+    public function setTheHashOrder($order,$taxOnFrontEnd=null,$status=null){
         $arrayOrder=array();
         $total_tax=0;
         $statusLabel="Pending";
@@ -1346,7 +1346,6 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         }
         if($status != null){
             $statusLabel=$status;
-            //Mage_Sales_Model_Order::STATE_PROCESSING;
         }else{
             $statusLabel=$order->getStatusLabel();
         }
@@ -1358,12 +1357,38 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayOrder["status"]=$statusLabel;
         $arrayOrder["items"]=array();
         foreach($order->getAllItems() as $_item){
-            $arrayOrder["items"][]=array(
-                "id"=>$_item->getData("product_id"),
-                "type"=>$_item->getData("product_type"),
-                "inventories"=>array("quantity"=>$_item->getQtyToShip()),
-                "sale_price"=>$_item->getData("price")
-            );
+            $product=Mage::getModel("catalog/product")->load($_item->getData("product_id"));
+            if($product->getTypeId()=="simple") {
+                $arrayOrder["items"][] = array(
+                    "id" => $_item->getData("product_id"),
+                    "type" => $_item->getData("product_type"),
+                    "inventories" => array("quantity" => $_item->getQtyToShip()),
+                    "sale_price" => $_item->getData("price"),
+                    "discount" => $_item->getData("discount_amount")
+                );
+            }else{
+                if($product->getTypeId()=="configurable" && $product->getId()) {
+                    $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null,$product);
+                    foreach ($childProducts as $child) {
+                        $childProduct = Mage::getModel("catalog/product")->load($child->getId());
+                        $arrayOrder["items"][] = array(
+                            "id" => $childProduct->getId(),
+                            "type" => $childProduct->getTypeId()."asdsadsda",
+                            "inventories" => array("quantity" => $_item->getQtyToShip()),
+                            "sale_price" => $_item->getData("price"),
+                            "discount" => $_item->getData("discount_amount")
+                        );
+                    }
+                }else{
+                    $arrayOrder["items"][] = array(
+                        "id" => $_item->getData("product_id"),
+                        "type" => $_item->getData("product_type"),
+                        "inventories" => array("quantity" => $_item->getQtyToShip()),
+                        "sale_price" => $_item->getData("price"),
+                        "discount" => $_item->getData("discount_amount")
+                    );
+                }
+            }
         }
         $billing_address=$order->getBillingAddress();
         $arrayBillingAddress=$this->getCustomerHashFromOrder($billing_address);
@@ -1371,6 +1396,15 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $shippingAddress=$order->getShippingAddress();
         $arrayShippingAddress=$this->getCustomerHashFromOrder($shippingAddress);
         $arrayOrder["shipping_address"]=$arrayShippingAddress;
+        $arrayOrder["payment"] = array ();
+        $arrayOrder["payment"]["payment_code"]=$order->getPayment()->getMethodInstance()->getCode();
+        $arrayOrder["payment"]["payment_title"]=$order->getPayment()->getMethodInstance()->getTitle();
+        $arrayOrder["payment"]["payment_provider"]=$order->getPayment()->getData('cc_type');
+        $arrayOrder["other_data"] = array();
+        $order = Mage::getModel("sales/order")->load($order->getId());
+            foreach($order->getData() as $key => $val){
+            $arrayOrder["other_data"][$key] = $val;
+        }
         return $arrayOrder;
     }
     public function getCustomerHashFromOrder($objectAddress){
@@ -1412,6 +1446,12 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
         curl_exec($ch);
         curl_close($ch);
+    }
+    public function rewriteUrl($name=null,$handle){
+        //$url = preg_replace('#[^0-9a-z]+#i', '-', $name);
+        //$url = strtolower($url);
+        //return $url."-".$handle;
+        return $handle;
     }
     public function setImageProduct($url){
         $image_name=basename($url); // replace https tp http

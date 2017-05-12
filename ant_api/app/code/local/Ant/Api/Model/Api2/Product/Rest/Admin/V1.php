@@ -125,7 +125,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
             $helperAnt = Mage::helper("ant_api");
             $defaultAttributeSetId = Mage::getSingleton('eav/config')->getEntityType(Mage_Catalog_Model_Product::ENTITY)->getDefaultAttributeSetId();
             $product = Mage::getModel('catalog/product');
-            $arrayToExclude=array("id","images","inventories","full_price","tags","tax","meta","manage_stock","special_price","product_options","categories","product_type");
+            $arrayToExclude=array("id","images","inventories","full_price","tags","tax","meta","manage_stock","special_price","product_options","categories","product_type","handle");
             $this->_validateDataBeforeUpdate($data);
             $product_type=$data["product_type"];
             if($product_type=="simple") {
@@ -159,6 +159,11 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     $product->setCreatedAt(strtotime('now')); //product creation time
                     $product->setStatus(1); //product status (1 - enabled, 2 - disabled)
                     $product->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
+                    if($this->_checkAttribute("handle", $data)) {
+                        $handle = $data["handle"];
+                        $urlRewrite = $helperAnt->rewriteUrl($data["name"], $handle);
+                        $product->setUrlKey($urlRewrite);
+                    }
                     $dataImage = $data["images"];
                     $count = 0;
                     $product->setMediaGallery(array('images' => array(), 'values' => array()));
@@ -244,6 +249,11 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     $product->setPrice($data["full_price"]);
                     $product->setData("special_price",$data["special_price"]);
                     $product->setMetaTitle($data["name"]);
+                    if($this->_checkAttribute("handle", $data)) {
+                        $handle = $data["handle"];
+                        $urlRewrite = $helperAnt->rewriteUrl($data["name"], $handle);
+                        $product->setUrlKey($urlRewrite);
+                    }
                     $stringTags="";
                     foreach($data["tags"] as $_tags){
                         $stringTags.=$_tags.",";
@@ -409,6 +419,11 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     $product->setCreatedAt(strtotime('now')); //product creation time
                     $product->setStatus(1); //product status (1 - enabled, 2 - disabled)
                     $product->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
+                    /*if($this->_checkAttribute("handle", $data)) {
+                        $handle = $data["handle"];
+                        $urlRewrite = Mage::helper("ant_api")->rewriteUrl($data["product_name"], $handle);
+                        $product->setUrlKey($urlRewrite);
+                    }*/
                     if ($this->_checkAttribute("tax", $data)) {
                         $product->setTaxClassId($data["tax"]);
                     }else{

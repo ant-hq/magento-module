@@ -101,7 +101,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         $idProduct=$this->getRequest()->getParam("id_product");
         $product = Mage::getModel("catalog/product")->load($idProduct);
         // attribute set and product type cannot be updated
-        $arrayToExclude=array("id","images","inventories","full_price","tags","tax","meta","manage_stock","special_price","product_options","categories","product_type");
+        $arrayToExclude=array("id","images","inventories","full_price","tags","tax","meta","manage_stock","special_price","product_options","categories","product_type","handle");
         $helperAnt = Mage::helper("ant_api");
         $skuCheck=$product->getSku();
         if($skuCheck==""){
@@ -137,6 +137,11 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                             $stringMeta .= $_meta . ",";
                         }
                         $product->setMetaDescription($stringMeta);
+                    }
+                    if($this->_checkAttribute("handle", $data)) {
+                        $handle = $data["handle"];
+                        $urlRewrite = $helperAnt->rewriteUrl($data["name"], $handle);
+                        $product->setUrlKey($urlRewrite);
                     }
                     //Image
                     $count = 0;
@@ -254,6 +259,11 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                             $stringMeta .= $_meta . ",";
                         }
                         $product->setMetaDescription($stringMeta);
+                    }
+                    if($this->_checkAttribute("handle", $data)) {
+                        $handle = $data["handle"];
+                        $urlRewrite = $helperAnt->rewriteUrl($data["name"], $handle);
+                        $product->setUrlKey($urlRewrite);
                     }
                     $defaultAttributeSetId = Mage::getSingleton('eav/config')->getEntityType(Mage_Catalog_Model_Product::ENTITY)->getDefaultAttributeSetId();
                     $attributeSetId = $defaultAttributeSetId;

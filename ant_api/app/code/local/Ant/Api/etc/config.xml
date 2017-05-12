@@ -66,6 +66,13 @@
                     </modules>
                 </args>
             </adminhtml>
+            <webhookadmin>
+                <use>admin</use>
+                <args>
+                    <module>Ant_Api</module>
+                    <frontName>webhookadmin</frontName>
+                </args>
+            </webhookadmin>
         </routers>
     </admin>
     <adminhtml>
@@ -173,6 +180,14 @@
                     </controller_action_postdispatch_adminhtml_sales_order_hold_observer>
                 </observers>
             </controller_action_postdispatch_adminhtml_sales_order_hold>
+            <sales_order_save_after>
+                <observers>
+                    <sales_order_save_after_observer>
+                        <class>Ant_Api_Model_Observer</class>
+                        <method>SaveOrderStatusHistory</method>
+                    </sales_order_save_after_observer>
+                </observers>
+            </sales_order_save_after>
         </events>
     </adminhtml>
     <frontend>

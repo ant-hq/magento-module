@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <layout>
-    <adminhtml_system_config_edit>
-
-    </adminhtml_system_config_edit>
+    <adminhtml_system_config_edit></adminhtml_system_config_edit>
+    <webhookadmin_adminhtml_webhook_index>
+        <reference name="content">
+            <block type="ant_api/adminhtml_webhook" name="webhook"/>
+        </reference>
+    </webhookadmin_adminhtml_webhook_index>
 </layout>

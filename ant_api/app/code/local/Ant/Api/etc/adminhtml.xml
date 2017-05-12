@@ -1,5 +1,18 @@
 <?xml version="1.0"?>
 <config>
+    <menu>
+        <api module="api" translate="title">
+            <title>Ant Api Management</title>
+            <sort_order>72</sort_order>
+            <children>
+                <webhook module="api" translate="title">
+                    <title>Web-Hooks</title>
+                    <sort_order>0</sort_order>
+                    <action>webhookadmin/adminhtml_webhook</action>
+                </webhook>
+            </children>
+        </api>
+    </menu>
     <acl>
         <resources>
             <admin>
