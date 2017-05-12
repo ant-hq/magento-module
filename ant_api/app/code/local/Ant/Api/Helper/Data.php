@@ -1428,11 +1428,15 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $customer["customer_company"]=$objectAddress->company;
         $street_address=$objectAddress->street;
         $street=explode(".",$street_address);
+        if(count($street) < 2){
+            $street[0]=$street_address;
+            $street[1]="";
+        }
         $customer["address"]=array(
             "address1"  =>  $street[0],
             "address2"  =>  $street[1],
             "suburb"    =>  $objectAddress->region,
-            "postcode"  =>  $objectAddress->poscode,
+            "postcode"  =>  $objectAddress->postcode,
             "country"   =>  $objectAddress->country_id,
         );
         return $customer;
