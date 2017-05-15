@@ -215,6 +215,53 @@
                 </routes>
                 <versions>1</versions>
             </webhook>
+            <inventory>
+                <group>ant_api</group>
+                <model>ant_api/api2_inventory</model>
+                <title>Inventory Service  API</title>
+                <sort_order>15</sort_order>
+                <privileges>
+                    <admin>
+                        <update>1</update>
+                    </admin>
+                </privileges>
+                <force_attributes>
+                    <admin>
+                        <quantity>1</quantity>
+                        <manage_stock>1</manage_stock>
+                    </admin>
+                </force_attributes>
+                <routes>
+                    <route_entity>
+                        <route>/ant/inventory/:id_product</route>
+                        <action_type>entity</action_type>
+                    </route_entity>
+                </routes>
+                <versions>1</versions>
+            </inventory>
+            <order>
+                <group>ant_api</group>
+                <model>ant_api/api2_order</model>
+                <title>Order Status Service  API</title>
+                <sort_order>16</sort_order>
+                <privileges>
+                    <admin>
+                        <update>1</update>
+                    </admin>
+                </privileges>
+                <force_attributes>
+                    <admin>
+                        <status>1</status>
+                    </admin>
+                </force_attributes>
+                <routes>
+                    <route_entity>
+                        <route>/ant/orders/:id_order</route>
+                        <action_type>entity</action_type>
+                    </route_entity>
+                </routes>
+                <versions>1</versions>
+            </order>
         </resources>
     </api2>
 </config>

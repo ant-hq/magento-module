@@ -1298,6 +1298,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayCustomerHash=array();
         $firstName=$customer->getData("firstname");
         $lastName=$customer->getData("lastname");
+        $arrayCustomerHash["customer_id"]=$customerId;
         $arrayCustomerHash["first_name"]=$firstName;
         $arrayCustomerHash["last_name"]=$lastName;
         $arrayCustomerHash["full_name"]=$firstName.' '.$lastName;
@@ -1360,7 +1361,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $product=Mage::getModel("catalog/product")->load($_item->getData("product_id"));
             if($product->getTypeId()=="simple") {
                 $arrayOrder["items"][] = array(
-                    "id" => $_item->getData("product_id"),
+                    "id" => $_item->getId(),
+                    "name" => $_item->getData("name"),
+                    "product_id" => $_item->getData("product_id"),
+                    "sku" => $_item->getData("sku"),
                     "type" => $_item->getData("product_type"),
                     "inventories" => array("quantity" => $_item->getQtyToShip()),
                     "sale_price" => $_item->getData("price"),
@@ -1372,8 +1376,11 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                     foreach ($childProducts as $child) {
                         $childProduct = Mage::getModel("catalog/product")->load($child->getId());
                         $arrayOrder["items"][] = array(
-                            "id" => $childProduct->getId(),
-                            "type" => $childProduct->getTypeId()."asdsadsda",
+                            "id" => $_item->getId(),
+                            "name" => $childProduct->getName(),
+                            "product_id" => $childProduct->getId(),
+                            "sku" => $childProduct->getSku(),
+                            "type" => $childProduct->getTypeId(),
                             "inventories" => array("quantity" => $_item->getQtyToShip()),
                             "sale_price" => $_item->getData("price"),
                             "discount" => $_item->getData("discount_amount")
@@ -1381,7 +1388,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                     }
                 }else{
                     $arrayOrder["items"][] = array(
-                        "id" => $_item->getData("product_id"),
+                        "id" => $_item->getId(),
+                        "name" => $_item->getData("name"),
+                        "product_id" => $_item->getData("product_id"),
+                        "sku" => $_item->getData("sku"),
                         "type" => $_item->getData("product_type"),
                         "inventories" => array("quantity" => $_item->getQtyToShip()),
                         "sale_price" => $_item->getData("price"),
@@ -1389,6 +1399,13 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                     );
                 }
             }
+            $arrayOtherDataProduct = array();
+            foreach($_item->getData() as $key => $val){
+                if($key !="method_instance") {
+                    $arrayOtherDataProduct[$key]=$val;
+                }
+            }
+            $arrayOrder["other_data_product"][]=$arrayOtherDataProduct;
         }
         $billing_address=$order->getBillingAddress();
         $arrayBillingAddress=$this->getCustomerHashFromOrder($billing_address);
@@ -1420,6 +1437,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     }
     public function getCustomerHashFromOrder($objectAddress){
         $customer=array();
+        $customer["customer_id"]=$objectAddress->customer_id;
         $customer["first_name"]=$objectAddress->firstname;
         $customer["last_name"]=$objectAddress->lastname;
         $customer["full_name"]=$objectAddress->lastname;
