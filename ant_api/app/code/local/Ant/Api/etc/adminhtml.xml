@@ -2,7 +2,7 @@
 <config>
     <menu>
         <api module="api" translate="title">
-            <title>Ant Api Management</title>
+            <title>Ant</title>
             <sort_order>72</sort_order>
             <children>
                 <webhook module="api" translate="title">
@@ -25,7 +25,7 @@
                             <config>
                                 <children>
                                     <ant_api_config translate="title">
-                                        <title>Ant Api</title>
+                                        <title>Ant</title>
                                         <sort_order>1</sort_order>
                                     </ant_api_config>
                                 </children>
@@ -33,7 +33,7 @@
                         </children>
                     </system>
                     <api module="api" translate="title">
-                        <title>Ant Api Management</title>
+                        <title>Ant</title>
                         <sort_order>72</sort_order>
                         <children>
                             <webhook module="api" translate="title">

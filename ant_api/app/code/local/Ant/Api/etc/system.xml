@@ -2,13 +2,13 @@
 <config>
     <tabs>
         <ant_api>
-            <label>Ant Api Configuration</label>
+            <label>Ant</label>
             <sort_order>0</sort_order>
         </ant_api>
     </tabs>
     <sections>
         <ant_api_config>
-            <label>Ant Api</label>
+            <label>General</label>
             <tab>ant_api</tab>
             <frontend_type>text</frontend_type>
             <sort_order>1</sort_order>
