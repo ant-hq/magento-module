@@ -1371,6 +1371,9 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayOrder["items"]=array();
         foreach($order->getAllItems() as $_item){
             $product=Mage::getModel("catalog/product")->load($_item->getData("product_id"));
+            if($_item->getData("parent_item_id")!= ""){
+                continue;
+            }
             if($product->getTypeId()=="simple") {
                 $arrayOrder["items"][] = array(
                     "id" => $_item->getId(),
