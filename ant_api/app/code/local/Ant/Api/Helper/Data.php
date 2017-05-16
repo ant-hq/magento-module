@@ -1369,8 +1369,33 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayOrder["total_tax"]=$total_tax;
         $arrayOrder["status"]=$statusLabel;
         $arrayOrder["items"]=array();
+        $qtyParent=0;
+        $priceParent=0;
+        $taxAmountParent=0;
+        $taxPercentParent=0;
+        $disCountParent=0;
+
         foreach($order->getAllItems() as $_item){
+            $arrayOtherDataProduct = array();
             if($_item->getData("parent_item_id")!= ""){
+                $arrayOrder["items"][] = array(
+                    "id" => $_item->getId(),
+                    "name" => $_item->getData("name"),
+                    "product_id" => $_item->getData("product_id"),
+                    "sku" => $_item->getData("sku"),
+                    "type" => "variant",
+                    "shipments" => array("quantity" => $qtyParent),
+                    "tax_amount" => $taxAmountParent,
+                    "tax_percent" => $taxPercentParent,
+                    "sale_price" => $priceParent,
+                    "discount" => $disCountParent
+                );
+                foreach($_item->getData() as $key => $val){
+                    if($key !="method_instance") {
+                        $arrayOtherDataProduct[$key]=$val;
+                    }
+                }
+                $arrayOrder["other_data_product"][]=$arrayOtherDataProduct;
                 continue;
             }
             if($_item->getData("product_type")=="simple") {
@@ -1386,21 +1411,19 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                     "tax_percent" => $_item->getData("tax_percent"),
                     "discount" => $_item->getData("discount_amount")
                 );
+                $qtyParent=0;
+                $priceParent=0;
+                $taxAmountParent=0;
+                $taxPercentParent=0;
+                $disCountParent=0;
             }else{
-                $arrayOrder["items"][] = array(
-                    "id" => $_item->getId(),
-                    "name" => $_item->getData("name"),
-                    "product_id" => $_item->getData("product_id"),
-                    "sku" => $_item->getData("sku"),
-                    "type" => "variant",
-                    "shipments" => array("quantity" => $_item->getQtyToShip()),
-                    "tax_amount" => $_item->getData("tax_amount"),
-                    "tax_percent" => $_item->getData("tax_percent"),
-                    "sale_price" => $_item->getData("price"),
-                    "discount" => $_item->getData("discount_amount")
-                );
+                $qtyParent=$_item->getQtyToShip();
+                $priceParent=$_item->getData("price");
+                $taxAmountParent=$_item->getData("tax_amount");
+                $taxPercentParent=$_item->getData("tax_percent");
+                $disCountParent=$_item->getData("discount_amount");
+                continue;
             }
-            $arrayOtherDataProduct = array();
             foreach($_item->getData() as $key => $val){
                 if($key !="method_instance") {
                     $arrayOtherDataProduct[$key]=$val;
