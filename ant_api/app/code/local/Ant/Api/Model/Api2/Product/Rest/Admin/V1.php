@@ -138,7 +138,8 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     if (isset($data["tax"])) {
                         $product->setTaxClassId($data["tax"]);
                     } else {
-                        $product->setTaxClassId(1);
+                        $tax_class = $helperAnt->getConfigTaxAnt();
+                        $product->setTaxClassId($tax_class);
                     }
                     $product->setPrice($data["full_price"]);
                     $product->setData("special_price",$data["special_price"]);
@@ -268,7 +269,8 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     if (isset($data["tax"])) {
                         $product->setTaxClassId($data["tax"]);
                     } else {
-                        $product->setTaxClassId(1);
+                        $tax_class = $helperAnt->getConfigTaxAnt();
+                        $product->setTaxClassId($tax_class);
                     }
                     $dataImage = $data["images"];
                     $count = 0;
@@ -427,7 +429,8 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     if ($this->_checkAttribute("tax", $data)) {
                         $product->setTaxClassId($data["tax"]);
                     }else{
-                        $product->setTaxClassId(1);
+                        $tax_class = Mage::helper("ant_api")->getConfigTaxAnt();
+                        $product->setTaxClassId($tax_class);
                     }
                     if ($this->_checkAttribute("full_price", $data)) {
                         $product->setPrice($data["full_price"]);
@@ -484,7 +487,8 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                 if ($this->_checkAttribute("tax", $data)) {
                     $product->setTaxClassId($data["tax"]);
                 }else{
-                    $product->setTaxClassId(1);
+                    $tax_class = Mage::helper("ant_api")->getConfigTaxAnt();
+                    $product->setTaxClassId($tax_class);
                 }
                 if ($this->_checkAttribute("full_price", $data)) {
                     $product->setPrice($data["full_price"]);
@@ -536,7 +540,8 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
             if ($this->_checkAttribute("tax", $data)) {
                 $product->setTaxClassId($data["tax"]);
             }else{
-                $product->setTaxClassId(1);
+                $tax_class = Mage::helper("ant_api")->getConfigTaxAnt();
+                $product->setTaxClassId($tax_class);
             }
             if ($this->_checkAttribute("full_price", $data)) {
                 $product->setPrice($data["full_price"]);

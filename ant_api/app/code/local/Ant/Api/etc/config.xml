@@ -234,4 +234,11 @@
             </customer_address_save_after>
         </events>
     </frontend>
+    <default>
+        <ant_api_config>
+            <tax_class_ant>
+                <ant_taxs>1</ant_taxs>
+            </tax_class_ant>
+        </ant_api_config>
+    </default>
 </config>

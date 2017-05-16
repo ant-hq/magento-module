@@ -175,6 +175,16 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * Make the function helper for hash product
      *
      */
+    public function getConfigTaxAnt(){
+        $path = "ant_api_config/tax_class_ant/ant_taxs";
+        return Mage::getStoreConfig($path);
+    }
+    public function getTaxCalculation($_product){
+        $taxClasses  = Mage::helper("core")->jsonDecode(Mage::helper("tax")->getAllRatesByProductClass());
+        $taxClassId = $_product->getData("tax_class_id");
+        $taxRate   = $taxClasses["value_".$taxClassId];
+        return $taxRate;
+    }
     public function setTheHashProductSimple($idProduct){
 
         $modelDetailProduct = Mage::getModel("catalog/product");
@@ -198,7 +208,8 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $arrayOutPutTags[]=$_tag;
         }
         $arrayDetailProduct["tags"] = $arrayOutPutTags;
-        $arrayDetailProduct["tax"] = $detailProduct->getTaxClassId();
+        $percent = $this->getTaxCalculation($detailProduct);
+        $arrayDetailProduct["tax"] = $percent;
         $arrayDetailProduct["supply_price"] = $detailProduct->getData("supply_price");
         $arrayDetailProduct["markup"] = $detailProduct->getData("markup");
         $_categories = $detailProduct->getCategoryCollection()->addAttributeToSelect("name");
@@ -301,7 +312,8 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $arrayChildProduct["sku"] = $child->getsku();
             $arrayChildProduct["supply_price"] = $childProduct->getData("supply_price");
             $arrayChildProduct["full_price"] = $childProduct->getFinalPrice();
-            $arrayChildProduct["tax"] = $childProduct->getTaxClassId();
+            $percent = $this->getTaxCalculation($childProduct);
+            $arrayChildProduct["tax"] = $percent;
             $arrayChildProduct["markup"] = $childProduct->getData("markup");
             $arrayInventory = array();
             $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($child);
@@ -1365,9 +1377,11 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                     "name" => $_item->getData("name"),
                     "product_id" => $_item->getData("product_id"),
                     "sku" => $_item->getData("sku"),
-                    "type" => $_item->getData("product_type"),
-                    "inventories" => array("quantity" => $_item->getQtyToShip()),
+                    "type" => "product",
+                    "shipments" => array("quantity" => $_item->getQtyToShip()),
                     "sale_price" => $_item->getData("price"),
+                    "tax_amount" => $_item->getData("tax_amount"),
+                    "tax_percent" => $_item->getData("tax_percent"),
                     "discount" => $_item->getData("discount_amount")
                 );
             }else{
@@ -1379,10 +1393,12 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                             "id" => $_item->getId(),
                             "name" => $childProduct->getName(),
                             "product_id" => $childProduct->getId(),
-                            "sku" => $childProduct->getSku(),
+                            "sku" => "product",
                             "type" => $childProduct->getTypeId(),
-                            "inventories" => array("quantity" => $_item->getQtyToShip()),
+                            "shipments" => array("quantity" => $_item->getQtyToShip()),
                             "sale_price" => $_item->getData("price"),
+                            "tax_amount" => $_item->getData("tax_amount"),
+                            "tax_percent" => $_item->getData("tax_percent"),
                             "discount" => $_item->getData("discount_amount")
                         );
                     }
@@ -1392,8 +1408,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                         "name" => $_item->getData("name"),
                         "product_id" => $_item->getData("product_id"),
                         "sku" => $_item->getData("sku"),
-                        "type" => $_item->getData("product_type"),
-                        "inventories" => array("quantity" => $_item->getQtyToShip()),
+                        "type" => "product",
+                        "shipments" => array("quantity" => $_item->getQtyToShip()),
+                        "tax_amount" => $_item->getData("tax_amount"),
+                        "tax_percent" => $_item->getData("tax_percent"),
                         "sale_price" => $_item->getData("price"),
                         "discount" => $_item->getData("discount_amount")
                     );
