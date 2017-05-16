@@ -1370,11 +1370,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayOrder["status"]=$statusLabel;
         $arrayOrder["items"]=array();
         foreach($order->getAllItems() as $_item){
-            $product=Mage::getModel("catalog/product")->load($_item->getData("product_id"));
             if($_item->getData("parent_item_id")!= ""){
                 continue;
             }
-            if($product->getTypeId()=="simple") {
+            if($_item->getData("product_type")=="simple") {
                 $arrayOrder["items"][] = array(
                     "id" => $_item->getId(),
                     "name" => $_item->getData("name"),
@@ -1388,37 +1387,18 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                     "discount" => $_item->getData("discount_amount")
                 );
             }else{
-                if($product->getTypeId()=="configurable" && $product->getId()) {
-                    $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null,$product);
-                    foreach ($childProducts as $child) {
-                        $childProduct = Mage::getModel("catalog/product")->load($child->getId());
-                        $arrayOrder["items"][] = array(
-                            "id" => $_item->getId(),
-                            "name" => $childProduct->getName(),
-                            "product_id" => $childProduct->getId(),
-                            "sku" => "product",
-                            "type" => $childProduct->getTypeId(),
-                            "shipments" => array("quantity" => $_item->getQtyToShip()),
-                            "sale_price" => $_item->getData("price"),
-                            "tax_amount" => $_item->getData("tax_amount"),
-                            "tax_percent" => $_item->getData("tax_percent"),
-                            "discount" => $_item->getData("discount_amount")
-                        );
-                    }
-                }else{
-                    $arrayOrder["items"][] = array(
-                        "id" => $_item->getId(),
-                        "name" => $_item->getData("name"),
-                        "product_id" => $_item->getData("product_id"),
-                        "sku" => $_item->getData("sku"),
-                        "type" => "product",
-                        "shipments" => array("quantity" => $_item->getQtyToShip()),
-                        "tax_amount" => $_item->getData("tax_amount"),
-                        "tax_percent" => $_item->getData("tax_percent"),
-                        "sale_price" => $_item->getData("price"),
-                        "discount" => $_item->getData("discount_amount")
-                    );
-                }
+                $arrayOrder["items"][] = array(
+                    "id" => $_item->getId(),
+                    "name" => $_item->getData("name"),
+                    "product_id" => $_item->getData("product_id"),
+                    "sku" => $_item->getData("sku"),
+                    "type" => "variant",
+                    "shipments" => array("quantity" => $_item->getQtyToShip()),
+                    "tax_amount" => $_item->getData("tax_amount"),
+                    "tax_percent" => $_item->getData("tax_percent"),
+                    "sale_price" => $_item->getData("price"),
+                    "discount" => $_item->getData("discount_amount")
+                );
             }
             $arrayOtherDataProduct = array();
             foreach($_item->getData() as $key => $val){
