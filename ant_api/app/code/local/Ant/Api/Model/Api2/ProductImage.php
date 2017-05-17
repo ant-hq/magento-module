@@ -25,7 +25,10 @@ class Ant_Api_Model_Api2_ProductImage extends Mage_Api2_Model_Resource
                     $idProduct=$this->getRequest()->getParam("id_product");
                     $detailProduct=Mage::getModel("catalog/product")->load($idProduct);
                     $galleryData = $detailProduct->getMediaGalleryImages();
-                    $id_image = count($galleryData);
+                    $id_image=0;
+                    foreach ($galleryData as &$image) {
+                        $id_image = $image->getId();
+                    }
                     $arrayParent = array();
                     $arrayParent["id"] = $id_image;
                     $arrayParent["url"] = $filteredData["url"];

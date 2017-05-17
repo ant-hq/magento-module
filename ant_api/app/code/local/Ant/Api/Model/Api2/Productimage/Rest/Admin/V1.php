@@ -8,10 +8,19 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
         try {
             Mage::app()->setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
             $mediaApi = Mage::getModel("catalog/product_attribute_media_api");
+            $detailProduct=Mage::getModel("catalog/product")->load($idProduct);
+            $galleryData = $detailProduct->getMediaGalleryImages();
+            $indexCheck=1;
+            foreach ($galleryData as &$image) {
+                if($image->getId() == $position){
+                    break;
+                }
+                $indexCheck++;
+            }
             $items = $mediaApi->items($idProduct,Mage_Core_Model_App::ADMIN_STORE_ID);
-            $index=0;
+            $index = 1;
             foreach($items as $item) {
-                if($index + 1 ==$position){
+                if($index == $indexCheck){
                     $mediaApi->remove($idProduct,$item['file'],0,null);
                 }
                 $index++;
@@ -21,6 +30,10 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
         } catch (Exception $e) {
             $this->_critical(self::RESOURCE_INTERNAL_ERROR);
         }
+    }
+    protected function _criticalCustom($message, $code = null)
+    {
+        throw new Exception($message,$code);
     }
     protected function _update(array $data){
         $idProduct=$this->getRequest()->getParam("id_product");
@@ -56,10 +69,20 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
                         break;
                 }
             }
+            $detailProduct=Mage::getModel("catalog/product")->load($idProduct);
+            $galleryData = $detailProduct->getMediaGalleryImages();
+            $indexCheck=1;
+            foreach ($galleryData as &$image) {
+                if($image->getId() == $position){
+                    break;
+                }
+                $indexCheck++;
+            }
             $items = $mediaApi->items($idProduct,Mage_Core_Model_App::ADMIN_STORE_ID);
-            $index=0;
+            $index=1;
+            $isUpdated=false;
             foreach($items as $item) {
-                if($index + 1 == $position){
+                if($indexCheck == $index){
                     $dataImage = array(
                         'file' => array(
                             'name' => $nameImage,
@@ -72,10 +95,15 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
                         'exclude' => $exclude
                     );
                     $mediaApi->update($idProduct, $item['file'],$dataImage,Mage_Core_Model_App::ADMIN_STORE_ID);
+                    $isUpdated = true;
                 }
                 $index++;
             }
-            $product->save();
+            if($isUpdated == false){
+                $this->_criticalCustom("There is no image id on product [$idProduct]. Please check your data request.",400);
+            }else {
+                $product->save();
+            }
         } catch (Mage_Eav_Model_Entity_Attribute_Exception $e) {
             $this->_critical(sprintf('Invalid attribute "%s": %s', $e->getAttributeCode(), $e->getMessage()),
                 Mage_Api2_Model_Server::HTTP_BAD_REQUEST);
