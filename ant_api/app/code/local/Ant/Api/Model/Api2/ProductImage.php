@@ -23,8 +23,11 @@ class Ant_Api_Model_Api2_ProductImage extends Mage_Api2_Model_Resource
                     $filteredData=$requestData;
                     $newItemLocation = $this->_create($filteredData);
                     $idProduct=$this->getRequest()->getParam("id_product");
+                    $detailProduct=Mage::getModel("catalog/product")->load($idProduct);
+                    $galleryData = $detailProduct->getMediaGalleryImages();
+                    $id_image = count($galleryData);
                     $arrayParent = array();
-                    $arrayParent["id"] = $idProduct;
+                    $arrayParent["id"] = $id_image;
                     $arrayParent["url"] = $filteredData["url"];
                     $arrayParent["position"] = $filteredData["position"];
                     $this->getResponse()->clearHeaders()->setHeader('Content-type','application/json',true);
@@ -62,9 +65,9 @@ class Ant_Api_Model_Api2_ProductImage extends Mage_Api2_Model_Resource
                     $this->_critical(self::RESOURCE_REQUEST_DATA_INVALID);
                 }
                 $this->_update($filteredData);
-                $idProduct=$this->getRequest()->getParam("id_product");
+                $id_image=$this->getRequest()->getParam("position");
                 $arrayParent = array();
-                $arrayParent["id"] = $idProduct;
+                $arrayParent["id"] = $id_image;
                 $arrayParent["url"] = $filteredData["url"];
                 $arrayParent["position"] = $filteredData["position"];
                 $this->getResponse()->clearHeaders()->setHeader('Content-type','application/json',true);
@@ -86,7 +89,8 @@ class Ant_Api_Model_Api2_ProductImage extends Mage_Api2_Model_Resource
                 $this->_errorIfMethodNotExist('_delete');
                 $this->_delete();
                 $idProduct=$this->getRequest()->getParam("id_product");
-                $arrayParent["message"]="Delete image for product [$idProduct] successfully";
+                $id_image=$this->getRequest()->getParam("position");
+                $arrayParent["message"]="Delete image [$id_image] for product [$idProduct] successfully";
                 $this->getResponse()->clearHeaders()->setHeader('Content-type','application/json',true);
                 $this->getResponse()->setBody(json_encode($arrayParent));
                 break;
