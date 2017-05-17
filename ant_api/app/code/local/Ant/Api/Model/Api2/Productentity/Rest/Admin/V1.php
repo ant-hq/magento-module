@@ -124,19 +124,20 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     if ($this->_checkAttribute("special_price", $data)) {
                         $product->setSpecialPrice($data["special_price"]);
                     }
-                    if ($this->_checkAttribute("tags", $data)) {
+                    /*if ($this->_checkAttribute("tags", $data)) {
                         $stringTags = "";
                         foreach ($data["tags"] as $_tags) {
                             $stringTags .= $_tags . ",";
                         }
                         $product->setMetaKeyword($stringTags);
-                    }
+                    }*/
                     if ($this->_checkAttribute("meta", $data)) {
                         $stringMeta = "";
                         foreach ($data["meta"] as $_meta) {
                             $stringMeta .= $_meta . ",";
                         }
-                        $product->setMetaDescription($stringMeta);
+                        //$product->setMetaDescription($stringMeta);
+                        $product->setMetaKeyword($stringMeta);
                     }
                     if($this->_checkAttribute("handle", $data)) {
                         $handle = $data["handle"];
@@ -246,19 +247,20 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     if ($this->_checkAttribute("special_price", $data)) {
                         $product->setSpecialPrice($data["special_price"]);
                     }
-                    if ($this->_checkAttribute("tags", $data)) {
+                    /*if ($this->_checkAttribute("tags", $data)) {
                         $stringTags = "";
                         foreach ($data["tags"] as $_tags) {
                             $stringTags .= $_tags . ",";
                         }
                         $product->setMetaKeyword($stringTags);
-                    }
+                    }*/
                     if ($this->_checkAttribute("meta", $data)) {
                         $stringMeta = "";
                         foreach ($data["meta"] as $_meta) {
                             $stringMeta .= $_meta . ",";
                         }
-                        $product->setMetaDescription($stringMeta);
+                        $product->setMetaKeyword($stringMeta);
+                        //$product->setMetaDescription($stringMeta);
                     }
                     if($this->_checkAttribute("handle", $data)) {
                         $handle = $data["handle"];

@@ -144,16 +144,17 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     $product->setPrice($data["full_price"]);
                     $product->setData("special_price",$data["special_price"]);
                     $product->setMetaTitle($data["name"]);
-                    $stringTags="";
+                    /*$stringTags="";
                     foreach($data["tags"] as $_tags){
                         $stringTags.=$_tags.",";
-                    }
-                    $product->setMetaKeyword($stringTags);
+                    }*/
+
                     $stringMeta="";
                     foreach($data["meta"] as $_meta){
                         $stringMeta.=$_meta.",";
                     }
-                    $product->setMetaDescription($stringMeta);
+                    $product->setMetaKeyword($stringMeta);
+                    //$product->setMetaDescription($stringMeta);
                     $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
                     $product->setAttributeSetId($defaultAttributeSetId); //ID of a attribute set named 'default'
                     $product->setTypeId('simple'); //product type
@@ -255,16 +256,17 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                         $urlRewrite = $helperAnt->rewriteUrl($data["name"], $handle);
                         $product->setUrlKey($urlRewrite);
                     }
-                    $stringTags="";
+                    /*$stringTags="";
                     foreach($data["tags"] as $_tags){
                         $stringTags.=$_tags.",";
                     }
-                    $product->setMetaKeyword($stringTags);
+                    $product->setMetaKeyword($stringTags);*/
                     $stringMeta="";
                     foreach($data["meta"] as $_meta){
                         $stringMeta.=$_meta.",";
                     }
-                    $product->setMetaDescription($stringMeta);
+                    $product->setMetaKeyword($stringMeta);
+                    //$product->setMetaDescription($stringMeta);
                     $product->setMediaGallery(array('images' => array(), 'values' => array()));
                     if (isset($data["tax"])) {
                         $product->setTaxClassId($data["tax"]);

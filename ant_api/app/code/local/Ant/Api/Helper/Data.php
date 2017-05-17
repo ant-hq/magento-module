@@ -180,9 +180,12 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         return Mage::getStoreConfig($path);
     }
     public function getTaxCalculation($_product){
-        $taxClasses  = Mage::helper("core")->jsonDecode(Mage::helper("tax")->getAllRatesByProductClass());
-        $taxClassId = $_product->getTaxClassId();
-        $taxRate   = $taxClasses["value_".$taxClassId];
+        //$taxClasses  = Mage::helper("core")->jsonDecode(Mage::helper("tax")->getAllRatesByProductClass());
+        $collection=Mage::getModel('tax/calculation')->getCollection()->addFieldToFilter("product_tax_class_id",array("eq" => $_product->getTaxClassId()))->getFirstItem();
+        $rate=Mage::getModel("tax/calculation_rate")->load($collection->getData("tax_calculation_rate_id"));
+        //$taxClassId = $_product->getTaxClassId();
+        //$taxRate   = $taxClasses["value_".$taxClassId];
+        $taxRate = $rate->getRate();
         return $taxRate;
     }
     public function setTheHashProductSimple($idProduct){
@@ -207,7 +210,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         foreach($arrayTags as $_tag){
             $arrayOutPutTags[]=$_tag;
         }
-        $arrayDetailProduct["tags"] = $arrayOutPutTags;
+        $arrayDetailProduct["meta"] = $arrayOutPutTags;
         $percent = $this->getTaxCalculation($detailProduct);
         $arrayDetailProduct["tax"] = $percent;
         $arrayDetailProduct["supply_price"] = $detailProduct->getData("supply_price");
@@ -274,7 +277,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         foreach($arrayTags as $_tag){
             $arrayOutPutTags[]=$_tag;
         }
-        $arrayDetailProduct["tags"] = $arrayOutPutTags;
+        $arrayDetailProduct["meta"] = $arrayOutPutTags;
         $galleryData = $detailProduct->getMediaGalleryImages();
         $arrayPutImageIn = array();
         foreach ($galleryData as &$image) {
