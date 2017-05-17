@@ -22,7 +22,13 @@ class Ant_Api_Model_Api2_ProductImage extends Mage_Api2_Model_Resource
                     $this->_errorIfMethodNotExist('_create');
                     $filteredData=$requestData;
                     $newItemLocation = $this->_create($filteredData);
-                    $this->getResponse()->setHeader('Location', $newItemLocation);
+                    $idProduct=$this->getRequest()->getParam("id_product");
+                    $arrayParent = array();
+                    $arrayParent["id"] = $idProduct;
+                    $arrayParent["url"] = $filteredData["url"];
+                    $arrayParent["position"] = $filteredData["position"];
+                    $this->getResponse()->clearHeaders()->setHeader('Content-type','application/json',true);
+                    $this->getResponse()->setBody(json_encode($arrayParent));
                 } else {
                     $this->_errorIfMethodNotExist('_multiCreate');
                     $filteredData = $this->getFilter()->collectionIn($requestData);
@@ -56,6 +62,13 @@ class Ant_Api_Model_Api2_ProductImage extends Mage_Api2_Model_Resource
                     $this->_critical(self::RESOURCE_REQUEST_DATA_INVALID);
                 }
                 $this->_update($filteredData);
+                $idProduct=$this->getRequest()->getParam("id_product");
+                $arrayParent = array();
+                $arrayParent["id"] = $idProduct;
+                $arrayParent["url"] = $filteredData["url"];
+                $arrayParent["position"] = $this->getRequest()->getParam("position");
+                $this->getResponse()->clearHeaders()->setHeader('Content-type','application/json',true);
+                $this->getResponse()->setBody(json_encode($arrayParent));
                 break;
             case self::ACTION_TYPE_COLLECTION . self::OPERATION_UPDATE:
                 $this->_errorIfMethodNotExist('_multiUpdate');
@@ -72,6 +85,10 @@ class Ant_Api_Model_Api2_ProductImage extends Mage_Api2_Model_Resource
             case self::ACTION_TYPE_ENTITY . self::OPERATION_DELETE:
                 $this->_errorIfMethodNotExist('_delete');
                 $this->_delete();
+                $idProduct=$this->getRequest()->getParam("id_product");
+                $arrayParent["message"]="Delete image for product [$idProduct] successfully";
+                $this->getResponse()->clearHeaders()->setHeader('Content-type','application/json',true);
+                $this->getResponse()->setBody(json_encode($arrayParent));
                 break;
             case self::ACTION_TYPE_COLLECTION . self::OPERATION_DELETE:
                 $this->_errorIfMethodNotExist('_multiDelete');
