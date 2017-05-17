@@ -181,7 +181,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     }
     public function getTaxCalculation($_product){
         $taxClasses  = Mage::helper("core")->jsonDecode(Mage::helper("tax")->getAllRatesByProductClass());
-        $taxClassId = $_product->getData("tax_class_id");
+        $taxClassId = $_product->getTaxClassId();
         $taxRate   = $taxClasses["value_".$taxClassId];
         return $taxRate;
     }
