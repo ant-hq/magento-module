@@ -31,7 +31,10 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
             //Image
             $urlImageInput=$data["url"];
             $label=$data["label"];
-            $exclude=$data["exclude"];
+            $exclude = 0;
+            if(isset($data["exclude"])){
+                $exclude = $data["exclude"];
+            }
             $types=$data["types"];
             $helperAnt=Mage::helper("ant_api");
             $arrayImageInfor=$helperAnt->setImageProduct($urlImageInput);
@@ -111,7 +114,10 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
             $urlImageInput=$data["url"];
             $position=$data["position"];
             $label=$data["label"];
-            $exclude=$data["exclude"];
+            $exclude = 0;
+            if(isset($data["exclude"])){
+                $exclude = $data["exclude"];
+            }
             $types=$data["types"];
             $helperAnt=Mage::helper("ant_api");
             $arrayImageInfor=$helperAnt->setImageProduct($urlImageInput);
