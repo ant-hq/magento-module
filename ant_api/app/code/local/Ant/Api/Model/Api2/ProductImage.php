@@ -66,7 +66,7 @@ class Ant_Api_Model_Api2_ProductImage extends Mage_Api2_Model_Resource
                 $arrayParent = array();
                 $arrayParent["id"] = $idProduct;
                 $arrayParent["url"] = $filteredData["url"];
-                $arrayParent["position"] = $this->getRequest()->getParam("position");
+                $arrayParent["position"] = $filteredData["position"];
                 $this->getResponse()->clearHeaders()->setHeader('Content-type','application/json',true);
                 $this->getResponse()->setBody(json_encode($arrayParent));
                 break;
