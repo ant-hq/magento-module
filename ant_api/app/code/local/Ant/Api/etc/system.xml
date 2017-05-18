@@ -17,7 +17,7 @@
             <show_in_store>1</show_in_store>
             <groups>
                 <general translate="label">
-                    <label>General Settings</label>
+                    <label>Authorization</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>10</sort_order>
                     <show_in_default>1</show_in_default>
@@ -82,10 +82,21 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </generate_tokens_button>
+                        <url_front>
+                            <label>URL</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>The Store Url . eg "http://yourdomain.com/"</comment>
+                            <disabled>true</disabled>
+                            <sort_order>101</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                        </url_front>
                     </fields>
                 </general>
                 <tax_class_ant translate="label">
-                    <label>Ant Tax Class</label>
+                    <label>Product settings</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>11</sort_order>
                     <show_in_default>1</show_in_default>

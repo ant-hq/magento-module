@@ -9,6 +9,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
         $paramsSearch=$this->getRequest()->getParams();
         $page=$this->getRequest()->getParam("page");
         $limit=$this->getRequest()->getParam("limit");
+        $pageSize=20;
         if(count($paramsSearch) > 0){
             $arrayNotInclude=array("api_type","model","ant_api/api2_product","type","action_type","page","limit");
             foreach($paramsSearch as $_key => $value){
@@ -22,8 +23,11 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                 $limit=20;
             }
             $collectionProduct = $collectionProduct->setCurPage($page)->setPageSize($limit);
+        }else{
+            $page = 1;
         }
         $products = array();
+        $countProduct = 0 ;
         foreach($collectionProduct as $_product){
             $idProduct=$_product->getId();
 
@@ -31,15 +35,23 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                 case "simple":
                     if(empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
                         $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
+                        $countProduct++;
                     }
                 break;
                 case "configurable":
                     $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
+                    $countProduct++;
                     break;
             }
         }
+        $pageCount=intval($countProduct / $pageSize)+1;
         $arrayParent=array();
-        $arrayParent["products"]=$products;
+        $arrayParent["products"] = $products;
+        $arrayParent["pagination"] = array();
+        $arrayParent["pagination"]["total_products"] = $countProduct;
+        $arrayParent["pagination"]["total_pages"] = $pageCount;
+        $arrayParent["pagination"]["current_page"] = $page;
+        $arrayParent["pagination"]["page_size"] = $pageSize;
         return $arrayParent;
     }
     protected function _criticalCustom($message, $code = null)

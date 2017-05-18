@@ -37,6 +37,11 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      */
     const XML_PATH_AUTHORIZATION_SECRET = 'ant_api_config/general/authorization_secret';
 
+    /**
+     * Path to store config where OAuth consumer key is stored
+     * @var string
+     */
+    const XML_PATH_AUTHORIZATION_URL = 'ant_api_config/general/url_front';
 
     const KEY_NAME_IMAGE="image_name";
 
@@ -165,6 +170,13 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         Mage::getModel('core/config')->saveConfig(self::XML_PATH_AUTHORIZATION_SECRET, $authorizationSecret);
     }
 
+    public function setUrl($url){
+        Mage::getModel('core/config')->saveConfig(self::XML_PATH_AUTHORIZATION_URL, $url);
+    }
+
+    public function getUrl($store=null){
+        return Mage::getStoreConfig(self::XML_PATH_AUTHORIZATION_URL,$store);
+    }
     public function log($data, $filename)
     {
         if ($this->config('enable_log') != 0) {
@@ -200,8 +212,8 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayDetailProduct["description"] = $detailProduct->getdescription();
         $arrayDetailProduct["short_description"] = $detailProduct->getShortDescription();
         $arrayDetailProduct["visibility"] = $detailProduct->getVisibility();
-        $arrayDetailProduct["store_front_url"] = Mage::getUrl().$detailProduct->getUrlKey().$suffix;
-        $arrayDetailProduct["backend_url"] = Mage::getBaseUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getid()."/";
+        $arrayDetailProduct["store_front_url"] = $this->getUrl().$detailProduct->getUrlKey().$suffix;
+        $arrayDetailProduct["backend_url"] = $this->getUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getid()."/";
         $arrayDetailProduct["weight"] = $detailProduct->getWeight();
         $arrayDetailProduct["full_price"] = $detailProduct->getFinalPrice();
         $arrayDetailProduct["special_price"] = $detailProduct->getSpecialPrice();
@@ -268,8 +280,8 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayDetailProduct["full_price"] = $detailProduct->getFinalPrice();
         $arrayDetailProduct["short_description"] = $detailProduct->getShortDescription();
         $arrayDetailProduct["visibility"] = $detailProduct->getVisibility();
-        $arrayDetailProduct["store_front_url"] = Mage::getUrl().$detailProduct->getUrlKey().$suffix;
-        $arrayDetailProduct["backend_url"] = Mage::getBaseUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getid()."/";
+        $arrayDetailProduct["store_front_url"] = $this->getUrl().$detailProduct->getUrlKey().$suffix;
+        $arrayDetailProduct["backend_url"] = $this->getUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getid()."/";
         $arrayDetailProduct["weight"] = $detailProduct->getWeight();
         $arrayDetailProduct["special_price"] = $detailProduct->getSpecialPrice();
         $arrayTags=explode(",",$detailProduct->getMetaKeyword());
@@ -1179,8 +1191,6 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                             $attribute = Mage::getSingleton('eav/config')->getAttribute(Mage_Catalog_Model_Product::ENTITY, $first_options["code"]);
                             $arrayAttributeToset[] = $attribute->getId();
                         }
-                        //var_dump($arrayAttributeToset);
-                        //die();
                         $product->getTypeInstance()->setUsedProductAttributeIds($arrayAttributeToset); //attribute ID of attribute 'color' in my store
                         $configurableAttributesData = $product->getTypeInstance()->getConfigurableAttributesAsArray();
 
@@ -1552,6 +1562,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $requestToken = $token->getToken();
         $requestTokenSecret = $token->getSecret();
         $user = Mage::getSingleton('admin/session')->getUser();
+        $url = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
         if ($user) {
             $userId = $user->getId();
         } else if ($isSetup) {
@@ -1563,6 +1574,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $reclaimHelper->setConsumerSecret($consumerSecret);
         $reclaimHelper->setAuthorizationToken($requestToken);
         $reclaimHelper->setAuthorizationSecret($requestTokenSecret);
+        $reclaimHelper->setUrl($url);
         return $token;
     }
 }
