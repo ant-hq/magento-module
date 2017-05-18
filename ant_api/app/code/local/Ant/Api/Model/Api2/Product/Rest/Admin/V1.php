@@ -57,7 +57,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
         throw new Exception($message,$code);
     }
     protected function _checkAttribute($attribute_name,$data){
-        if(!isset($data[$attribute_name]) || $data[$attribute_name] == "" ){
+        if(!isset($data[$attribute_name]) || trim($data[$attribute_name]) == "" ){
             return false;
         }
         return true;
@@ -91,7 +91,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
             $stringError.="Product full_price can not be empty , ";
         }
         if(isset($data["inventories"])) {
-            if (!$this->_checkAttribute("quantity", $data["inventories"])) {
+            if (!$this->_checkAttribute("quantity",$data["inventories"])) {
                 $stringError .= "Product quantity can not be empty , ";
             }
         }
