@@ -200,6 +200,24 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $taxRate = $rate->getRate();
         return $taxRate;
     }
+    public function getCountProductInStore(){
+        $collectionProduct = Mage::getModel("catalog/product")->getCollection();
+        $countProduct = 0;
+        foreach($collectionProduct as $_product){
+            $idProduct=$_product->getId();
+            switch ($_product->getTypeId()){
+                case "simple":
+                    if(empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
+                        $countProduct++;
+                    }
+                    break;
+                case "configurable":
+                    $countProduct++;
+                    break;
+            }
+        }
+        return $countProduct;
+    }
     public function setTheHashProductSimple($idProduct){
 
         $modelDetailProduct = Mage::getModel("catalog/product");

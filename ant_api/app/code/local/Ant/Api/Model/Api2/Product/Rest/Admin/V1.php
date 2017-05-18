@@ -22,35 +22,33 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
             if($limit == "") {
                 $limit=20;
             }
+            $pageSize = intval($limit);
             $collectionProduct = $collectionProduct->setCurPage($page)->setPageSize($limit);
         }else{
             $page = 1;
         }
         $products = array();
-        $countProduct = 0 ;
         foreach($collectionProduct as $_product){
             $idProduct=$_product->getId();
-
             switch ($_product->getTypeId()){
                 case "simple":
                     if(empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
                         $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
-                        $countProduct++;
                     }
                 break;
                 case "configurable":
                     $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
-                    $countProduct++;
                     break;
             }
         }
+        $countProduct = Mage::helper("ant_api")->getCountProductInStore();
         $pageCount=intval($countProduct / $pageSize)+1;
         $arrayParent=array();
         $arrayParent["products"] = $products;
         $arrayParent["pagination"] = array();
         $arrayParent["pagination"]["total_products"] = $countProduct;
         $arrayParent["pagination"]["total_pages"] = $pageCount;
-        $arrayParent["pagination"]["current_page"] = $page;
+        $arrayParent["pagination"]["current_page"] = intval($page);
         $arrayParent["pagination"]["page_size"] = $pageSize;
         return $arrayParent;
     }

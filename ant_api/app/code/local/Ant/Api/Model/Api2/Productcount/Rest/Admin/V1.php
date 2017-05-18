@@ -3,10 +3,8 @@ class Ant_Api_Model_Api2_ProductCount_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
 {
 
     protected function _retrieveCollection(){
-        $modelProduct = Mage::getModel('catalog/product');
-        $collectionProduct = $modelProduct->getCollection();
         $arrayJsonReturn=array();
-        $countProduct=$collectionProduct->count();
+        $countProduct= Mage::helper("ant_api")->getCountProductInStore();
         $pageSize=25;
         $pageCount=intval($countProduct / $pageSize)+1;
         $arrayJsonReturn["count"]=$countProduct;
