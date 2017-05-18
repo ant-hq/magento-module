@@ -1488,10 +1488,6 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         foreach($order->getData() as $key => $val){
             $arrayOrder["other_data"][$key] = $val;
         }
-        echo "<pre>";
-        var_dump($arrayOrder);
-        echo "</pre>";
-        die();
         return $arrayOrder;
     }
     public function getCustomerHashFromOrder($objectAddress){
