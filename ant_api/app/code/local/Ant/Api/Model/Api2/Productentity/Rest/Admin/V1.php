@@ -118,6 +118,10 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     if ($this->_checkAttribute("tax", $data)) {
                         $product->setTaxClassId($data["tax"]);
                     }
+                    if(!$product->getTaxClassId()){
+                        $taxDefault = $helperAnt->getConfigTaxAnt();
+                        $product->setTaxClassId($taxDefault);
+                    }
                     if ($this->_checkAttribute("full_price", $data)) {
                         $product->setPrice($data["full_price"]);
                     }
@@ -240,6 +244,10 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     }
                     if ($this->_checkAttribute("tax", $data)) {
                         $product->setTaxClassId($data["tax"]);
+                    }
+                    if(!$product->getTaxClassId()){
+                        $taxDefault = $helperAnt->getConfigTaxAnt();
+                        $product->setTaxClassId($taxDefault);
                     }
                     if ($this->_checkAttribute("full_price", $data)) {
                         $product->setPrice($data["full_price"]);
@@ -435,6 +443,10 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         }
         if($this->_checkAttribute("tax",$data)) {
             $product->setTaxClassId($data["tax"]);
+        }
+        if(!$product->getTaxClassId()){
+            $taxDefault = Mage::helper("ant_api")->getConfigTaxAnt();
+            $product->setTaxClassId($taxDefault);
         }
         if($this->_checkAttribute("full_price",$data)){
             $product->setPrice($data["full_price"]);
