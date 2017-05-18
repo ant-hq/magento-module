@@ -1437,7 +1437,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                     "sku" => $_item->getData("sku"),
                     "type" => "product",
                     "shipments" => array("quantity" => $_item->getQtyToShip()),
-                    "sale_price" => $_item->getData("price"),
+                    "sale_price" => $_item->getData("base_row_total_incl_tax"),
                     "tax_amount" => $_item->getData("tax_amount"),
                     "tax_percent" => $_item->getData("tax_percent"),
                     "discount" => $_item->getData("discount_amount")
@@ -1449,7 +1449,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                 $disCountParent=0;
             }else{
                 $qtyParent=$_item->getQtyToShip();
-                $priceParent=$_item->getData("price");
+                $priceParent=$_item->getData("base_row_total_incl_tax");
                 $taxAmountParent=$_item->getData("tax_amount");
                 $taxPercentParent=$_item->getData("tax_percent");
                 $disCountParent=$_item->getData("discount_amount");
@@ -1488,6 +1488,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         foreach($order->getData() as $key => $val){
             $arrayOrder["other_data"][$key] = $val;
         }
+        echo "<pre>";
+        var_dump($arrayOrder);
+        echo "</pre>";
+        die();
         return $arrayOrder;
     }
     public function getCustomerHashFromOrder($objectAddress){
