@@ -23,7 +23,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                 $limit=20;
             }
             $pageSize = intval($limit);
-            $collectionProduct = $collectionProduct->setCurPage($page);
+            //$collectionProduct = $collectionProduct->setCurPage($page);
             //$collectionProduct->getSelect()->limit($limit);
         }else{
             $page = 1;
