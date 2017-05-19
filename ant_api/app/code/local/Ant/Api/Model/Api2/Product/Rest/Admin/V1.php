@@ -23,56 +23,28 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                 $limit=20;
             }
             $pageSize = intval($limit);
-            //$collectionProduct = $collectionProduct->setCurPage($page);
-            //$collectionProduct->getSelect()->limit($limit);
+            //$collectionProduct = $collectionProduct;
+            $collectionProduct->getSelect()->joinLeft(array('link_table' => 'catalog_product_super_link'),
+                'link_table.product_id = e.entity_id',
+                array('product_id')
+            );
+            $collectionProduct->getSelect()->where('link_table.product_id IS NULL and (e.type_id="simple" OR e.type_id="configurable")');
+            $collectionProduct->getSelect()->limit($limit);
         }else{
             $page = 1;
         }
         $products = array();
-        $indexCount = 0;
-        $startIndex = 0;
-        if($page == 1) {
-            $startIndex = -1;
-        }
-        if($page > 1){
-            $startIndex = ($limit * ($page - 1)) - 1;
-        }
-        $indexCount =  $startIndex + 1;
-        $iteration = 0;
-        $run=false;
         foreach($collectionProduct as $_product){
-            if(trim($limit) == "") {
-                $idProduct = $_product->getId();
-                switch ($_product->getTypeId()) {
-                    case "simple":
-                        if (empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
-                            $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
-                        }
-                        break;
-                    case "configurable":
-                        $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
-                        break;
-                }
-            }else{
-                $iteration++;
-                if($iteration  >  $indexCount) {
-                    $run = true;
-                }
-                if($indexCount < $limit * $page && $indexCount > $startIndex && $run == true){
-                    $idProduct = $_product->getId();
-                    switch ($_product->getTypeId()) {
-                        case "simple":
-                            if (empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
-                                $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
-                                $indexCount++;
-                            }
-                            break;
-                        case "configurable":
-                            $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
-                            $indexCount++;
-                            break;
+            $idProduct = $_product->getId();
+            switch ($_product->getTypeId()) {
+                case "simple":
+                    if (empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
+                        $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
                     }
-                }
+                    break;
+                case "configurable":
+                    $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
+                    break;
             }
         }
         $countProduct = Mage::helper("ant_api")->getCountProductInStore();
