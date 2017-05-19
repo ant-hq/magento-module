@@ -37,6 +37,9 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
         if($page > 1){
             $startIndex = ($limit * ($page - 1)) - 1;
         }
+        $indexCount =  $startIndex + 1;
+        $iteration = 0;
+        $run=false;
         foreach($collectionProduct as $_product){
             if(trim($limit) == "") {
                 $idProduct = $_product->getId();
@@ -51,20 +54,25 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                         break;
                 }
             }else{
-                if($indexCount < $limit * $page && $indexCount > $startIndex){
+                $iteration++;
+                if($iteration  >  $indexCount) {
+                    $run = true;
+                }
+                if($indexCount < $limit * $page && $indexCount > $startIndex && $run == true){
                     $idProduct = $_product->getId();
                     switch ($_product->getTypeId()) {
                         case "simple":
                             if (empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
                                 $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
+                                $indexCount++;
                             }
                             break;
                         case "configurable":
                             $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
+                            $indexCount++;
                             break;
                     }
                 }
-                $indexCount ++;
             }
         }
         $countProduct = Mage::helper("ant_api")->getCountProductInStore();
