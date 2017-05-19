@@ -23,13 +23,15 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                 $limit=20;
             }
             $pageSize = intval($limit);
-            //$collectionProduct = $collectionProduct;
+            $collectionProduct = $modelProduct
+                ->getCollection()
+                ->setCurPage($page)
+                ->setPageSize($pageSize);
             $collectionProduct->getSelect()->joinLeft(array('link_table' => 'catalog_product_super_link'),
                 'link_table.product_id = e.entity_id',
                 array('product_id')
             );
             $collectionProduct->getSelect()->where('link_table.product_id IS NULL and (e.type_id="simple" OR e.type_id="configurable")');
-            $collectionProduct->getSelect()->limit($limit);
         }else{
             $page = 1;
         }
