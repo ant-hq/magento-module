@@ -23,15 +23,22 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                 $limit=20;
             }
             $pageSize = intval($limit);
-            $collectionProduct = $collectionProduct
-                ->addAttributeToFilter('type_id', array('in' => array('simple','configurable')))
-                ->setCurPage($page)
-                ->setPageSize($limit);
+            $collectionProduct = $collectionProduct->setCurPage($page);
+            //$collectionProduct->getSelect()->limit($limit);
         }else{
             $page = 1;
         }
         $products = array();
+        $indexCount = 0;
+        $startIndex = 0;
+        if($page == 1) {
+            $startIndex = -1;
+        }
+        if($page > 1){
+            $startIndex = ($limit * ($page - 1)) - 1;
+        }
         foreach($collectionProduct as $_product){
+            if(trim($limit) == "") {
                 $idProduct = $_product->getId();
                 switch ($_product->getTypeId()) {
                     case "simple":
@@ -43,6 +50,22 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                         $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
                         break;
                 }
+            }else{
+                if($indexCount < $limit * $page && $indexCount > $startIndex){
+                    $idProduct = $_product->getId();
+                    switch ($_product->getTypeId()) {
+                        case "simple":
+                            if (empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
+                                $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
+                            }
+                            break;
+                        case "configurable":
+                            $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
+                            break;
+                    }
+                }
+                $indexCount ++;
+            }
         }
         $countProduct = Mage::helper("ant_api")->getCountProductInStore();
         $pageCount=intval($countProduct / $pageSize)+1;
