@@ -1580,7 +1580,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $requestToken = $token->getToken();
         $requestTokenSecret = $token->getSecret();
         $user = Mage::getSingleton('admin/session')->getUser();
-        $url = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
+        $collection=Mage::getModel("core/config_data")->getCollection()
+            ->addFieldToFilter("path",array("eq" => Mage_Core_Model_Url::XML_PATH_SECURE_URL))
+            ->addFieldToFilter("scope",array("eq" => "default"))->getFirstItem();
+        $url = $collection->getData("value");
         if ($user) {
             $userId = $user->getId();
         } else if ($isSetup) {
