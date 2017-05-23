@@ -23,13 +23,18 @@ class Ant_Api_Model_Observer{
             }
             $productType = $product->getTypeId();
             $helperAntApi = Mage::helper("ant_api");
+            $url= Mage::helper('core/url')->getCurrentUrl();
+            $isPopup = explode("popup",$url);
+            $isCreateQuick = explode("quickCreate",$url);
             switch ($productType) {
                 case "simple":
                     if ($isCreate) {
-                        $postData = $helperAntApi->setTheHashProductSimple($idProduct);
-                        $urlOfCreate = $helperAntApi->getDataWebHook("product.create");
-                        foreach ($urlOfCreate as $_url) {
-                            $helperAntApi->callUrl($_url, $postData);
+                        if(count($isPopup) < 2 && count($isCreateQuick) < 2) {
+                            $postData = $helperAntApi->setTheHashProductSimple($idProduct);
+                            $urlOfCreate = $helperAntApi->getDataWebHook("product.create");
+                            foreach ($urlOfCreate as $_url) {
+                                $helperAntApi->callUrl($_url, $postData);
+                            }
                         }
                     } else {
                         if(empty(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct))) {
