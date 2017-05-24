@@ -128,13 +128,11 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     if ($this->_checkAttribute("special_price", $data)) {
                         $product->setSpecialPrice($data["special_price"]);
                     }
-                    /*if ($this->_checkAttribute("tags", $data)) {
-                        $stringTags = "";
-                        foreach ($data["tags"] as $_tags) {
-                            $stringTags .= $_tags . ",";
+                    if ($this->_checkAttribute("tags", $data)) {
+                        if (is_array($data["tags"])) {
+                            $helperAnt->setTagsProduct($data["tags"], $product);
                         }
-                        $product->setMetaKeyword($stringTags);
-                    }*/
+                    }
                     if ($this->_checkAttribute("meta", $data)) {
                         $stringMeta = "";
                         foreach ($data["meta"] as $_meta) {
@@ -255,13 +253,11 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     if ($this->_checkAttribute("special_price", $data)) {
                         $product->setSpecialPrice($data["special_price"]);
                     }
-                    /*if ($this->_checkAttribute("tags", $data)) {
-                        $stringTags = "";
-                        foreach ($data["tags"] as $_tags) {
-                            $stringTags .= $_tags . ",";
+                    if ($this->_checkAttribute("tags", $data)) {
+                        if (is_array($data["tags"])) {
+                            $helperAnt->setTagsProduct($data["tags"], $product);
                         }
-                        $product->setMetaKeyword($stringTags);
-                    }*/
+                    }
                     if ($this->_checkAttribute("meta", $data)) {
                         $stringMeta = "";
                         foreach ($data["meta"] as $_meta) {

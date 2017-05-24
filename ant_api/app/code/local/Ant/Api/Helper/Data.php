@@ -183,14 +183,229 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             return Mage::getModel('core/log_adapter', $filename)->log($data);
         }
     }
+    public function logHistory($message,$isError = false){
+        if($isError == true) {
+            Mage::log($message, null, "error_log_ant_api.log");
+        }else{
+            Mage::log($message, null, "log_ant_api.log");
+        }
+    }
+    /** Begin Save Tax Product **/
+    public function createCustomer(){
+        $websiteId = 1;
+        $store =  Mage::getModel('core/store')->load(0); ;
+        $customer = Mage::getModel("customer/customer");
+        $customer   ->setWebsiteId($websiteId)
+            ->setStore($store)
+            ->setFirstname('Tag Admin')
+            ->setLastname('Tag Admin')
+            ->setEmail('tagAdmin@gmail.com')
+            ->setPassword('1234567');
+        try{
+            $customer->save();
+            return $customer->getId();
+        }
+        catch (Exception $e) {
+
+        }
+    }
+    public function getCustomerId(){
+        $collectionCustomer=Mage::getModel('customer/customer')->getCollection();
+        $idCustomer = 0 ;
+        if($collectionCustomer->count() > 0) {
+            foreach ($collectionCustomer as $_customer) {
+                $idCustomer = $_customer->getId();
+                break;
+            }
+        }else{
+            $idCustomer = $this->createCustomer();
+        }
+        return $idCustomer;
+    }
+    public function setTagsProduct($tagArray,$product){
+        $tagName = "" ;
+        foreach ( $tagArray as $_tag){
+            $tagName.=$_tag." ";
+        }
+        if(!$product->getId()){
+            $this->logHistory("Product id doest not exsit",true);
+        } else {
+            try {
+                $customerId = $this->getCustomerId(); //$customerSession->getCustomerId();
+                $storeId = 0;
+                $productId = $product->getId();
+                $tagNamesArr = $this->_cleanTags($this->_extractTags($tagName));
+                $counter = new Varien_Object(array(
+                        "new" => 0,
+                        "exist" => array(),
+                        "success" => array(),
+                        "recurrence" => array())
+                );
+                $tagModel = Mage::getModel('tag/tag');
+                $tagRelationModel = Mage::getModel('tag/tag_relation');
+
+                foreach ($tagNamesArr as $tagName) {
+                    $tagModel->unsetData()
+                        ->loadByName($tagName)
+                        ->setStoreId($storeId)
+                        ->setName($tagName);
+
+                    $tagRelationModel->unsetData()
+                        ->setStoreId($storeId)
+                        ->setProductId($productId)
+                        ->setCustomerId($customerId)
+                        ->setActive(1)
+                        ->setCreatedAt( $tagRelationModel->getResource()->formatDate(time()) );
+
+                    if (!$tagModel->getId()) {
+                        $tagModel->setFirstCustomerId($customerId)
+                            ->setFirstStoreId($storeId)
+                            ->setStatus($tagModel->getApprovedStatus())
+                            ->save();
+
+                        $tagRelationModel->setTagId($tagModel->getId())->save();
+                        $counter->setNew($counter->getNew() + 1);
+                    } else {
+                        $tagStatus = $tagModel->getStatus();
+                        $tagRelationModel->setTagId($tagModel->getId());
+
+                        switch($tagStatus) {
+                            case $tagModel->getApprovedStatus():
+                                if($this->_checkLinkBetweenTagProduct($tagRelationModel)) {
+                                    $relation =$this->_getLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel);
+                                    if ($relation->getId()) {
+                                        if (!$relation->getActive()) {
+                                            $tagRelationModel
+                                                ->setId($relation->getId())
+                                                ->save();
+                                        }
+                                    } else {
+                                        $tagRelationModel->save();
+                                    }
+                                    $counter->setExist(array_merge($counter->getExist(), array($tagName)));
+                                } else {
+                                    $tagRelationModel->save();
+                                    $counter->setSuccess(array_merge($counter->getSuccess(), array($tagName)));
+                                }
+                                break;
+                            case $tagModel->getPendingStatus():
+                                $relation = $this->_getLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel);
+                                if ($relation->getId()) {
+                                    if (!$relation->getActive()) {
+                                        $tagRelationModel
+                                            ->setId($relation->getId())
+                                            ->save();
+                                    }
+                                } else {
+                                    $tagRelationModel->save();
+                                }
+                                $counter->setNew($counter->getNew() + 1);
+                                break;
+                            case $tagModel->getDisabledStatus():
+                                if($this->_checkLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel)) {
+                                    $counter->setRecurrence(array_merge($counter->getRecurrence(), array($tagName)));
+                                } else {
+                                    $tagModel->setStatus($tagModel->getPendingStatus())->save();
+                                    $tagRelationModel->save();
+                                    $counter->setNew($counter->getNew() + 1);
+                                }
+                                break;
+                        }
+                    }
+                }
+
+            } catch (Exception $e) {
+                $this->logHistory("Unable to save tags",true);
+            }
+        }
+    }
+    public function getTagsProduct($product_id){
+        $model = Mage::getModel('tag/tag');
+        $tagCollection = $model->getResourceCollection()
+            ->addPopularity()
+            ->addProductFilter($product_id);
+        $arrayTags = array ();
+        foreach($tagCollection as $_tag){
+            $arrayTags[] =$_tag->getName();
+        }
+        return $arrayTags;
+    }
+    function _extractTags($tagNamesInString)
+    {
+        return explode("\n", preg_replace("/(\'(.*?)\')|(\s+)/i", "$1\n", $tagNamesInString));
+    }
     /**
-     * Make the function helper for hash product
+     * Clears the tag from the separating characters.
      *
+     * @param array $tagNamesArr
+     * @return array
      */
+    function _cleanTags(array $tagNamesArr)
+    {
+        foreach( $tagNamesArr as $key => $tagName ) {
+            $tagNamesArr[$key] = trim($tagNamesArr[$key], '\'');
+            $tagNamesArr[$key] = trim($tagNamesArr[$key]);
+            if( $tagNamesArr[$key] == '' ) {
+                unset($tagNamesArr[$key]);
+            }
+        }
+        return $tagNamesArr;
+    }
+    /**
+     * Checks whether the already marked this product in this store by this tag.
+     *
+     * @param Mage_Tag_Model_Tag_Relation $tagRelationModel
+     * @return boolean
+     */
+    function _checkLinkBetweenTagProduct($tagRelationModel)
+    {
+        $customerId = $tagRelationModel->getCustomerId();
+        $tagRelationModel->setCustomerId(null);
+        $res = in_array($tagRelationModel->getProductId(), $tagRelationModel->getProductIds());
+        $tagRelationModel->setCustomerId($customerId);
+        return $res;
+    }
+    /**
+     * Checks whether the already marked this product in this store by this tag and by this customer.
+     *
+     * @param Mage_Tag_Model_Tag_Relation $tagRelationModel
+     * @param Mage_Tag_Model_Tag $tagModel
+     * @return boolean
+     */
+    function _checkLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel)
+    {
+        return (count($this->_getLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel)->getProductIds()) > 0);
+    }
+    /**
+     * Get relation model for marked product in this store by this tag and by this customer.
+     *
+     * @param Mage_Tag_Model_Tag_Relation $tagRelationModel
+     * @param Mage_Tag_Model_Tag $tagModel
+     * @return Mage_Tag_Model_Tag_Relation
+     */
+    function _getLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel)
+    {
+        return Mage::getModel('tag/tag_relation')->loadByTagCustomer(
+            $tagRelationModel->getProductId(),
+            $tagModel->getId(),
+            $tagRelationModel->getCustomerId(),
+            $tagRelationModel->getStoreId()
+        );
+    }
+    /** End Save Tax Product **/
+
+    /**
+     * Function Config default tax was set by Extension
+     **/
     public function getConfigTaxAnt(){
         $path = "ant_api_config/tax_class_ant/ant_taxs";
         return Mage::getStoreConfig($path);
     }
+    /**
+     * @param Mage_Core_Catalog_Product
+     * Get rate tax base on tax class id of product
+     * @return Mage_Core_Tax_Calculation_Rate
+     **/
     public function getTaxCalculation($_product){
         //$taxClasses  = Mage::helper("core")->jsonDecode(Mage::helper("tax")->getAllRatesByProductClass());
         $collection=Mage::getModel('tax/calculation')->getCollection()->addFieldToFilter("product_tax_class_id",array("eq" => $_product->getTaxClassId()))->getFirstItem();
@@ -218,6 +433,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         }
         return $countProduct;
     }
+    /**
+     * Make the function helper for hash product
+     *
+     **/
     public function setTheHashProductSimple($idProduct){
 
         $modelDetailProduct = Mage::getModel("catalog/product");
@@ -235,6 +454,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayDetailProduct["weight"] = $detailProduct->getWeight();
         $arrayDetailProduct["full_price"] = $detailProduct->getFinalPrice();
         $arrayDetailProduct["special_price"] = $detailProduct->getSpecialPrice();
+        $arrayDetailProduct["tags"] = $this->getTagsProduct($detailProduct->getid());
         $arrayTags=explode(",",$detailProduct->getMetaKeyword());
         $arrayOutPutTags=array();
         foreach($arrayTags as $_tag){
@@ -302,6 +522,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayDetailProduct["backend_url"] = $this->getUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getid()."/";
         $arrayDetailProduct["weight"] = $detailProduct->getWeight();
         $arrayDetailProduct["special_price"] = $detailProduct->getSpecialPrice();
+        $arrayDetailProduct["tags"] = $this->getTagsProduct($detailProduct->getid());
         $arrayTags=explode(",",$detailProduct->getMetaKeyword());
         $arrayOutPutTags=array();
         foreach($arrayTags as $_tag){

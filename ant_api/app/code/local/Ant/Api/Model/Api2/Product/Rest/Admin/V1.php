@@ -162,11 +162,6 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     $product->setPrice($data["full_price"]);
                     $product->setData("special_price",$data["special_price"]);
                     $product->setMetaTitle($data["name"]);
-                    /*$stringTags="";
-                    foreach($data["tags"] as $_tags){
-                        $stringTags.=$_tags.",";
-                    }*/
-
                     $stringMeta="";
                     foreach($data["meta"] as $_meta){
                         $stringMeta.=$_meta.",";
@@ -247,6 +242,11 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     }
                     if($isErrorImage==false) {
                         $product->save();
+                        if(isset($data["tags"])) {
+                            if (is_array($data["tags"])) {
+                                $helperAnt->setTagsProduct($data["tags"], $product);
+                            }
+                        }
                         return $product->getId()."|simple";
                     }
                     unset($product);
@@ -274,11 +274,6 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                         $urlRewrite = $helperAnt->rewriteUrl($data["name"], $handle);
                         $product->setUrlKey($urlRewrite);
                     }
-                    /*$stringTags="";
-                    foreach($data["tags"] as $_tags){
-                        $stringTags.=$_tags.",";
-                    }
-                    $product->setMetaKeyword($stringTags);*/
                     $stringMeta="";
                     foreach($data["meta"] as $_meta){
                         $stringMeta.=$_meta.",";
@@ -405,6 +400,11 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     }
                     if ($isErrorImage == false && $errorOnChildProduct==false) {
                         $product->save();
+                        if(isset($data["tags"])) {
+                            if (is_array($data["tags"])) {
+                                $helperAnt->setTagsProduct($data["tags"], $product);
+                            }
+                        }
                         return $product->getId()."|configurable";
                     }
                     unset($product);
