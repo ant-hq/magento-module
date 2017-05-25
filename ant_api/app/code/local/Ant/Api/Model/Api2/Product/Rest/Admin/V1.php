@@ -468,7 +468,8 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                             $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
                             $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
                             $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
-                            $product->setData($_item["code"],$value);
+                            $attribute_code = $attr->getAttributeCode();
+                            $product->setData($attribute_code,$value);
                         }
                     }
                     if ($this->_checkAttribute("inventories", $data)) {
@@ -526,7 +527,8 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                         $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
                         $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
                         $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
-                        $product->setData($_item["code"],$value);
+                        $attribute_code = $attr->getAttributeCode();
+                        $product->setData($attribute_code,$value);
                     }
                 }
                 if ($this->_checkAttribute("inventories", $data)) {
@@ -580,7 +582,8 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                     $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
                     $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
                     $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
-                    $product->setData($_item["code"],$value);
+                    $attribute_code = $attr->getAttributeCode();
+                    $product->setData($attribute_code,$value);
                 }
             }
             if ($this->_checkAttribute("inventories", $data)) {
