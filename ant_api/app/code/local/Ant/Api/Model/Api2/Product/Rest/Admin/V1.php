@@ -425,7 +425,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
         }
     }
     public function setSimpleProductToConfigruableProduct($data,$attributeSetId){
-
+        Mage::register('is_new_product_api',"noevent");
         if(isset($data["id"])){
             $product=Mage::getModel("catalog/product")->load($data["id"]);
             if($product->getId()){
@@ -554,6 +554,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
         }
     }
     public function setSimpleProductToConfigruableProductCaseUpdate($id_product,$data){
+        Mage::register('is_new_product_api',"noevent");
         if ($this->_validateVariantBeforeUpdate($data) == "") {
             $product = Mage::getModel("catalog/product")->load($id_product);
             $arrayToExclude = array("id","product_name","images", "inventories", "tax", "full_price");
