@@ -380,6 +380,7 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                         foreach ($dataVariants as $_variant) {
                             $arrayProductIds[] = $this->setSimpleProductToConfigruableProduct($_variant, $attributeSetId);
                         }
+                        Mage::register('is_new_product_api',"noevent");
                         $arrayAttributeToset = array();
                         $firstData = $dataVariants[0]["options"];
                         foreach ($firstData as $first_options) {
@@ -405,7 +406,6 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                         $product->setConfigurableProductsData($configurableProductsData);
                     }
                     if ($isErrorImage == false && $errorOnChildProduct==false) {
-                        Mage::register('is_new_product_api',"noevent");
                         $product->save();
                         if(isset($data["tags"])) {
                             if (is_array($data["tags"])) {
