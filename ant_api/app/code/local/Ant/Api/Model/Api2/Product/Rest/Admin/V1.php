@@ -360,6 +360,23 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                         $product_options = $data["product_options"];
                         foreach ($product_options as $p_opt) {
                             $nameAttribute = $p_opt["name"];
+                            $attribute_id=Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$nameAttribute);
+                            $attr_object = Mage::getModel('catalog/resource_eav_attribute')->load($attribute_id);
+                            $attributes = Mage::getModel('catalog/product_attribute_api')->items($attributeSetId);
+                            $isBelongtoDefault = false;
+                            foreach($attributes as $_attribute){
+                                if($_attribute["attribute_id"] == $attribute_id){
+                                    $isBelongtoDefault = true;
+                                    break;
+                                }
+                            }
+                            if($isBelongtoDefault == false) {
+                                $model_attribute_set = Mage::getModel('eav/entity_setup', 'core_setup');
+                                $attr_code = $attr_object->getAttributeCode();
+                                $model_attribute_set->addAttributeToSet(
+                                    'catalog_product', 'Default', 'General', $attr_code
+                                );
+                            }
                             $p_values = $p_opt["values"];
                             $valStringArray = array();
                             foreach ($p_values as $_val) {
