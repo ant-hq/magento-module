@@ -65,8 +65,14 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
         throw new Exception($message,$code);
     }
     protected function _checkAttribute($attribute_name,$data){
-        if(!isset($data[$attribute_name]) || trim($data[$attribute_name]) == "" ){
-            return false;
+        if(is_array($data[$attribute_name])){
+            if (!isset($data[$attribute_name])) {
+                return false;
+            }
+        }else {
+            if (!isset($data[$attribute_name]) || trim($data[$attribute_name]) == "") {
+                return false;
+            }
         }
         return true;
     }
