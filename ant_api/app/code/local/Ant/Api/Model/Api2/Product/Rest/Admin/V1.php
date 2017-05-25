@@ -387,6 +387,9 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                                 $helperAnt->createAttribute($nameAttribute, $nameAttribute, -1, -1, -1,
                                     $valStringArray);
                             }
+                            else {
+                                $helperAnt->updateAttributeValue($nameAttribute, $valStringArray);
+                            }
                         }
                     }
                     //Get Configruable Product
