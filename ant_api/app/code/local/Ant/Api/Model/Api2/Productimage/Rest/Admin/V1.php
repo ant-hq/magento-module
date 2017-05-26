@@ -21,6 +21,7 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
             $index = 1;
             foreach($items as $item) {
                 if($index == $indexCheck){
+                    Mage::register('is_new_product_api',"noevent");
                     $mediaApi->remove($idProduct,$item['file'],0,null);
                 }
                 $index++;
@@ -78,6 +79,7 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
                 }
                 $indexCheck++;
             }
+            Mage::register('is_new_product_api',"noevent");
             $items = $mediaApi->items($idProduct,Mage_Core_Model_App::ADMIN_STORE_ID);
             $index=1;
             $isUpdated=false;
@@ -102,6 +104,7 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
             if($isUpdated == false){
                 $this->_criticalCustom("There is no image id on product [$idProduct]. Please check your data request.",400);
             }else {
+                Mage::register('is_new_product_api',"noevent");
                 $product->save();
             }
         } catch (Mage_Eav_Model_Entity_Attribute_Exception $e) {
@@ -178,6 +181,7 @@ class Ant_Api_Model_Api2_ProductImage_Rest_Admin_V1 extends Ant_Api_Model_Api2_P
                 'types' => $types,
                 'exclude' => $exclude
             );
+            Mage::register('is_new_product_api',"noevent");
             $mediaApi->create($idProduct,$dataImage,Mage_Core_Model_App::ADMIN_STORE_ID,null);
         } catch (Mage_Eav_Model_Entity_Attribute_Exception $e) {
             $this->_critical(sprintf('Invalid attribute "%s": %s', $e->getAttributeCode(), $e->getMessage()),
