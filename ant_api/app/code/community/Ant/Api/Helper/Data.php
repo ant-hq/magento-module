@@ -563,7 +563,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayProductOptions=array();
         foreach($childProducts as $child) {
             $arrayChildProduct=array();
-            $childProduct=Mage::getModel("catalog/product")->load($child->getid());
+            $childProduct=Mage::getModel("catalog/product")->load($child->getId());
             $arrayChildProduct["id"] = $child->getId();
             $arrayChildProduct["sku"] = $child->getSku();
             $arrayChildProduct["supply_price"] = $childProduct->getData("supply_price");
@@ -1605,6 +1605,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayOrder=array();
         $total_tax=0;
         $statusLabel="Pending";
+        $quote = $order->getQuote();
         if($taxOnFrontEnd !=null){
             $total_tax=$taxOnFrontEnd;
         }
@@ -1653,25 +1654,41 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                 continue;
             }
             if($_item->getData("product_type")=="simple") {
-                $arrayOrder["items"][] = array(
-                    "id" => $_item->getId(),
-                    "name" => $_item->getData("name"),
-                    "product_id" => $_item->getData("product_id"),
-                    "sku" => $_item->getData("sku"),
-                    "type" => "product",
-                    "shipments" => array("quantity" => $_item->getQtyToShip()),
-                    "sale_price" => $_item->getData("base_row_total_incl_tax"),
-                    "tax_amount" => $_item->getData("tax_amount"),
-                    "tax_percent" => $_item->getData("tax_percent"),
-                    "discount" => $_item->getData("discount_amount")
-                );
+
+                if(!Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($_item->getData("product_id"))) {
+                    $arrayOrder["items"][] = array(
+                        "id" => $_item->getId(),
+                        "name" => $_item->getData("name"),
+                        "product_id" => $_item->getData("product_id"),
+                        "sku" => $_item->getData("sku"),
+                        "type" => "product",
+                        "shipments" => array("quantity" => $_item->getQtyOrdered()),
+                        "sale_price" => $_item->getData("base_row_total_incl_tax"),
+                        "tax_amount" => $_item->getData("tax_amount"),
+                        "tax_percent" => $_item->getData("tax_percent"),
+                        "discount" => $_item->getData("discount_amount")
+                    );
+                }else{
+                    $arrayOrder["items"][] = array(
+                        "id" => $_item->getId(),
+                        "name" => $_item->getData("name"),
+                        "product_id" => $_item->getData("product_id"),
+                        "sku" => $_item->getData("sku"),
+                        "type" => "variant",
+                        "shipments" => array("quantity" => $_item->getQtyOrdered()),
+                        "sale_price" => $_item->getData("base_row_total_incl_tax"),
+                        "tax_amount" => $_item->getData("tax_amount"),
+                        "tax_percent" => $_item->getData("tax_percent"),
+                        "discount" => $_item->getData("discount_amount")
+                    );
+                }
                 $qtyParent=0;
                 $priceParent=0;
                 $taxAmountParent=0;
                 $taxPercentParent=0;
                 $disCountParent=0;
             }else{
-                $qtyParent=$_item->getQtyToShip();
+                $qtyParent=$_item->getQtyOrdered();
                 $priceParent=$_item->getData("base_row_total_incl_tax");
                 $taxAmountParent=$_item->getData("tax_amount");
                 $taxPercentParent=$_item->getData("tax_percent");
@@ -1711,6 +1728,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         foreach($order->getData() as $key => $val){
             $arrayOrder["other_data"][$key] = $val;
         }
+
         return $arrayOrder;
     }
     public function getCustomerHashFromOrder($objectAddress){
@@ -1803,9 +1821,20 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $requestToken = $token->getToken();
         $requestTokenSecret = $token->getSecret();
         $user = Mage::getSingleton('admin/session')->getUser();
-        $collection=Mage::getModel("core/config_data")->getCollection()
-            ->addFieldToFilter("path",array("eq" => Mage_Core_Model_Url::XML_PATH_SECURE_URL))
+        $useInFrontEnd = Mage::getModel("core/config_data")->getCollection()
+            ->addFieldToFilter("path",array("eq" => Mage_Core_Model_Url::XML_PATH_SECURE_IN_FRONT))
             ->addFieldToFilter("scope",array("eq" => "default"))->getFirstItem();
+        $collection = null;
+        if($useInFrontEnd->getData("value") != "0" ){
+            $collection=Mage::getModel("core/config_data")->getCollection()
+                ->addFieldToFilter("path",array("eq" => Mage_Core_Model_Url::XML_PATH_SECURE_URL))
+                ->addFieldToFilter("scope",array("eq" => "default"))->getFirstItem();
+        }
+        else{
+            $collection=Mage::getModel("core/config_data")->getCollection()
+                ->addFieldToFilter("path",array("eq" => Mage_Core_Model_Url::XML_PATH_UNSECURE_URL))
+                ->addFieldToFilter("scope",array("eq" => "default"))->getFirstItem();
+        }
         $url = $collection->getData("value");
         if ($user) {
             $userId = $user->getId();

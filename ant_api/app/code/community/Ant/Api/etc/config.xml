@@ -216,6 +216,14 @@
                     </sales_order_place_after_observer>
                 </observers>
             </sales_order_place_after>
+            <sales_order_payment_pay>
+                <observers>
+                    <sales_order_payment_pay_observer>
+                        <class>Ant_Api_Model_Observer</class>
+                        <method>SaveOrderPaymentPayOnFrontend</method>
+                    </sales_order_payment_pay_observer>
+                </observers>
+            </sales_order_payment_pay>
             <customer_register_success>
                 <observers>
                     <customer_register_success_observer>
