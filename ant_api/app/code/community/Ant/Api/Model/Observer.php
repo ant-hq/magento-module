@@ -231,7 +231,7 @@ class Ant_Api_Model_Observer{
         $order = $observer->getInvoice()->getOrder();
         $helperAntApi=Mage::helper("ant_api");
         $tax_total=Mage::helper('checkout')->getQuote()->getShippingAddress()->getData('tax_amount');
-        $postData=$helperAntApi->setTheHashOrder($order,$tax_total);
+        $postData=$helperAntApi->setTheHashOrder($order,$tax_total,Mage_Sales_Model_Order::STATE_PROCESSING);
         $urlOfCreateCustomer=$helperAntApi->getDataWebHook("order.create");
         foreach($urlOfCreateCustomer as $_url){
             $helperAntApi->callUrl($_url,$postData);
