@@ -563,6 +563,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayProductOptions=array();
         foreach($childProducts as $child) {
             $arrayChildProduct=array();
+            //TODO: change this to not load a database connectino within a foreach. This should be handled by a collection with attributes added to the collection.
             $childProduct=Mage::getModel("catalog/product")->load($child->getId());
             $arrayChildProduct["id"] = $child->getId();
             $arrayChildProduct["sku"] = $child->getSku();
@@ -571,6 +572,11 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $percent = $this->getTaxCalculation($childProduct);
             $arrayChildProduct["tax"] = $percent;
             $arrayChildProduct["markup"] = $childProduct->getData("markup");
+
+            //Making a point of this - naming conventions could get confusing//
+            // as per issue #1 in github, child weight needs to be set to parent product
+            $arrayChildProduct["weight"] = $arrayDetailProduct->getWeight();
+
             $arrayInventory = array();
             $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($child);
             $arrayInventory["quantity"] = $stock->getQty();

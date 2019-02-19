@@ -27,6 +27,7 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                 ->getCollection()
                 ->setCurPage($page)
                 ->setPageSize($pageSize);
+            //todo: these database select changes shouldn't be done in a model, they need to be moved to a custom resource model
             $collectionProduct->getSelect()->joinLeft(array('link_table' => Mage::getConfig()->getTablePrefix().'catalog_product_super_link'),
                 'link_table.product_id = e.entity_id',
                 array('product_id')
