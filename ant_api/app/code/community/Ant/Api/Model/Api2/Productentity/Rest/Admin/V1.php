@@ -36,6 +36,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
             }else{
                 $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null,$product);
                 foreach($childProducts as $child){
+                    //TODO: wtf? there are bulk delete actions we can use without triggering a full load of the product
                     $childProduct=Mage::getModel("catalog/product")->load($child->getId());
                     $childProduct->delete();
                 }
@@ -97,13 +98,21 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         }
         return $stringError;
     }
+
+    private function getShouldSyncSpecialPrice(){
+        return ( (int) Mage::getConfig(Ant_Api_Helper_Data::XML_PATH_SYNC_SOURCE_PRICING) == Ant_Api_Model_System_Config_Sync_Source_Framework::OPTION_VALUE_ANTHQ);
+    }
+
+
     protected function _update(array $data){
         $idProduct=$this->getRequest()->getParam("id_product");
+        /** @var Mage_Catalog_Model_Product $product */
         $product = Mage::getModel("catalog/product")->load($idProduct);
         // attribute set and product type cannot be updated
         $arrayToExclude=array("id","images","inventories","full_price","tags","tax","meta","manage_stock","special_price","product_options","categories","product_type","handle");
         $helperAnt = Mage::helper("ant_api");
         $skuCheck=$product->getSku();
+
         if($skuCheck==""){
             $this->_criticalCustom("Product id not found.", "404");
         }
@@ -125,7 +134,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     if ($this->_checkAttribute("full_price", $data)) {
                         $product->setPrice($data["full_price"]);
                     }
-                    if ($this->_checkAttribute("special_price", $data)) {
+                    if ($this->getShouldSyncSpecialPrice() &&  $this->_checkAttribute("special_price", $data)) {
                         $product->setSpecialPrice($data["special_price"]);
                     }
                     if ($this->_checkAttribute("tags", $data)) {
@@ -235,14 +244,18 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     $product->save();
                 }
                 if ($product->getTypeId() == "configurable") {
+                    //TODO: should use a sync map here, and only have exceptions where it calls outside of the map (Map should be settable in config)
+                    //TODO: change below $product->setData to $product->setDataUsingMethod to ensure that any overriden functions are honoured
                     foreach ($data as $key => $value) {
                         if (!in_array($key, $arrayToExclude)) {
                             $product->setData($key, $value);
                         }
                     }
+
                     if ($this->_checkAttribute("tax", $data)) {
                         $product->setTaxClassId($data["tax"]);
                     }
+
                     if(!$product->getTaxClassId()){
                         $taxDefault = $helperAnt->getConfigTaxAnt();
                         $product->setTaxClassId($taxDefault);
@@ -250,7 +263,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                     if ($this->_checkAttribute("full_price", $data)) {
                         $product->setPrice($data["full_price"]);
                     }
-                    if ($this->_checkAttribute("special_price", $data)) {
+                    if ($this->getShouldSyncSpecialPrice() && $this->_checkAttribute("special_price", $data)) {
                         $product->setSpecialPrice($data["special_price"]);
                     }
                     if ($this->_checkAttribute("tags", $data)) {

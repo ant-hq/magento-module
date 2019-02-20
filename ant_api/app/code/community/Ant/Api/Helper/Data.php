@@ -43,6 +43,12 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      */
     const XML_PATH_AUTHORIZATION_URL = 'ant_api_config/general/url_front';
 
+    /**
+     * Path to store config where sync source pricing is stored
+     * @var string
+     */
+    const XML_PATH_SYNC_SOURCE_PRICING = 'ant_api_config/sync_source/pricing';
+
     const KEY_NAME_IMAGE="image_name";
 
     const KEY_ABSOLUTE_PATH_IMG="absolute_path";

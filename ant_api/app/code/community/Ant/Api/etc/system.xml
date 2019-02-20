@@ -85,7 +85,7 @@
                         <url_front>
                             <label>URL</label>
                             <frontend_type>text</frontend_type>
-                            <comment>The Store Url . eg "http://yourdomain.com/"</comment>
+                            <comment><![CDATA[The Store Url . eg "http://yourdomain.com/"]]></comment>
                             <disabled>true</disabled>
                             <sort_order>101</sort_order>
                             <show_in_default>1</show_in_default>
@@ -95,6 +95,26 @@
                         </url_front>
                     </fields>
                 </general>
+                <sync_source translate="label">
+                    <label>Sync Source settings</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>11</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <pricing translate="label">
+                            <label>Special Price Master Source</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <source_model>ant_api/system_config_sync_source_framework</source_model>
+                            <comment><![CDATA[When AntHQ is selected as master, any price changes resulting in a discount in AntHQ will be pushed into Magento products when syncing. <br/>When Magento is selected as master, any price changes resulting in a discount in AntHQ will not be pushed into Magento products. All discounting to be conducted in Magento directly]]></comment>
+                        </pricing>
+                    </fields>
+                </sync_source>
                 <tax_class_ant translate="label">
                     <label>Product settings</label>
                     <frontend_type>text</frontend_type>
