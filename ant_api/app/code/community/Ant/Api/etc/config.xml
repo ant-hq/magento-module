@@ -15,6 +15,11 @@
             <ant_api>
                 <class>Ant_Api_Block</class>
             </ant_api>
+            <adminhtml>
+                <rewrite>
+                    <sales_order_view>Ant_Api_Block_Adminhtml_Sales_Order_View</sales_order_view>
+                </rewrite>
+            </adminhtml>
         </blocks>
         <models>
             <ant_api>
