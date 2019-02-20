@@ -20,27 +20,20 @@
  *   @copyright   Copyright (c) 2019 Neo Industries Pty Ltd (http://www.neotheme.com.au)
  *   @license     http://www.neotheme.com.au/  Non-Distributable Software Modification License(NDSML 1.0)
  */
-
-/**
- * Class Ant_Api_Block_Adminhtml_Sales_Order_View
- */
-class Ant_Api_Block_Adminhtml_Sales_Order_View extends Mage_Adminhtml_Block_Sales_Order_View
+class Ant_Api_Block_Adminhtml_Customer_Edit extends Mage_Adminhtml_Block_Customer_Edit
 {
-
     public function __construct()
     {
-        parent::__construct();
+        $syncCustomerAntUrl = Mage::helper('ant_api')->getWebhookUrl(Ant_Api_Model_Webhook::CUSTOMER_CREATE, $this->getCustomerId());
+        $onclickJs = 'deleteConfirm(\'' . 'Sync to Ant?' . '\', \'' . $syncCustomerAntUrl . '\');';
 
-        $order = $this->getOrder();
 
-        $syncOrderAntUrl = Mage::helper('ant_api')->getWebhookUrl(Ant_Api_Model_Webhook::ORDER_CREATE, $order->getId());
-        $onclickJs = 'deleteConfirm(\'' . 'Sync to Ant?' . '\', \'' . $syncOrderAntUrl . '\');';
-
-        $this->_addButton('sync_ant_order', array(
-            'label'    => Mage::helper('sales')->__('Sync With Ant'),
-            'onclick'  => $onclickJs,
+        $this->_addButton('sync_ant_customer', array(
+            'label'    => Mage::helper('customer')->__('Sync With Ant'),
+            'onclick' => $onclickJs,
             'class'  => 'ant-hq-sync-button'
         ));
-
+        parent::__construct();
     }
+
 }
