@@ -41,11 +41,31 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
             switch ($_product->getTypeId()) {
                 case "simple":
                     if (!Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct)) {
-                        $products[] = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
+                        try {
+                            /* Ant Helper setTheHashProductSimple returns a structured array of data for use in ant's API */
+                            /* TODO: Create custom Ant Product model and populate the data with the response */
+                            $newProductData = Mage::helper("ant_api")->setTheHashProductSimple($idProduct);
+                        } catch (\Exception $exception) {
+                            $newProductData = array(
+                                'id' => $idProduct,
+                                'error' => $exception->getMessage()
+                            );
+                        }
+                        $products[] = $newProductData;
                     }
                     break;
                 case "configurable":
-                    $products[] = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
+                    try {
+                        /* Ant Helper setTheHashConfigruableProduct returns a structured array of data for use in ant's API */
+                        /* TODO: Create custom Ant Configurable Product model and populate the data with the response */
+                        $newProductData = Mage::helper("ant_api")->setTheHashConfigruableProduct($idProduct);
+                    } catch (\Exception $exception) {
+                        $newProductData = array(
+                            'id' => $idProduct,
+                            'error' => $exception->getMessage()
+                        );
+                    }
+                    $products[] = $newProductData;
                     break;
             }
         }
