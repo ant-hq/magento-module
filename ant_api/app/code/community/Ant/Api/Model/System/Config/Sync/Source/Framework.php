@@ -23,8 +23,8 @@ class Ant_Api_Model_System_Config_Sync_Source_Framework
              'value' => self::OPTION_VALUE_MAGENTO
         );
         $options[] = array(
-            'label' => Mage::helper('ant_api')->__(self::OPTION_VALUE_ANTHQ),
-            'value' => self::OPTION_LABEL_ANTHQ
+            'label' => Mage::helper('ant_api')->__(self::OPTION_LABEL_ANTHQ),
+            'value' => self::OPTION_VALUE_ANTHQ
         );
         return $options;
     }
