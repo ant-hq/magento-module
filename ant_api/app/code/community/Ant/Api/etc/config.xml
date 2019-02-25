@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Ant_Api>
-            <version>0.0.3</version>
+            <version>0.0.4</version>
         </Ant_Api>
     </modules>
     <global>
