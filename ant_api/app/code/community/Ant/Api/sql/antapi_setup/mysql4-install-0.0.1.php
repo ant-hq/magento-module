@@ -2,6 +2,7 @@
 /** @var Ant_Api_Model_Resource_Setup $installer */
 $installer = $this;
 $installer->startSetup();
+
 $tableName =  $installer->getTable('ant_api/webhook');
 if (!$installer->getConnection()->isTableExists($tableName)) {
     $table = $installer->getConnection()
@@ -24,7 +25,5 @@ if (!$installer->getConnection()->isTableExists($tableName)) {
 
     $installer->getConnection()->createTable($table);
 }
-
-//attempt to modify the .htaccess file
 
 $installer->endSetup();

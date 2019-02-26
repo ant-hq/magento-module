@@ -6,31 +6,23 @@ class Ant_Api_Model_Resource_Setup extends Mage_Core_Model_Resource_Setup{
 
     const ANT_ADMIN_USER_USERNAME  = 'anthq_system_user';
     const ANT_ADMIN_USER_FIRSTNAME = 'AntHQ User';
-    const ANT_ADMIN_USER_LASTNAME  = ' - Used for Syncing';
+    const ANT_ADMIN_USER_LASTNAME  = 'Used for Syncing';
     const ANT_ADMIN_USER_EMAIL     = 'support@anthq.com';
 
     const APACHE_HTACCESS_FILEPATH_PATTERN = 'apache/htaccess-{{version}}.dist';
 
     const ANTHQ_SETUP_FLAG_CODE = 'anthq_setup_ongoing';
+
     /**
      * @var Mage_Api2_Model_Acl_Global_Role
      */
     private $role;
 
     /**
-     * @var Mage_Api2_Model_Acl_Global_Rule
-     */
-    private $rule;
-
-    /**
      * @var Mage_Admin_Model_User
      */
     private $adminUser;
 
-    /**
-     * @var Mage_Core_Model_Flag
-     */
-    private $flagModel;
 
     /**
      * @return Mage_Api2_Model_Acl_Global_Role
@@ -121,6 +113,11 @@ class Ant_Api_Model_Resource_Setup extends Mage_Core_Model_Resource_Setup{
         return $this->adminUser;
     }
 
+    /***
+     * Generates the Admin User, Rest Role, and All Oauth Requirements
+     *
+     * @throws Exception
+     */
     public function generateRestRoleToOauth(){
 
         /** @var Mage_Admin_Model_User $adminUser */

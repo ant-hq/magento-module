@@ -138,7 +138,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
     /**
      * Set the store's OAuth Consumer Key
-     * @deprecated
+     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
      * @param string
      * @return void
      */
@@ -149,7 +149,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
     /**
      * Set the store's OAuth Consumer Secret
-     * @deprecated
+     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
      * @param string
      * @return void
      */
@@ -160,7 +160,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
     /**
      * Set the store's OAuth Authorization Token
-     * @deprecated
+     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
      * @param string
      * @return void
      */
@@ -171,7 +171,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
     /**
      * Set the store's OAuth Authroization Secret
-     * @deprecated
+     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
      * @param string
      * @return void
      */
@@ -182,7 +182,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
     /**
      * Set the store's Url
-     * @deprecated
+     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
      * @param string
      * @return void
      */
@@ -193,12 +193,14 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     public function getUrl($store=null){
         return Mage::getStoreConfig(self::XML_PATH_AUTHORIZATION_URL,$store);
     }
+
     public function log($data, $filename)
     {
         if ($this->config('enable_log') != 0) {
             return Mage::getModel('core/log_adapter', $filename)->log($data);
         }
     }
+
     public function logHistory($message,$isError = false){
         if($isError == true) {
             Mage::log($message, null, "error_log_ant_api.log");
@@ -1896,7 +1898,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
 
     /***
-     * @deprecated
+     * @deprecated Please use setupOAuth() instead
      * @param  bool $isSetup
      * @return Mage_Oauth_Model_Token
      * @throws Exception
