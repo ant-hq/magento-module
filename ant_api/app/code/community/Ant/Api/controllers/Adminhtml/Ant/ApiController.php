@@ -24,42 +24,13 @@
 class Ant_Api_Adminhtml_Ant_ApiController extends Mage_Adminhtml_Controller_Action
 {
     /**
-     * Manually create customer webhook to sync customer to ant
-     * @throws \Varien_Exception
-     */
-    public function syncCustomerAction() {
-        $customerId = $this->getRequest()->getParam('customer_id', null);
-        if (!$customerId) {
-            Mage::getSingleton('checkout/session')->addError($this->__('Customer ID is required'));
-            $this->_redirect('*/customer/index');
-            return;
-        }
-
-        $helperAntApi=Mage::helper("ant_api");
-        $postData=$helperAntApi->setTheHashCustomer($customerId);
-        $urlOfCreateCustomer=$helperAntApi->getDataWebHook(Ant_Api_Model_Webhook::CUSTOMER_CREATE);
-        foreach($urlOfCreateCustomer as $_url){
-            $response = $helperAntApi->callUrl($_url,$postData);
-            if (!$response) {
-                Mage::getSingleton('checkout/session')->addError($this->__('Failed to sync customer with id: ' . $customerId));
-                $this->_redirect('*/customer/edit', array('id' => $customerId));
-                return;
-            }
-        }
-
-        Mage::getSingleton('checkout/session')->addSuccess($this->__('Customer has been synchronised with AntHQ'));
-        $this->_redirect('*/customer/edit', array('id' => $customerId));
-        return;
-    }
-
-    /**
      * Manually create product webhook to sync product to ant
      * @throws \Varien_Exception
      */
     public function syncProductAction() {
         $productId = $this->getRequest()->getParam('product_id', null);
         if (!$productId) {
-            Mage::getSingleton('checkout/session')->addError($this->__('Product ID is required'));
+            $this->_getSession()->addError($this->__('Product ID is required'));
             $this->_redirect('*/catalog_product/index');
             return;
         }
@@ -78,9 +49,10 @@ class Ant_Api_Adminhtml_Ant_ApiController extends Mage_Adminhtml_Controller_Acti
                         $postData = $helperAntApi->setTheHashProductSimple($productId);
                         $urlOfCreate = $helperAntApi->getDataWebHook(Ant_Api_Model_Webhook::PRODUCT_CREATE);
                         foreach($urlOfCreate as $_url){
-                            $response = $helperAntApi->callUrl($_url,$postData);
-                            if (!$response) {
-                                Mage::getSingleton('checkout/session')->addError($this->__('Failed to sync product with id: ' . $productId));
+                            $response = $helperAntApi->triggerWebhook($_url,$postData);
+                            if (!$response['result']) {
+                                $helperAntApi->logHistory($response['message'], true);
+                                $this->_getSession()->addError($this->__('Failed to sync product with id: ' . $productId));
                                 $this->_redirect('*/catalog_product/edit', array('id' => $productId));
                                 return;
                             }
@@ -91,9 +63,10 @@ class Ant_Api_Adminhtml_Ant_ApiController extends Mage_Adminhtml_Controller_Acti
                         $postData = $helperAntApi->setTheHashProductSimple($productId);
                         $urlOfUpdate = $helperAntApi->getDataWebHook(Ant_Api_Model_Webhook::PRODUCT_UPDATE);
                         foreach ($urlOfUpdate as $_url) {
-                            $response = $helperAntApi->callUrl($_url,$postData);
-                            if (!$response) {
-                                Mage::getSingleton('checkout/session')->addError($this->__('Failed to sync product with id: ' . $productId));
+                            $response = $helperAntApi->triggerWebhook($_url,$postData);
+                            if (!$response['result']) {
+                                $helperAntApi->logHistory($response['message'], true);
+                                $this->_getSession()->addError($this->__('Failed to sync product with id: ' . $productId));
                                 $this->_redirect('*/catalog_product/edit', array('id' => $productId));
                                 return;
                             }
@@ -103,9 +76,10 @@ class Ant_Api_Adminhtml_Ant_ApiController extends Mage_Adminhtml_Controller_Acti
                         $postData = $helperAntApi->setTheHashConfigruableProduct($ids[0]);
                         $urlOfUpdate = $helperAntApi->getDataWebHook(Ant_Api_Model_Webhook::PRODUCT_UPDATE);
                         foreach ($urlOfUpdate as $_url) {
-                            $response = $helperAntApi->callUrl($_url,$postData);
-                            if (!$response) {
-                                Mage::getSingleton('checkout/session')->addError($this->__('Failed to sync product with id: ' . $productId));
+                            $response = $helperAntApi->triggerWebhook($_url,$postData);
+                            if (!$response['result']) {
+                                $helperAntApi->logHistory($response['message'], true);
+                                $this->_getSession()->addError($this->__('Failed to sync product with id: ' . $productId));
                                 $this->_redirect('*/catalog_product/edit', array('id' => $productId));
                                 return;
                             }
@@ -118,9 +92,10 @@ class Ant_Api_Adminhtml_Ant_ApiController extends Mage_Adminhtml_Controller_Acti
                     $postData = $helperAntApi->setTheHashConfigruableProduct($productId);
                     $urlOfCreate = $helperAntApi->getDataWebHook(Ant_Api_Model_Webhook::PRODUCT_CREATE);
                     foreach($urlOfCreate as $_url){
-                        $response = $helperAntApi->callUrl($_url,$postData);
-                        if (!$response) {
-                            Mage::getSingleton('checkout/session')->addError($this->__('Failed to sync product with id: ' . $productId));
+                        $response = $helperAntApi->triggerWebhook($_url,$postData);
+                        if (!$response['result']) {
+                            $helperAntApi->logHistory($response['message'], true);
+                            $this->_getSession()->addError($this->__('Failed to sync product with id: ' . $productId));
                             $this->_redirect('*/catalog_product/edit', array('id' => $productId));
                             return;
                         }
@@ -129,9 +104,10 @@ class Ant_Api_Adminhtml_Ant_ApiController extends Mage_Adminhtml_Controller_Acti
                     $postData = $helperAntApi->setTheHashConfigruableProduct($productId);
                     $urlOfUpdate = $helperAntApi->getDataWebHook(Ant_Api_Model_Webhook::PRODUCT_UPDATE);
                     foreach ($urlOfUpdate as $_url) {
-                        $response = $helperAntApi->callUrl($_url,$postData);
-                        if (!$response) {
-                            Mage::getSingleton('checkout/session')->addError($this->__('Failed to sync product with id: ' . $productId));
+                        $response = $helperAntApi->triggerWebhook($_url,$postData);
+                        if (!$response['result']) {
+                            $helperAntApi->logHistory($response['message'], true);
+                            $this->_getSession()->addError($this->__('Failed to sync product with id: ' . $productId));
                             $this->_redirect('*/catalog_product/edit', array('id' => $productId));
                             return;
                         }
@@ -140,7 +116,7 @@ class Ant_Api_Adminhtml_Ant_ApiController extends Mage_Adminhtml_Controller_Acti
                 break;
         }
 
-        Mage::getSingleton('checkout/session')->addSuccess($this->__('Product has been synchronised with AntHQ'));
+        $this->_getSession()->addSuccess($this->__('Product has been synchronised with AntHQ'));
         $this->_redirect('*/catalog_product/edit', array('id' => $productId));
         return;
     }
@@ -152,25 +128,30 @@ class Ant_Api_Adminhtml_Ant_ApiController extends Mage_Adminhtml_Controller_Acti
     public function syncOrderAction() {
         $orderId = $this->getRequest()->getParam('order_id', null);
         if (!$orderId) {
-            Mage::getSingleton('checkout/session')->addError($this->__('Order ID is required'));
+            $this->_getSession()->addError($this->__('Order ID is required'));
             $this->_redirect('*/sales_order/view');
             return;
         }
 
         $order = Mage::getModel('sales/order')->load($orderId);
         $helperAntApi=Mage::helper("ant_api");
-        $postData=$helperAntApi->setTheHashOrder($order,null,null);
-        $urlOfCreateCustomer=$helperAntApi->getDataWebHook(Ant_Api_Model_Webhook::ORDER_CREATE);
-        foreach($urlOfCreateCustomer as $_url){
-            $response = $helperAntApi->callUrl($_url,$postData);
-            if (!$response) {
-                Mage::getSingleton('checkout/session')->addError($this->__('Failed to sync order with id: ' . $orderId));
+        try {
+            $postData=$helperAntApi->setTheHashOrder($order,null,null);
+        } catch (\Exception $exception) {
+            $postData = [];
+        }
+        $createOrderWebhookCollection=$helperAntApi->getDataWebHook(Ant_Api_Model_Webhook::ORDER_CREATE);
+        foreach($createOrderWebhookCollection as $webhook){
+            $response = $helperAntApi->triggerWebhook($webhook,$postData);
+            if (!$response['result']) {
+                $helperAntApi->logHistory($response['message'], true);
+                $this->_getSession()->addError($this->__('Failed to sync order with id: ' . $orderId));
                 $this->_redirect('*/sales_order/view', array('order_id' => $order->getId()));
                 return;
             }
         }
 
-        Mage::getSingleton('checkout/session')->addSuccess($this->__('Order has been synchronised with AntHQ'));
+        $this->_getSession()->addSuccess($this->__('Order has been synchronised with AntHQ'));
         $this->_redirect('*/sales_order/view', array('order_id' => $order->getId()));
         return;
     }

@@ -1755,8 +1755,27 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         );
         return $customer;
     }
+
+    /***
+     * @deprecated
+     * @param Ant_Api_Model_Mysql4_Webhook $url Object from the
+     * @param $postData
+     */
     public function callUrl($url,$postData){
-        $requestUrl=$url->getData("ant_api_webhook_url");
+        $this->triggerHook($url, $postData);
+        return;
+    }
+
+    /**
+     * Trigger the webhook
+     *
+     * @param $webhook
+     * @param $postData
+     *
+     * @return mixed
+     */
+    public function triggerWebhook($webhook, $postData){
+        $requestUrl=$webhook->getData("ant_api_webhook_url");
         $postData=json_encode($postData);
         $header=array(
             "Accept:application/json",
@@ -1775,8 +1794,9 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
         $response = curl_exec($ch);
         curl_close($ch);
-        return $response['body'];
+        return json_decode($response);
     }
+
     public function rewriteUrl($name=null,$handle){
         //$url = preg_replace('#[^0-9a-z]+#i', '-', $name);
         //$url = strtolower($url);
