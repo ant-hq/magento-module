@@ -33,45 +33,63 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </enabled>
+                        <url_front translate="label">
+                            <label>URL</label>
+                            <frontend_type>label</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                            <depends>
+                                <enabled>1</enabled>
+                            </depends>
+                        </url_front>
                         <consumer_key translate="label">
                             <label>Consumer Key</label>
-                            <frontend_type>text</frontend_type>
-                            <disabled>true</disabled>
+                            <frontend_type>label</frontend_type>
                             <sort_order>60</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
                             <can_be_empty>1</can_be_empty>
+                            <depends><enabled>1</enabled></depends>
                         </consumer_key>
                         <consumer_secret translate="label">
                             <label>Consumer Secret</label>
-                            <frontend_type>text</frontend_type>
-                            <disabled>true</disabled>
+                            <frontend_type>label</frontend_type>
                             <sort_order>70</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
                             <can_be_empty>1</can_be_empty>
+                            <depends>
+                                <enabled>1</enabled>
+                            </depends>
                         </consumer_secret>
                         <authorization_token translate="label">
                             <label>Authorization Token</label>
-                            <frontend_type>text</frontend_type>
-                            <disabled>true</disabled>
+                            <frontend_type>label</frontend_type>
                             <sort_order>80</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
                             <can_be_empty>1</can_be_empty>
+                            <depends>
+                                <enabled>1</enabled>
+                            </depends>
                         </authorization_token>
                         <authorization_secret translate="label">
                             <label>Authorization Secret</label>
-                            <frontend_type>text</frontend_type>
-                            <disabled>true</disabled>
+                            <frontend_type>label</frontend_type>
                             <sort_order>90</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
                             <can_be_empty>1</can_be_empty>
+                            <depends>
+                                <enabled>1</enabled>
+                            </depends>
                         </authorization_secret>
                         <generate_tokens_button translate="label">
                             <label></label>
@@ -79,20 +97,24 @@
                             <frontend_model>ant_api/adminhtml_system_config_form_button</frontend_model>
                             <sort_order>100</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <depends>
+                                <enabled>1</enabled>
+                            </depends>
                         </generate_tokens_button>
-                        <url_front>
-                            <label>URL</label>
-                            <frontend_type>text</frontend_type>
-                            <comment>The Store Url . eg "http://yourdomain.com/"</comment>
-                            <disabled>true</disabled>
-                            <sort_order>101</sort_order>
+                        <last_generated translate="label">
+                            <label>Last Generated</label>
+                            <frontend_type>label</frontend_type>
+                            <frontend_model>adminhtml/system_config_form_field_notification</frontend_model>
+                            <sort_order>110</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <can_be_empty>1</can_be_empty>
-                        </url_front>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <depends>
+                                <enabled>1</enabled>
+                            </depends>
+                        </last_generated>
                     </fields>
                 </general>
                 <tax_class_ant translate="label">
