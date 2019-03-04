@@ -13,7 +13,7 @@ Version 0.1.0 - 4 March 2019
 		
 		- Note: The orders can only sync if the products in the order are already in the Ant HQ system.
 
-Version 0.0.4
+Version 0.0.4 - 4 March 2019
 
     Refactored installation process
 
