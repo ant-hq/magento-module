@@ -1818,7 +1818,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
         $response = curl_exec($ch);
         curl_close($ch);
-        return json_decode($response);
+        return json_decode($response, JSON_OBJECT_AS_ARRAY);
     }
 
     public function rewriteUrl($name=null,$handle){
