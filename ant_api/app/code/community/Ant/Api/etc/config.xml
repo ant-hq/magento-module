@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Ant_Api>
-            <version>0.0.4</version>
+            <version>0.1.0</version>
         </Ant_Api>
     </modules>
     <global>
@@ -18,7 +18,6 @@
             <adminhtml>
                 <rewrite>
                     <catalog_product_edit>Ant_Api_Block_Adminhtml_Catalog_Product_Edit</catalog_product_edit>
-                    <customer_edit>Ant_Api_Block_Adminhtml_Customer_Edit</customer_edit>
                     <sales_order_view>Ant_Api_Block_Adminhtml_Sales_Order_View</sales_order_view>
                 </rewrite>
             </adminhtml>
