@@ -1969,4 +1969,17 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $url = Mage::helper("adminhtml")->getUrl($path, array($entity_key => $entityId));
         return $url;
     }
+
+    /**
+     * Get module version as a string
+     * @return string
+     */
+    public function getModuleVersion() {
+        $antConfig = Mage::getConfig()->getModuleConfig('Ant_Api');
+        if (!isset($antConfig->version)) {
+            Mage::log('Ant_Api module config is malformed. ' . json_encode($antConfig), Zend_Log::ERR, 'exception.log');
+            return "Invalid Version";
+        }
+        return (string) $antConfig->version;
+    }
 }
