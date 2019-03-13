@@ -49,6 +49,12 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      */
     const XML_PATH_LAST_GENERATED = 'ant_api_config/general/last_generated';
 
+    /**
+     * Path to store config whether live updating is enabled
+     * @var string
+     */
+    const XML_PATH_SYNC_LIVE_UPDATE = 'ant_api_config/syncing/is_live_sync';
+
     const KEY_NAME_IMAGE="image_name";
 
     const KEY_ABSOLUTE_PATH_IMG="absolute_path";
@@ -125,6 +131,16 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     public function getAuthorizationSecret($store=null)
     {
         return Mage::getStoreConfig(self::XML_PATH_AUTHORIZATION_SECRET, $store);
+    }
+
+    /**
+     * Return the store's Live Updating value
+     * @param integer|string|Mage_Core_Model_Store $store
+     * @return string
+     */
+    public function isLiveUpdating($store=null)
+    {
+        return Mage::getStoreConfig(self::XML_PATH_SYNC_LIVE_UPDATE, $store);
     }
 
     /**
@@ -1786,7 +1802,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * @param $postData
      */
     public function callUrl($url,$postData){
-        $this->triggerHook($url, $postData);
+        $this->triggerWebhook($url, $postData);
         return;
     }
 
@@ -1799,6 +1815,24 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * @return mixed
      */
     public function triggerWebhook($webhook, $postData){
+        if ($this->isLiveUpdating()) {
+            // queue webhook
+            $webhookCron = Mage::getModel('ant_api/webhook_cron_schedule');
+            $webhookCron->setChecksum($this->createChecksum($postData));
+            $webhookCron->setRequestData($postData);
+            $webhookCron->setStatus(Ant_Api_Model_Webhook_Cron_Schedule::STATUS_QUEUED);
+            $webhookCron->setWebhookId($webhook->getAntApiWebhookId());
+//            die('no live: ' . json_encode($webhookCron->getData(), JSON_PRETTY_PRINT));
+            $webhookCron->save();
+            return array('result' => $this->__("Update should happen shortly. Allow 1 minute for it to take place or change the settings to \"Live Updates\""));
+        }
+        die('is live: ' . json_encode($webhook->getData(), JSON_PRETTY_PRINT));
+        if (!$webhook->hasData("ant_api_webhook_url")) {
+            return array(
+                'error' => $this->__("Unable to process webhook. No URL specified."),
+                'message' => $this->__("No Ant API Webhook URL data for webhook: " . json_encode($webhook->getData()))
+            );
+        }
         $requestUrl=$webhook->getData("ant_api_webhook_url");
         $postData=json_encode($postData);
         $header=array(
@@ -1819,6 +1853,16 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $response = curl_exec($ch);
         curl_close($ch);
         return json_decode($response, JSON_OBJECT_AS_ARRAY);
+    }
+
+    /**
+     * Generate a checksum with all the data to compare with Ant's data
+     *
+     * @param $data
+     */
+    public function createChecksum($data) {
+        $checksum = hash('md5', serialize($data));
+        return $checksum;
     }
 
     public function rewriteUrl($name=null,$handle){
