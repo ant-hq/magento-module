@@ -230,11 +230,11 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $store =  Mage::getModel('core/store')->load(0); ;
         $customer = Mage::getModel("customer/customer");
         $customer   ->setWebsiteId($websiteId)
-                    ->setStore($store)
-                    ->setFirstname('Tag Admin')
-                    ->setLastname('Tag Admin')
-                    ->setEmail('tagAdmin@gmail.com')
-                    ->setPassword('1234567');
+            ->setStore($store)
+            ->setFirstname('Tag Admin')
+            ->setLastname('Tag Admin')
+            ->setEmail('tagAdmin@gmail.com')
+            ->setPassword('1234567');
         try{
             $customer->save();
             return $customer->getId();
@@ -280,22 +280,22 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
                 foreach ($tagNamesArr as $tagName) {
                     $tagModel->unsetData()
-                             ->loadByName($tagName)
-                             ->setStoreId($storeId)
-                             ->setName($tagName);
+                        ->loadByName($tagName)
+                        ->setStoreId($storeId)
+                        ->setName($tagName);
 
                     $tagRelationModel->unsetData()
-                                     ->setStoreId($storeId)
-                                     ->setProductId($productId)
-                                     ->setCustomerId($customerId)
-                                     ->setActive(1)
-                                     ->setCreatedAt( $tagRelationModel->getResource()->formatDate(time()) );
+                        ->setStoreId($storeId)
+                        ->setProductId($productId)
+                        ->setCustomerId($customerId)
+                        ->setActive(1)
+                        ->setCreatedAt( $tagRelationModel->getResource()->formatDate(time()) );
 
                     if (!$tagModel->getId()) {
                         $tagModel->setFirstCustomerId($customerId)
-                                 ->setFirstStoreId($storeId)
-                                 ->setStatus($tagModel->getApprovedStatus())
-                                 ->save();
+                            ->setFirstStoreId($storeId)
+                            ->setStatus($tagModel->getApprovedStatus())
+                            ->save();
 
                         $tagRelationModel->setTagId($tagModel->getId())->save();
                         $counter->setNew($counter->getNew() + 1);
@@ -356,8 +356,8 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     public function getTagsProduct($product_id){
         $model = Mage::getModel('tag/tag');
         $tagCollection = $model->getResourceCollection()
-                               ->addPopularity()
-                               ->addProductFilter($product_id);
+            ->addPopularity()
+            ->addProductFilter($product_id);
         $arrayTags = array ();
         foreach($tagCollection as $_tag){
             $arrayTags[] =$_tag->getName();
@@ -535,7 +535,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayDetailProduct["inventories"] = $arrayInventory;
         $arrayDetailProduct["brand"] = $detailProduct->getBrand();
         $arrayDetailProduct["supplier"] = $detailProduct->getSupplier();
-        return $arrayDetailProduct;
+       return $arrayDetailProduct;
     }
     /**
      * Make the function helper for hash product
@@ -929,8 +929,8 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         }
         if(isset($categoryData["name"])){
             $entityCategory=Mage::getResourceModel('catalog/category_collection')
-                                ->addFieldToFilter('name',array("eq"=>$categoryData["name"]))
-                                ->getFirstItem();
+                ->addFieldToFilter('name',array("eq"=>$categoryData["name"]))
+                ->getFirstItem();
         }
         if($entityCategory->getId()){
             return $entityCategory->getId();
@@ -1532,7 +1532,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                 if ($this->_checkAttribute("options", $data)) {
                     $codeArray = $data["options"];
                     foreach ($codeArray as $_item) {
-                        $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
+                            $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
                         $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
                         $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
                         $product->setData($_item["code"],$value);
@@ -1610,31 +1610,31 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayCustomerHash["full_name"]=$firstName.' '.$lastName;
         $arrayCustomerHash["email"]=$customer->getEmail();
         $arrayCustomerHash["address"]=array();
-        $addressShipping = $customer->getDefaultShipping();
-        if($addressShipping){
-            $address = Mage::getModel('customer/address')->load($addressShipping);
-            $arrayAddressShipping=array();
-            $street = $address->getStreet();
-            $arrayAddressShipping["address1"]=$street[0];
-            $arrayAddressShipping["address2"]=$street[1];
-            $arrayAddressShipping["suburb"]=$address->getRegion();
-            $arrayAddressShipping["postcode"]=$address->getPostcode();
-            $arrayAddressShipping["country"]=$address->getCountry();
-            $arrayCustomerHash["address"][]=$arrayAddressShipping;
-        }
+            $addressShipping = $customer->getDefaultShipping();
+            if($addressShipping){
+                $address = Mage::getModel('customer/address')->load($addressShipping);
+                $arrayAddressShipping=array();
+                $street = $address->getStreet();
+                $arrayAddressShipping["address1"]=$street[0];
+                $arrayAddressShipping["address2"]=$street[1];
+                $arrayAddressShipping["suburb"]=$address->getRegion();
+                $arrayAddressShipping["postcode"]=$address->getPostcode();
+                $arrayAddressShipping["country"]=$address->getCountry();
+                $arrayCustomerHash["address"][]=$arrayAddressShipping;
+            }
 
-        $addressBlling=$customer->getDefaultBilling();
-        if($addressBlling){
-            $address = Mage::getModel('customer/address')->load($addressBlling);
-            $arrayAddressBlling=array();
-            $street = $address->getStreet();
-            $arrayAddressBlling["address1"]=$street[0];
-            $arrayAddressBlling["address2"]=$street[1];
-            $arrayAddressBlling["suburb"]=$address->getRegion();
-            $arrayAddressBlling["postcode"]=$address->getPostcode();
-            $arrayAddressBlling["country"]=$address->getCountry();
-            $arrayCustomerHash["address"][]=$arrayAddressBlling;
-        }
+            $addressBlling=$customer->getDefaultBilling();
+            if($addressBlling){
+                $address = Mage::getModel('customer/address')->load($addressBlling);
+                $arrayAddressBlling=array();
+                $street = $address->getStreet();
+                $arrayAddressBlling["address1"]=$street[0];
+                $arrayAddressBlling["address2"]=$street[1];
+                $arrayAddressBlling["suburb"]=$address->getRegion();
+                $arrayAddressBlling["postcode"]=$address->getPostcode();
+                $arrayAddressBlling["country"]=$address->getCountry();
+                $arrayCustomerHash["address"][]=$arrayAddressBlling;
+            }
         return $arrayCustomerHash;
     }
     /**
@@ -1819,13 +1819,13 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             // queue webhook
             $webhookCron = Mage::getModel('ant_api/webhook_cron_schedule');
             $checksum = $this->createChecksum($postData);
-            if ($webhookCron->checkChecksumExists($checksum)) {
-                return array('result' => $this->__("Already synchronised the changes to Ant"));
-            }
             $webhookCron->setChecksum($checksum);
             $webhookCron->setRequestData($postData);
             $webhookCron->setStatus(Ant_Api_Model_Webhook_Cron_Schedule::STATUS_QUEUED);
             $webhookCron->setWebhookId($webhook->getAntApiWebhookId());
+            if (!$webhookCron->needsChecksumUpdated($checksum)) {
+                return array('result' => $this->__("Already synchronised the changes to Ant"));
+            }
             $webhookCron->save();
             return array('result' => $this->__("Update should happen shortly. Allow 1 minute for it to take place or change the settings to \"Live Updates\""));
         }
@@ -1969,9 +1969,9 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         if (!$user->getId()){
             //generated
             throw new Mage_Oauth_Exception($this->__(
-                "AntHQ system user not found, please ensure user %s exists",
-                Ant_Api_Model_Resource_Setup::ANT_ADMIN_USER_USERNAME
-            )
+                    "AntHQ system user not found, please ensure user %s exists",
+                    Ant_Api_Model_Resource_Setup::ANT_ADMIN_USER_USERNAME
+                )
             );
         }
         $this->autoGenerateOAuthForUser($user->getId());

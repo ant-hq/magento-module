@@ -49,21 +49,26 @@ class Ant_Api_Model_Mysql4_Webhook_Cron_Schedule extends Mage_Core_Model_Mysql4_
     }
 
     /**
-     * Get most recent checksum for the data that matches the identifier
+     * Load object by the checksum given
      *
      * @param \Ant_Api_Model_Webhook_Cron_Schedule $schedule
+     * @param                                      $checksum
      *
-     * @return \Ant_Api_Model_Mysql4_Webhook_Cron_Schedule
+     * @return string most recent checksum
      */
     public function getMostRecentChecksum(Ant_Api_Model_Webhook_Cron_Schedule $schedule) {
         $adapter = $this->_getReadAdapter();
         $bind    = array('identifier' => $this->buildIdentifier($schedule));
-        $select  = $adapter
-            ->select('checksum')
+        $select  = $adapter->select()
             ->from($this->getMainTable())
             ->where('identifier = :identifier')
             ->limit(1)
             ->order('created_at desc');
-        return $this->getReadConnection()->fetchRow($select, $bind);
+        $row = $this->getReadConnection()->fetchRow($select, $bind);
+        if (!isset($row['checksum'])) {
+            return null;
+        }
+        $mostRecentChecksum = $row['checksum'];
+        return $mostRecentChecksum;
     }
 }

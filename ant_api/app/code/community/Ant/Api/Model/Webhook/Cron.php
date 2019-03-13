@@ -83,17 +83,22 @@ class Ant_Api_Model_Webhook_Cron extends Mage_Core_Model_Abstract {
         $now = time();
         /** @var \Ant_Api_Model_Webhook_Cron_Schedule $webhook */
         foreach ($webhookCollection as $webhook) {
-            if (strtotime($webhook->getCreatedAt()) < ($now - self::CRON_SCHEDULE_LIFETIME)) {
+            $createdTime = strtotime($webhook->getCreatedAt());
+            $expiredTime = $now - self::CRON_SCHEDULE_LIFETIME;
+            if ($createdTime < $expiredTime) {
                 $webhook->delete();
+//                echo "deleting webhook " . $webhook->getProcessId();
             }
         }
-        if ($webhookCollection->getSize() > self::MAX_ROWS_TO_KEEP) {
-            $webhookCollection->setCurPage((self::MAX_ROWS_TO_KEEP / $webhookCollection->getPageSize()));
-            $webhookCollection->getSelect()->reset(Zend_Db_Select::WHERE);
-            foreach ($webhookCollection as $oldWebhook) {
-                $oldWebhook->delete();
-            }
-        }
+        // TODO: Add in way to remove all webhooks when there are more than 10000
+        // TODO: This should be done at the database layer for performance reasons
+//        if ($webhookCollection->getSize() > self::MAX_ROWS_TO_KEEP) {
+//            $webhookCollection->getSelect()->limitPage(1, self::MAX_ROWS_TO_KEEP);
+//            $webhookCollection->getSelect()->reset(Zend_Db_Select::WHERE);
+//            foreach ($webhookCollection as $oldWebhook) {
+//                $oldWebhook->delete();
+//            }
+//        }
     }
 
 

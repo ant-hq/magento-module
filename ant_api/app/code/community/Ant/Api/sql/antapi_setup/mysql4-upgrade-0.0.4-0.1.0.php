@@ -12,7 +12,7 @@ if (!$installer->getConnection()->isTableExists($tableName)) {
                            'unsigned' => true,
                            'nullable' => false,
                            'primary' => true,
-                       ), 'Schedule ID')
+                       ), 'Process ID')
                        ->addColumn('webhook_id', Varien_Db_Ddl_Table::TYPE_INTEGER, 11, array(
                            'nullable' => false,
                        ), 'Webhook ID Link')
