@@ -1815,7 +1815,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * @return mixed
      */
     public function triggerWebhook($webhook, $postData){
-        if ($this->isLiveUpdating()) {
+        if (!$this->isLiveUpdating()) {
             // queue webhook
             $webhookCron = Mage::getModel('ant_api/webhook_cron_schedule');
             $checksum = $this->createChecksum($postData);
