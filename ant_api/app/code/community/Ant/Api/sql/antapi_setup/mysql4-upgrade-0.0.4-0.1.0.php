@@ -7,12 +7,12 @@ $tableName =  $installer->getTable('ant_api/webhook_cron_schedule');
 if (!$installer->getConnection()->isTableExists($tableName)) {
     $table = $installer->getConnection()
                        ->newTable($installer->getTable('ant_api/webhook_cron_schedule'))
-                       ->addColumn('process_id', Varien_Db_Ddl_Table::TYPE_INTEGER, 11, array(
+                       ->addColumn('schedule_id', Varien_Db_Ddl_Table::TYPE_INTEGER, 11, array(
                            'identity' => true,
                            'unsigned' => true,
                            'nullable' => false,
                            'primary' => true,
-                       ), 'Process ID')
+                       ), 'Schedule ID')
                        ->addColumn('webhook_id', Varien_Db_Ddl_Table::TYPE_INTEGER, 11, array(
                            'nullable' => false,
                        ), 'Webhook ID Link')
@@ -32,6 +32,10 @@ if (!$installer->getConnection()->isTableExists($tableName)) {
                            'nullable' => true,
                            'default' => ''
                        ), 'Response')
+                       ->addColumn('identifier', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array(
+                           'nullable' => true,
+                           'default' => ''
+                       ), 'Identifier to represent the entity, webhook action and entity_id')
                        ->addColumn('created_at', Varien_Db_Ddl_Table::TYPE_TIMESTAMP, null, array(
                        ), 'Creation Time')
                        ->addColumn('updated_at', Varien_Db_Ddl_Table::TYPE_TIMESTAMP, null, array(
