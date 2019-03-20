@@ -8,13 +8,16 @@ class Ant_Api_Model_Api2_Inventory_Rest_Guest_V1 extends Ant_Api_Model_Api2_Inve
             $product = Mage::getModel("catalog/product")->load($id_product);
             $qty = $data["quantity"];
             $manager_stock = $data["manage_stock"];
-            $product->setStockData(array(
-                    'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                    'manage_stock' => $manager_stock, //manage stock
-                    'is_in_stock' => 1, //Stock Availability
-                    'qty' => $qty //qty
-                )
-            );
+
+            //todo: add in manage stock as expected
+            $stockData = $product->getStockData();
+            $minQty = (isset($stockData['min_qty']))? $stockData['min_qty'] : 0;
+
+            $stockData['qty']         = $qty;
+            $stockData['is_in_stock'] = ($qty > $minQty)? Mage_CatalogInventory_Model_Stock_Status::STATUS_IN_STOCK : Mage_CatalogInventory_Model_Stock_Status::STATUS_OUT_OF_STOCK;
+
+            $product->setStockData($stockData);
+
             $product->save();
             unset($product);
         } catch (Mage_Eav_Model_Entity_Attribute_Exception $e) {
