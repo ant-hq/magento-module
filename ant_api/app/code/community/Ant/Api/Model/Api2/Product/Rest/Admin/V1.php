@@ -65,14 +65,11 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
         throw new Exception($message,$code);
     }
     protected function _checkAttribute($attribute_name,$data){
-        if(is_array($data[$attribute_name])){
-            if (!isset($data[$attribute_name])) {
-                return false;
-            }
-        }else {
-            if (!isset($data[$attribute_name]) || trim($data[$attribute_name]) == "") {
-                return false;
-            }
+        if (!isset($data[$attribute_name])) {
+            return false;
+        }
+        if(!is_array($data[$attribute_name]) && trim($data[$attribute_name]) == ""){
+            return false;
         }
         return true;
     }
@@ -259,21 +256,26 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
 
                             $attributeCode = $formattingHelper->createAttributeNameSlugFromLabel($nameAttribute);
 
-                            $attribute_id=Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product', $attributeCode);
-                            $attr_object = Mage::getModel('catalog/resource_eav_attribute')->load($attribute_id);
-                            $attributes = Mage::getModel('catalog/product_attribute_api')->items($attributeSetId);
+
+                            $attribute_id = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product', $attributeCode);
+                            $attr_object  = Mage::getModel('catalog/resource_eav_attribute')->load($attribute_id);
+                            $attributes   = Mage::getModel('catalog/product_attribute_api')->items($attributeSetId);
                             $isBelongtoDefault = false;
+
                             foreach($attributes as $_attribute){
                                 if($_attribute["attribute_id"] == $attribute_id){
                                     $isBelongtoDefault = true;
                                     break;
                                 }
                             }
-                            if($isBelongtoDefault == false) {
+                            if($isBelongtoDefault == false && $attribute_id > 0) {
                                 $model_attribute_set = Mage::getModel('eav/entity_setup', 'core_setup');
-                                $attr_code = $attr_object->getAttributeCode();
+                                // $attr_code = $attr_object->getAttributeCode();
+                                // $model_attribute_set->addAttributeToSet(
+                                //     'catalog_product', 'Default', 'General', $attr_code
+                                // );
                                 $model_attribute_set->addAttributeToSet(
-                                    'catalog_product', 'Default', 'General', $attr_code
+                                    'catalog_product', 'Default', 'General', $attributeCode
                                 );
                             }
                             $p_values = $p_opt["values"];
@@ -305,7 +307,9 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                         $firstData = $dataVariants[0]["options"];
                         foreach ($firstData as $first_options) {
                             $attribute = Mage::getSingleton('eav/config')->getAttribute(Mage_Catalog_Model_Product::ENTITY, $first_options["code"]);
-                            $arrayAttributeToset[] = $attribute->getId();
+                            if ($attribute->getId()) {
+                                $arrayAttributeToset[] = $attribute->getId();
+                            }
                         }
                         $product->getTypeInstance()->setUsedProductAttributeIds($arrayAttributeToset); //attribute ID of attribute 'color' in my store
                         $configurableAttributesData = $product->getTypeInstance()->getConfigurableAttributesAsArray();
@@ -457,176 +461,86 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
             $this->_critical($e->getMessage(), Mage_Api2_Model_Server::HTTP_INTERNAL_ERROR);
         }
     }
-    public function setSimpleProductToConfigruableProduct($data,$attributeSetId){
-        Mage::register('is_new_product_api',"noevent");
+
+    public function setSimpleProductToConfigruableProduct($data,$attributeSetId)
+    {
+        Mage::register('is_new_product_api', "noevent");
 
         /** @var Ant_Api_Helper_Data $helperAnt */
         $helperAnt = Mage::helper('ant_api');
 
-        if(isset($data["id"])){
-            $product=Mage::getModel("catalog/product")->load($data["id"]);
+        $productId = (isset($data["id"])) ? (int)$data["id"] : null;
+        $product = Mage::getModel("catalog/product");
+        if ($productId) {
+            $product->load($data["id"]);
+        }
 
-            if($product->getId()){
-                $this->setSimpleProductToConfigruableProductCaseUpdate($data["id"],$data);
-            }
-            else{
-                if ($this->_validateVariantBeforeUpdate($data) == "") {
-                    $product = Mage::getModel("catalog/product");
-                    $arrayToExclude = array("id","product_name","images", "inventories", "tax", "full_price");
-                    foreach ($data as $key => $value) {
-                        if (!in_array($key, $arrayToExclude)) {
-                            $product->setData($key, $value);
-                        }
-                    }
-                    $product->setName($data["product_name"]);
-                    $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
-                    $product->setAttributeSetId($attributeSetId); //ID of a attribute set named 'default'
-                    $product->setTypeId("simple"); //product type
-                    $product->setCreatedAt(strtotime('now')); //product creation time
-                    $product->setStatus(1); //product status (1 - enabled, 2 - disabled)
-                    $product->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG);
-                    /*if($this->_checkAttribute("handle", $data)) {
-                        $handle = $data["handle"];
-                        $urlRewrite = Mage::helper("ant_api")->rewriteUrl($data["product_name"], $handle);
-                        $product->setUrlKey($urlRewrite);
-                    }*/
-                    if ($this->_checkAttribute("tax", $data)) {
-                        $product->setTaxClassId($data["tax"]);
-                    }else{
-                        $tax_class = Mage::helper("ant_api")->getConfigTaxAnt();
-                        $product->setTaxClassId($tax_class);
-                    }
-                    if ($this->_checkAttribute("full_price", $data)) {
-                        $product->setPrice($data["full_price"]);
-                    }
-                    if ($this->_checkAttribute("options", $data)) {
-                        $codeArray = $data["options"];
-                        foreach ($codeArray as $_item) {
-                            $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
-                            $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
-                            $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
-                            $attribute_code = $attr->getAttributeCode();
-                            $product->setData($attribute_code,$value);
-                        }
-                    }
+        $isNew = (!$product->getId());
+        if (!$isNew) {
+            $this->setSimpleProductToConfigruableProductCaseUpdate($data["id"], $data);
+            return;
+        }
 
-                    //TODO: add in manage stock as expected
-                    $stockData = $product->getStockData();
-                    if ($this->_checkAttribute("inventories", $data) && $this->_checkAttribute("quantity", $data["inventories"])){
-                        $stockData['qty'] = $data["inventories"]["quantity"];
-                    }
-                    $product->setStockData($stockData);
-//
-//                    //TODO: add in manage stock as expected
-//                    $stockData = array(
-//                        'use_config_manage_stock' => 1, //'Use config settings' checkbox
-//                        //'manage_stock' => 0, //manage stock
-//                        //'is_in_stock' => 1, //Stock Availability
-//                        'qty' => 0 //qty
-//                    );
-//
-//                    if(isset($data["inventories"])) {
-//                        $stockData['manage_stock'] = $data["manage_stock"];
-//                        $stockData['qty']          = $data["inventories"]["quantity"];
-//                    }
-//                    $product->setStockData($stockData);
-
-
-
-
-//                    if ($this->_checkAttribute("inventories", $data)) {
-//                        if ($this->_checkAttribute("quantity", $data["inventories"])) {
-//                            $qty = $data["inventories"]["quantity"];
-//                            $product->setStockData(array(
-//                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
-//                                'manage_stock' => 1, //manage stock
-//                                'is_in_stock' => 1, //Stock Availability
-//                                'qty' => $qty //qty
-//                            ));
-//                        }
-//                    }else{
-//                        $product->setStockData(array(
-//                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
-//                                'manage_stock' => 0, //manage stock
-//                                'is_in_stock' => 1, //Stock Availability
-//                                'qty' => 0 //qty
-//                            )
-//                        );
-//                    }
-                    $product->save();
-                    return $product->getId();
-                }
-                return false;
-            }
-        }else {
-            if ($this->_validateVariantBeforeUpdate($data) == "") {
-                $product = Mage::getModel("catalog/product");
-                $arrayToExclude = array("id","product_name","images", "inventories", "tax", "full_price");
-                foreach ($data as $key => $value) {
-                    if (!in_array($key, $arrayToExclude)) {
-                        $product->setData($key, $value);
-                    }
-                }
-                $product->setName($data["product_name"]);
-                $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
-                $product->setAttributeSetId($attributeSetId); //ID of a attribute set named 'default'
-                $product->setTypeId("simple"); //product type
-                $product->setCreatedAt(strtotime('now')); //product creation time
-                $product->setStatus(1); //product status (1 - enabled, 2 - disabled)
-                $product->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG);
-                if ($this->_checkAttribute("tax", $data)) {
-                    $product->setTaxClassId($data["tax"]);
-                }else{
-                    $tax_class = Mage::helper("ant_api")->getConfigTaxAnt();
-                    $product->setTaxClassId($tax_class);
-                }
-                if ($this->_checkAttribute("full_price", $data)) {
-                    $product->setPrice($data["full_price"]);
-                }
-                if ($this->_checkAttribute("options", $data)) {
-                    $codeArray = $data["options"];
-                    foreach ($codeArray as $_item) {
-                        $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
-                        $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
-                        $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
-                        $attribute_code = $attr->getAttributeCode();
-                        $product->setData($attribute_code,$value);
-                    }
-                }
-                //TODO: add in manage stock as expected
-                $qty = ($this->_checkAttribute("inventories", $data) && $this->_checkAttribute("quantity", $data["inventories"]))? $data["inventories"]["quantity"] : 0;
-
-                $helper = Mage::helper('ant_api/product_inventory_data');
-                /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
-                $stockData = $helper->prepareDefaultStockArray($qty);
-
-                $product->setStockData($stockData);
-
-//                if ($this->_checkAttribute("inventories", $data)) {
-//                    if ($this->_checkAttribute("quantity", $data["inventories"])) {
-//                        $qty = $data["inventories"]["quantity"];
-//                        $product->setStockData(array(
-//                            'use_config_manage_stock' => 0, //'Use config settings' checkbox
-//                            'manage_stock' => 1, //manage stock
-//                            'is_in_stock' => 1, //Stock Availability
-//                            'qty' => $qty //qty
-//                        ));
-//                    }
-//                }else{
-//                    $product->setStockData(array(
-//                            'use_config_manage_stock' => 0, //'Use config settings' checkbox
-//                            'manage_stock' => 0, //manage stock
-//                            'is_in_stock' => 1, //Stock Availability
-//                            'qty' => 0 //qty
-//                        )
-//                    );
-//                }
-                $product->save();
-                return $product->getId();
-            }
+        if ($this->_validateVariantBeforeUpdate($data) !== "") {
             return false;
         }
+        $arrayToExclude = array("id", "product_name", "images", "inventories", "tax", "full_price");
+        foreach ($data as $key => $value) {
+            if (!in_array($key, $arrayToExclude)) {
+                $product->setData($key, $value);
+            }
+        }
+        $product->setName($data["product_name"]);
+        $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
+        $product->setAttributeSetId($attributeSetId); //ID of a attribute set named 'default'
+        $product->setTypeId("simple"); //product type
+        $product->setCreatedAt(strtotime('now')); //product creation time
+        $product->setStatus(1); //product status (1 - enabled, 2 - disabled)
+        $product->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG);
+        /*if($this->_checkAttribute("handle", $data)) {
+            $handle = $data["handle"];
+            $urlRewrite = Mage::helper("ant_api")->rewriteUrl($data["product_name"], $handle);
+            $product->setUrlKey($urlRewrite);
+        }*/
+        if ($this->_checkAttribute("tax", $data)) {
+            $product->setTaxClassId($data["tax"]);
+        } else {
+            $tax_class = Mage::helper("ant_api")->getConfigTaxAnt();
+            $product->setTaxClassId($tax_class);
+        }
+        if ($this->_checkAttribute("full_price", $data)) {
+            $product->setPrice($data["full_price"]);
+        }
+        if ($this->_checkAttribute("weight", $data)) {
+            $product->setWeight($data["weight"]);
+        }
+        if ($this->_checkAttribute("options", $data)) {
+            $codeArray = $data["options"];
+            foreach ($codeArray as $_item) {
+                $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product', $_item["code"]);
+                $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
+                $value = $attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
+                $attribute_code = $attr->getAttributeCode();
+                $product->setData($attribute_code, $value);
+            }
+        }
+        //TODO: add in manage stock as expected
+        $qty = ($this->_checkAttribute("inventories", $data) && $this->_checkAttribute("quantity", $data["inventories"])) ? $data["inventories"]["quantity"] : 0;
+
+        $helper = Mage::helper('ant_api/product_inventory_data');
+        /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
+        $stockData = $helper->prepareDefaultStockArray($qty);
+
+        $product->setStockData($stockData);
+//        $stockData = $product->getStockData();
+//        if ($this->_checkAttribute("inventories", $data) && $this->_checkAttribute("quantity", $data["inventories"])){
+//            $stockData['qty'] = $data["inventories"]["quantity"];
+//        }
+//        $product->setStockData($stockData);
+        $product->save();
+        return $product->getId();
     }
+
     public function setSimpleProductToConfigruableProductCaseUpdate($id_product,$data){
         Mage::register('is_new_product_api',"noevent");
         if ($this->_validateVariantBeforeUpdate($data) == "") {

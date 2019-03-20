@@ -369,7 +369,9 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                         $firstData = $dataVariants[0]["options"];
                         foreach ($firstData as $first_options) {
                             $attribute = Mage::getSingleton('eav/config')->getAttribute(Mage_Catalog_Model_Product::ENTITY, $first_options["code"]);
+                            if ($attribute->getId()) {
                             $arrayAttributeToset[] = $attribute->getId();
+                        }
                         }
                         //$product->getTypeInstance()->setUsedProductAttributeIds($arrayAttributeToset); //attribute ID of attribute 'color' in my store
                         $configurableAttributesData = $product->getTypeInstance()->getConfigurableAttributesAsArray();
