@@ -597,10 +597,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $percent = $this->getTaxCalculation($childProduct);
             $arrayChildProduct["tax"] = $percent;
             $arrayChildProduct["markup"] = $childProduct->getData("markup");
-
-            //Making a point of this - naming conventions could get confusing//
-            // as per issue #1 in github, child weight needs to be set to parent product
-            $arrayChildProduct["weight"] = $detailProduct->getWeight();
+            $arrayChildProduct["weight"] = $childProduct->getWeight();
 
             $arrayInventory = array();
             $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($child);
