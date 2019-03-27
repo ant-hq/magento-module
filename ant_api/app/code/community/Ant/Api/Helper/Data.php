@@ -464,8 +464,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      **/
     public function setTheHashProductSimple($idProduct){
 
-        $modelDetailProduct = Mage::getModel("catalog/product");
-        $detailProduct = $modelDetailProduct->load($idProduct);
+        $detailProduct = Mage::getModel("catalog/product")->load($idProduct);
         $suffix = Mage::getStoreConfig('catalog/seo/product_url_suffix');
         $arrayDetailProduct = array();
         $arrayDetailProduct["id"] = $detailProduct->getId();
@@ -526,31 +525,33 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayDetailProduct["inventories"] = $arrayInventory;
         $arrayDetailProduct["brand"] = $detailProduct->getBrand();
         $arrayDetailProduct["supplier"] = $detailProduct->getSupplier();
-       return $arrayDetailProduct;
+        return $arrayDetailProduct;
     }
+
+
     /**
      * Make the function helper for hash product
      *
      */
     public function setTheHashConfigruableProduct($idProduct){
-        $modelDetailProduct = Mage::getModel("catalog/product");
-        $detailProduct = $modelDetailProduct->load($idProduct);
-        $suffix = Mage::getStoreConfig('catalog/seo/product_url_suffix');
+        /** @var Mage_Catalog_Model_Product $detailProduct */
+        $detailProduct = Mage::getModel("catalog/product")->load($idProduct);
+
         $arrayDetailProduct = array();
         $arrayDetailProduct["id"] = $detailProduct->getId();
         $arrayDetailProduct["name"] = $detailProduct->getName();
         $arrayDetailProduct["sku"] = $detailProduct->getSku();
-        $arrayDetailProduct["description"] = $detailProduct->getdescription();
+        $arrayDetailProduct["description"] = $detailProduct->getDescription();
         $arrayDetailProduct["full_price"] = $detailProduct->getFinalPrice();
         $arrayDetailProduct["short_description"] = $detailProduct->getShortDescription();
         $arrayDetailProduct["visibility"] = $detailProduct->getVisibility();
         //$arrayDetailProduct["store_front_url"] = $this->getUrl().$detailProduct->getUrlKey().$suffix;
         $arrayDetailProduct["store_front_url"] = $detailProduct->getProductUrl();
-        $arrayDetailProduct["backend_url"] = $this->getUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getid()."/";
+        $arrayDetailProduct["backend_url"] = $this->getUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getId()."/";
         $arrayDetailProduct["weight"] = $detailProduct->getWeight();
         //$arrayDetailProduct["special_price"] = $detailProduct->getSpecialPrice();
-        $arrayDetailProduct["tags"] = $this->getTagsProduct($detailProduct->getid());
-        $arrayTags=explode(",",$detailProduct->getMetaKeyword());
+        $arrayDetailProduct["tags"] = $this->getTagsProduct($detailProduct->getId());
+        $arrayTags = explode(",",$detailProduct->getMetaKeyword());
         $arrayOutPutTags=array();
         foreach($arrayTags as $_tag){
             $arrayOutPutTags[]=$_tag;
@@ -570,58 +571,74 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         }
         $arrayDetailProduct["images"] = $arrayPutImageIn;
         $arrayDetailProduct["variants"] = array();
-        $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null,$detailProduct);
+
+        /** @var Mage_Catalog_Model_Product_Type_Configurable $configurableProductType */
+        $configurableProductType  = $detailProduct->getTypeInstance(true);
+
+        //$childProducts = $configurableProductType->getUsedProducts(null, $detailProduct);
+
+        //$detailProduct->setStoreFilter(null);
+        /** @var Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Type_Configurable_Product_Collection $childProducts **/
+        $childProducts = $configurableProductType->getUsedProductCollection($detailProduct)
+            ->addAttributeToselect('*')
+            ->joinMinimalPrice();
+        //    ->addFinalPrice();
+        //$childProducts->addFinalPrice();
+
         $options = array();
         // Get any super_attribute settings we need
-        $productAttributesOptions = $detailProduct->getTypeInstance(true)->getConfigurableOptions($detailProduct);
-        foreach ($productAttributesOptions as $productAttributeOption) {
-            $options[$idProduct] = array();
-            foreach ($productAttributeOption as $optionValues) {
-                $val = trim($optionValues['option_title']);
-                $attributeModel = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product',$optionValues["attribute_code"]);
-                $position_of_value=$this->getPositionByValue($val,$optionValues["attribute_code"]);
-                $options[$idProduct][] = array(
-                    $optionValues['sku'] => array("attribute_code" => $attributeModel->getStoreLabel(0) ,"value" => $val,"position" => $position_of_value,"code" => $optionValues["attribute_code"])
-                );
-            }
-        }
+        $usedConfigurableAttributes = $configurableProductType->getConfigurableAttributes($detailProduct);
+
+        $options[$idProduct] = array();
         $arrayProductOptions=array();
-        foreach($childProducts as $child) {
+
+        foreach($childProducts as $childProduct) {
             $arrayChildProduct=array();
-            //TODO: change this to not load a database connectino within a foreach. This should be handled by a collection with attributes added to the collection.
-            $childProduct=Mage::getModel("catalog/product")->load($child->getId());
-            $arrayChildProduct["id"] = $child->getId();
-            $arrayChildProduct["sku"] = $child->getSku();
+            $arrayOptionsAll=array();
+            // $childProduct = Mage::getModel('catalog/product')->load($child->getId());
+            /** @var Mage_Catalog_Model_Product_Type_Configurable_Attribute $configurableAttribute */
+            foreach ($usedConfigurableAttributes as $configurableAttribute) {
+                /** @var Mage_Eav_Model_Attribute  $attributeModel */
+                $attributeModel = $configurableAttribute->getProductAttribute();
+                $usedValue  = $childProduct->getData($attributeModel->getAttributeCode());
+                $position   = $this->getAttributeValuePositionByValue($usedValue, $attributeModel->getAttributeCode());
+                $valueLabel = $attributeModel->getFrontend()->getOption($usedValue);
+                $options[$idProduct][] = array(
+                    $childProduct->getSku() => array(
+                        "attribute_code" => $attributeModel->getStoreLabel(), // $attributeModel->getStoreLabel(0),
+                        "value" => $valueLabel,
+                        "position" => $position,
+                        "code" => $attributeModel->getAttributeCode() //$optionValues["attribute_code"]
+                    )
+                );
+                $arrayOptions = array(
+                    "code" => $attributeModel->getStoreLabel(),
+                    "value" => $valueLabel
+                );
+                $arrayValues=array(
+                    "name" => $valueLabel,
+                    "position" => $position
+                );
+                $arrayOptionsAll[]=$arrayOptions;
+                $key = $arrayOptions['code']."|".$attributeModel->getAttributeCode();
+                if (!isset($arrayProductOptions[$key])) {
+                    $arrayProductOptions[$key] = [];
+                }
+                $arrayProductOptions[$key][] = $arrayValues;
+            }
+            $arrayChildProduct["id"]           = $childProduct->getId();
+            $arrayChildProduct["sku"]          = $childProduct->getSku();
             $arrayChildProduct["supply_price"] = $childProduct->getData("supply_price");
-            $arrayChildProduct["full_price"] = $childProduct->getFinalPrice();
-            $percent = $this->getTaxCalculation($childProduct);
-            $arrayChildProduct["tax"] = $percent;
-            $arrayChildProduct["markup"] = $childProduct->getData("markup");
-            $arrayChildProduct["weight"] = $childProduct->getWeight();
+            $arrayChildProduct["full_price"]   = $childProduct->getFinalPrice();
+            $arrayChildProduct["tax"]          = $this->getTaxCalculation($childProduct);
+            $arrayChildProduct["markup"]       = $childProduct->getData("markup");
+            $arrayChildProduct["weight"]       = $childProduct->getWeight();
 
             $arrayInventory = array();
-            $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($child);
+            $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($childProduct);
             $arrayInventory["quantity"] = $stock->getQty();
             $arrayChildProduct["inventories"] = $arrayInventory;
-            $arrayOptionsAll=array();
-            foreach($options[$idProduct] as $attribute) {
-                if(key($attribute)==$child->getSku()) {
-                    $arrayOptions = array(
-                        "code" => $attribute[$child->getSku()]["attribute_code"],
-                        "value" => $attribute[$child->getSku()]["value"]
-                    );
-                    $arrayValues=array(
-                        "name" => $attribute[$child->getSku()]["value"],
-                        "position" => $attribute[$child->getSku()]["position"]
-                    );
-                    $arrayOptionsAll[]=$arrayOptions;
-                    $key=$arrayOptions['code']."|".$attribute[$child->getSku()]['code'];
-                    if (!isset($arrayProductOptions[$key])) {
-                        $arrayProductOptions[$key] = [];
-                    }
-                    $arrayProductOptions[$key][] = $arrayValues;
-                }
-            }
+
             $arrayChildProduct["options"]=$arrayOptionsAll;
             $arrayDetailProduct["variants"][]=$arrayChildProduct;
         }
@@ -649,9 +666,9 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayDetailProduct["categories"]=$arrayCategory;
         $arrayDetailProduct["product_options"]=array();
         foreach($arrayProductOptions as $_key => $values){
-            $arrayKey=explode("|",$_key);
-            $arrayRetValue=$this->getValueAttributeByCode($arrayKey[1]);
-            $arrayParent=array(
+            $arrayKey      = explode("|",$_key);
+            $arrayRetValue = $this->getValueAttributeByCode($arrayKey[1]);
+            $arrayParent   = array(
                 "name"=>$arrayKey[0],
                 "position"=>$arrayRetValue[0]["position_parent"],
                 "values"=>$values
@@ -669,13 +686,18 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         }
         return false;
     }
-    //
-    // Create an attribute.
-    //
-    // For reference, see Mage_Adminhtml_Catalog_Product_AttributeController::saveAction().
-    //
-    // @return int|false
-    //
+
+    /***
+     * Create an attribute.
+     * For reference, see Mage_Adminhtml_Catalog_Product_AttributeController::saveAction().
+     * @param $labelText
+     * @param $attributeCode
+     * @param int $values
+     * @param int $productTypes
+     * @param int $setInfo
+     * @param int $options
+     * @return bool|int
+     */
     public function createAttribute($labelText, $attributeCode, $values = -1, $productTypes = -1, $setInfo = -1, $options = -1)
     {
         $labelText = trim($labelText);
@@ -866,7 +888,46 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
         return false;
     }
-    public function getPositionByValue($value,$attribute_code){
+
+    /***
+     * gets the attribute value position by the attribute value.
+     *
+     * @param $value
+     * @param $attribute_code
+     * @return int
+     */
+    private function getAttributeValuePositionByValue($value, $attribute_code){
+        $attribute_model        = Mage::getModel('eav/entity_attribute');
+        $attribute_options_model= Mage::getModel('eav/entity_attribute_source_table') ;
+        $attribute_code         = $attribute_model->getIdByCode('catalog_product', $attribute_code);
+        $attribute              = $attribute_model->load($attribute_code);
+        $attribute_table        = $attribute_options_model->setAttribute($attribute);
+        $options                = $attribute_options_model->getAllOptions(false);
+        $index=0;
+        foreach($options as $option)
+        {
+            $index++;
+            if ($option['value'] == $value)
+            {
+                return $index;
+            }
+        }
+    }
+
+    /***
+     * Ggets a attribute value position by the attribute value
+     *
+     * Input of Value must be as a label
+     *
+     * Deprecated, no longer using this  in a public space, added to private method, not alternative for developers using this publicly will be provided.
+     * in the private class, the function getAttributeValuePositionByValue should be used instead.
+     *
+     * @param $value
+     * @param $attribute_code
+     * @deprecated
+     * @return int
+     */
+    public function getPositionByValue($value, $attribute_code){
         $attribute_model        = Mage::getModel('eav/entity_attribute');
         $attribute_options_model= Mage::getModel('eav/entity_attribute_source_table') ;
         $attribute_code         = $attribute_model->getIdByCode('catalog_product', $attribute_code);
@@ -884,6 +945,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             }
         }
     }
+
     public function getValueAttributeByCode($attributeName){
         $attribute_model        = Mage::getModel('eav/entity_attribute');
         $attribute_options_model= Mage::getModel('eav/entity_attribute_source_table') ;
@@ -1294,7 +1356,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     }
 
     public function getProductWebsiteIds(){
-        return Mage::getStoreConfig('ant_api_config/tax_class_ant/website_default');
+        return explode(',', Mage::getStoreConfig('ant_api_config/tax_class_ant/website_default'));
     }
 
     public function _createProduct(array $data){
@@ -1563,7 +1625,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                 if ($this->_checkAttribute("options", $data)) {
                     $codeArray = $data["options"];
                     foreach ($codeArray as $_item) {
-                            $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
+                        $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
                         $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
                         $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
                         $product->setData($_item["code"],$value);
@@ -1659,31 +1721,31 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayCustomerHash["full_name"]=$firstName.' '.$lastName;
         $arrayCustomerHash["email"]=$customer->getEmail();
         $arrayCustomerHash["address"]=array();
-            $addressShipping = $customer->getDefaultShipping();
-            if($addressShipping){
-                $address = Mage::getModel('customer/address')->load($addressShipping);
-                $arrayAddressShipping=array();
-                $street = $address->getStreet();
-                $arrayAddressShipping["address1"]=$street[0];
-                $arrayAddressShipping["address2"]=$street[1];
-                $arrayAddressShipping["suburb"]=$address->getRegion();
-                $arrayAddressShipping["postcode"]=$address->getPostcode();
-                $arrayAddressShipping["country"]=$address->getCountry();
-                $arrayCustomerHash["address"][]=$arrayAddressShipping;
-            }
+        $addressShipping = $customer->getDefaultShipping();
+        if($addressShipping){
+            $address = Mage::getModel('customer/address')->load($addressShipping);
+            $arrayAddressShipping=array();
+            $street = $address->getStreet();
+            $arrayAddressShipping["address1"]=$street[0];
+            $arrayAddressShipping["address2"]=$street[1];
+            $arrayAddressShipping["suburb"]=$address->getRegion();
+            $arrayAddressShipping["postcode"]=$address->getPostcode();
+            $arrayAddressShipping["country"]=$address->getCountry();
+            $arrayCustomerHash["address"][]=$arrayAddressShipping;
+        }
 
-            $addressBlling=$customer->getDefaultBilling();
-            if($addressBlling){
-                $address = Mage::getModel('customer/address')->load($addressBlling);
-                $arrayAddressBlling=array();
-                $street = $address->getStreet();
-                $arrayAddressBlling["address1"]=$street[0];
-                $arrayAddressBlling["address2"]=$street[1];
-                $arrayAddressBlling["suburb"]=$address->getRegion();
-                $arrayAddressBlling["postcode"]=$address->getPostcode();
-                $arrayAddressBlling["country"]=$address->getCountry();
-                $arrayCustomerHash["address"][]=$arrayAddressBlling;
-            }
+        $addressBlling=$customer->getDefaultBilling();
+        if($addressBlling){
+            $address = Mage::getModel('customer/address')->load($addressBlling);
+            $arrayAddressBlling=array();
+            $street = $address->getStreet();
+            $arrayAddressBlling["address1"]=$street[0];
+            $arrayAddressBlling["address2"]=$street[1];
+            $arrayAddressBlling["suburb"]=$address->getRegion();
+            $arrayAddressBlling["postcode"]=$address->getPostcode();
+            $arrayAddressBlling["country"]=$address->getCountry();
+            $arrayCustomerHash["address"][]=$arrayAddressBlling;
+        }
         return $arrayCustomerHash;
     }
     /**
@@ -1953,9 +2015,9 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         if (!$user->getId()){
             //generated
             throw new Mage_Oauth_Exception($this->__(
-                    "AntHQ system user not found, please ensure user %s exists",
-                    Ant_Api_Model_Resource_Setup::ANT_ADMIN_USER_USERNAME
-                )
+                "AntHQ system user not found, please ensure user %s exists",
+                Ant_Api_Model_Resource_Setup::ANT_ADMIN_USER_USERNAME
+            )
             );
         }
         $this->autoGenerateOAuthForUser($user->getId());

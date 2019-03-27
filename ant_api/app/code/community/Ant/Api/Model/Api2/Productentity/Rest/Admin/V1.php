@@ -118,10 +118,10 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         catch(Mage_Core_Exception $e){
             $stringError = $e->getMessage();
         }
-        //bad way to do this, but code is currently setup to throw default exceptions
-        //deprecated so that we don't need to use this anymore
+            //bad way to do this, but code is currently setup to throw default exceptions
+            //deprecated so that we don't need to use this anymore
         catch(Exception $e){
-           throw $e;
+            throw $e;
         }
         return $stringError;
     }
@@ -370,8 +370,8 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                         foreach ($firstData as $first_options) {
                             $attribute = Mage::getSingleton('eav/config')->getAttribute(Mage_Catalog_Model_Product::ENTITY, $first_options["code"]);
                             if ($attribute->getId()) {
-                            $arrayAttributeToset[] = $attribute->getId();
-                        }
+                                $arrayAttributeToset[] = $attribute->getId();
+                            }
                         }
                         //$product->getTypeInstance()->setUsedProductAttributeIds($arrayAttributeToset); //attribute ID of attribute 'color' in my store
                         $configurableAttributesData = $product->getTypeInstance()->getConfigurableAttributesAsArray();
@@ -402,7 +402,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
             $this->_critical($e->getMessage(), Mage_Api2_Model_Server::HTTP_INTERNAL_ERROR);
         }
     }
-    public function setSimpleProductToConfigruableProduct($idProduct,$data,$attributeSetId){
+    public function setSimpleProductToConfigruableProduct($idProduct, $data, $attributeSetId){
         $product = Mage::getModel("catalog/product")->load($idProduct);
 
         /** @var Ant_Api_Helper_Data $helperAnt */
@@ -419,15 +419,15 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
             $product->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG);
         }
         $arrayToExclude = array("id","product_name","images", "inventories", "tax", "full_price");
-        foreach($data as $key=>$value){
+        foreach($data as $key => $value){
             if(!in_array($key,$arrayToExclude)){
                 $product->setData($key, $value);
             }
         }
-        if($this->_checkAttribute("product_name",$data)) {
+        if($this->_checkAttribute("product_name", $data)) {
             $product->setName($data["product_name"]);
         }
-        if($this->_checkAttribute("tax",$data)) {
+        if($this->_checkAttribute("tax", $data)) {
             $product->setTaxClassId($data["tax"]);
         }
         if(!$product->getTaxClassId()){

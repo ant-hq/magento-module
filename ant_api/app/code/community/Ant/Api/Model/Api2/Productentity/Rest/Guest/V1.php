@@ -455,11 +455,14 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Guest_V1 extends Ant_Api_Model_Api2_
     public function setSimpleProductToConfigruableProduct($idProduct,$data,$attributeSetId){
         $product = Mage::getModel("catalog/product")->load($idProduct);
         $isCreate=false;
+        /** @var Ant_Api_Helper_Data $helperAnt */
+        $helperAnt = Mage::helper("ant_api");
+
         if(!$product->getId()){
             $isCreate=true;
             $product=Mage::getModel("catalog/product");
             $product->setTypeId("simple");
-            $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
+            $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
             $product->setCreatedAt(strtotime('now'));
             $product->setStatus(1);
             $product->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG);

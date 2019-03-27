@@ -174,7 +174,10 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                     }
                     $product->setMetaKeyword($stringMeta);
                     //$product->setMetaDescription($stringMeta);
-                    $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
+                    /** @var Ant_Api_Helper_Data $helperAnt */
+                    $helperAnt = Mage::helper("ant_api");
+
+                    $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
                     $product->setAttributeSetId($defaultAttributeSetId); //ID of a attribute set named 'default'
                     $product->setTypeId('simple'); //product type
                     $product->setCreatedAt(strtotime('now')); //product creation time
@@ -259,7 +262,10 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                             $product->setData($key, $value);
                         }
                     }
-                    $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
+                    /** @var Ant_Api_Helper_Data $helperAnt */
+                    $helperAnt = Mage::helper("ant_api");
+
+                    $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
                     $product->setAttributeSetId($attributeSetId); //ID of a attribute set named 'default'
                     $product->setTypeId("configurable"); //product type
                     $product->setCreatedAt(strtotime('now')); //product creation time
@@ -401,9 +407,13 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                     $dataVariants = $data["variants"];
                     $arrayProductIds = array();
                     $errorOnChildProduct=false;
+                    $tagsParent = "";
+                    if(isset($data["tags"])) {
+                        $tagsParent = $data["tags"];
+                    }
                     if ($dataVariants && is_array($dataVariants)) {
                         foreach ($dataVariants as $_variant) {
-                            $arrayProductIds[] = $this->setSimpleProductToConfigruableProduct($_variant, $attributeSetId);
+                            $arrayProductIds[] = $this->setSimpleProductToConfigruableProduct($_variant, $attributeSetId,$tagsParent);
                         }
                         Mage::register('is_new_product_api',"noevent");
                         $arrayAttributeToset = array();
@@ -450,12 +460,14 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
             $this->_critical($e->getMessage(), Mage_Api2_Model_Server::HTTP_INTERNAL_ERROR);
         }
     }
-    public function setSimpleProductToConfigruableProduct($data,$attributeSetId){
+    public function setSimpleProductToConfigruableProduct($data,$attributeSetId,$tagsParent){
         Mage::register('is_new_product_api',"noevent");
+        /** @var Ant_Api_Helper_Data $helperAnt */
+        $helperAnt = Mage::helper("ant_api");
         if(isset($data["id"])){
             $product=Mage::getModel("catalog/product")->load($data["id"]);
             if($product->getId()){
-                $this->setSimpleProductToConfigruableProductCaseUpdate($data["id"],$data);
+                $this->setSimpleProductToConfigruableProductCaseUpdate($data["id"],$data,$tagsParent);
             }
             else{
                 if ($this->_validateVariantBeforeUpdate($data) == "") {
@@ -467,7 +479,7 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                         }
                     }
                     $product->setName($data["product_name"]);
-                    $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
+                    $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
                     $product->setAttributeSetId($attributeSetId); //ID of a attribute set named 'default'
                     $product->setTypeId("simple"); //product type
                     $product->setCreatedAt(strtotime('now')); //product creation time
@@ -540,7 +552,7 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                     }
                 }
                 $product->setName($data["product_name"]);
-                $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
+                $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
                 $product->setAttributeSetId($attributeSetId); //ID of a attribute set named 'default'
                 $product->setTypeId("simple"); //product type
                 $product->setCreatedAt(strtotime('now')); //product creation time
@@ -598,7 +610,7 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
             return false;
         }
     }
-    public function setSimpleProductToConfigruableProductCaseUpdate($id_product,$data){
+    public function setSimpleProductToConfigruableProductCaseUpdate($id_product,$data,$tagsParent){
         Mage::register('is_new_product_api',"noevent");
         if ($this->_validateVariantBeforeUpdate($data) == "") {
             $product = Mage::getModel("catalog/product")->load($id_product);
@@ -660,6 +672,13 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
 //                );
 //            }
             $product->save();
+            if($tagsParent != "") {
+                if (is_array($tagsParent)) {
+                    /** @var Ant_Api_Helper_Data $helperAnt */
+                    $helperAnt = Mage::helper("ant_api");
+                    $helperAnt->setTagsProduct($tagsParent, $product);
+                }
+            }
             return $product->getId();
         }
         return false;

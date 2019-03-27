@@ -270,13 +270,13 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                             }
                             if($isBelongtoDefault == false && $attribute_id > 0) {
                                 $model_attribute_set = Mage::getModel('eav/entity_setup', 'core_setup');
-                                // $attr_code = $attr_object->getAttributeCode();
-                                // $model_attribute_set->addAttributeToSet(
-                                //     'catalog_product', 'Default', 'General', $attr_code
-                                // );
-                                $model_attribute_set->addAttributeToSet(
-                                    'catalog_product', 'Default', 'General', $attributeCode
-                                );
+                               // $attr_code = $attr_object->getAttributeCode();
+                               // $model_attribute_set->addAttributeToSet(
+                               //     'catalog_product', 'Default', 'General', $attr_code
+                               // );
+                                 $model_attribute_set->addAttributeToSet(
+                                     'catalog_product', 'Default', 'General', $attributeCode
+                                 );
                             }
                             $p_values = $p_opt["values"];
                             $valStringArray = array();
@@ -562,9 +562,12 @@ class Ant_Api_Model_Api2_Product_Rest_Admin_V1 extends Ant_Api_Model_Api2_Produc
                 $product->setPrice($data["full_price"]);
             }
             if ($this->_checkAttribute("options", $data)) {
+                /** @var Ant_Api_Helper_Formatting $formattingHelper */
+                $formattingHelper = Mage::helper('ant_api/format');
+
                 $codeArray = $data["options"];
                 foreach ($codeArray as $_item) {
-                    $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
+                    $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product', $formattingHelper->createAttributeNameSlugFromLabel($_item["code"]));
                     $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
                     $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
                     $attribute_code = $attr->getAttributeCode();
