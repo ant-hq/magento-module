@@ -353,7 +353,7 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                             $id_variant = $_variant["id"];
                             $arrayProductIds[] = $this->setSimpleProductToConfigruableProduct($id_variant, $_variant, $attributeSetId);
                         }
-                        $childProducts = $product->getTypeInstance(true)->getUsedProducts(null, $product);
+                        $childProducts = $product->getTypeInstance()->getUsedProducts(null, $product);
                         $idsToDelete = array();
                         foreach($childProducts as $child){
                             if(!in_array($child->getId(),$arrayProductIds)) {
@@ -378,14 +378,8 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
                         $product->setCanSaveConfigurableAttributes(true);
                         $product->setConfigurableAttributesData($configurableAttributesData);
 
-                        $configurableProductsData = array();
-                        foreach ($arrayProductIds as $key => $value) {
-                            $configurableProductsData[$value] = array(
-                                //['value'] = id of a simple product associated with this configurable
-                            );
-                        }
+                        $product->setConfigurableProductsData(array_flip(array_unique($arrayProductIds)));
 
-                        $product->setConfigurableProductsData($configurableProductsData);
                     }
                     break;
                 case 'simple':
@@ -402,8 +396,29 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
             $this->_critical($e->getMessage(), Mage_Api2_Model_Server::HTTP_INTERNAL_ERROR);
         }
     }
+
+    /***
+     * @param $id
+     * @param $data
+     * @return Mage_Catalog_Model_Product
+     */
+    private function getLoadedProduct($id, $data){
+        /** @var Mage_Catalog_Model_Product $productModel */
+        $productModel = Mage::getModel("catalog/product");
+
+        $product = $productModel->load($id);
+        if (!$product->getId() && array_key_exists('sku', $data) ){
+            $id = $product->getIdBySku($data['sku']);
+            if (is_numeric($id)) {
+                $product = $productModel->load($id);
+            }
+        }
+        return $product;
+    }
+
+
     public function setSimpleProductToConfigruableProduct($idProduct, $data, $attributeSetId){
-        $product = Mage::getModel("catalog/product")->load($idProduct);
+        $product = $this->getLoadedProduct($idProduct, $data);
 
         /** @var Ant_Api_Helper_Data $helperAnt */
         $helperAnt = Mage::helper("ant_api");
@@ -450,8 +465,9 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Admin_V1 extends Ant_Api_Model_Api2_
         if($this->_checkAttribute("inventories",$data)) {
             if($this->_checkAttribute("quantity",$data["inventories"])) {
                 $qty = $data["inventories"]["quantity"];
-                //TODO: add in manage stock as expected
-                $stockData = $product->getStockData();
+
+                $stockData = ($isCreate)? Mage::helper('ant_api/product_inventory_data')->prepareDefaultStockArray($qty) : $product->getStockData();
+
                 $minQty = (isset($stockData['min_qty']))? $stockData['min_qty'] : 0;
 
                 $stockData['qty']         = $qty;
