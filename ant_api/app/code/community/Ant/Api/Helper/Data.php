@@ -43,6 +43,12 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      */
     const XML_PATH_AUTHORIZATION_URL = 'ant_api_config/general/url_front';
 
+    /**
+     * Path to store config where last generated time is stored
+     * @var string
+     */
+    const XML_PATH_LAST_GENERATED = 'ant_api_config/general/last_generated';
+
     const KEY_NAME_IMAGE="image_name";
 
     const KEY_ABSOLUTE_PATH_IMG="absolute_path";
@@ -132,6 +138,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
     /**
      * Set the store's OAuth Consumer Key
+     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
      * @param string
      * @return void
      */
@@ -142,6 +149,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
     /**
      * Set the store's OAuth Consumer Secret
+     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
      * @param string
      * @return void
      */
@@ -152,6 +160,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
     /**
      * Set the store's OAuth Authorization Token
+     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
      * @param string
      * @return void
      */
@@ -162,6 +171,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
     /**
      * Set the store's OAuth Authroization Secret
+     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
      * @param string
      * @return void
      */
@@ -170,6 +180,12 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         Mage::getModel('core/config')->saveConfig(self::XML_PATH_AUTHORIZATION_SECRET, $authorizationSecret);
     }
 
+    /**
+     * Set the store's Url
+     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
+     * @param string
+     * @return void
+     */
     public function setUrl($url){
         Mage::getModel('core/config')->saveConfig(self::XML_PATH_AUTHORIZATION_URL, $url);
     }
@@ -177,12 +193,14 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     public function getUrl($store=null){
         return Mage::getStoreConfig(self::XML_PATH_AUTHORIZATION_URL,$store);
     }
+
     public function log($data, $filename)
     {
         if ($this->config('enable_log') != 0) {
             return Mage::getModel('core/log_adapter', $filename)->log($data);
         }
     }
+
     public function logHistory($message,$isError = false){
         if($isError == true) {
             Mage::log($message, null, "error_log_ant_api.log");
@@ -563,6 +581,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayProductOptions=array();
         foreach($childProducts as $child) {
             $arrayChildProduct=array();
+            //TODO: change this to not load a database connectino within a foreach. This should be handled by a collection with attributes added to the collection.
             $childProduct=Mage::getModel("catalog/product")->load($child->getId());
             $arrayChildProduct["id"] = $child->getId();
             $arrayChildProduct["sku"] = $child->getSku();
@@ -571,6 +590,11 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $percent = $this->getTaxCalculation($childProduct);
             $arrayChildProduct["tax"] = $percent;
             $arrayChildProduct["markup"] = $childProduct->getData("markup");
+
+            //Making a point of this - naming conventions could get confusing//
+            // as per issue #1 in github, child weight needs to be set to parent product
+            $arrayChildProduct["weight"] = $detailProduct->getWeight();
+
             $arrayInventory = array();
             $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($child);
             $arrayInventory["quantity"] = $stock->getQty();
@@ -1805,10 +1829,20 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $data=$modelWebhook->getCollection()->addFieldToFilter("ant_api_webhook_action",array("like"=>"%".$condition."%"));
         return $data;
     }
-    public function autoGenerate($isSetup = false){
+
+
+    /***
+     * @param $userId
+     * @return Mage_Oauth_Model_Token
+     * @throws Exception
+     */
+    public function autoGenerateOAuthForUser($userId){
+        /** @var Mage_Oauth_Helper_Data $oauthHelper */
         $oauthHelper = Mage::helper('oauth');
         $consumerKey = $oauthHelper->generateConsumerKey();
         $consumerSecret = $oauthHelper->generateConsumerSecret();
+
+        /** @var Mage_Oauth_Model_Consumer $consumerModel */
         $consumerModel = Mage::getModel('oauth/consumer');
         $consumerData = array(
             'name' => self::OAUTH_CONSUMER_NAME,
@@ -1816,40 +1850,68 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             'secret' => $consumerSecret);
         $consumerModel->addData($consumerData);
         $consumerModel->save();
-        $token = Mage::getModel('oauth/token');
-        $token->createRequestToken($consumerModel->getId(), self::OAUTH_CALLBACK_URL);
-        $token->convertToAccess();
-        $requestToken = $token->getToken();
-        $requestTokenSecret = $token->getSecret();
-        $user = Mage::getSingleton('admin/session')->getUser();
-        $useInFrontEnd = Mage::getModel("core/config_data")->getCollection()
-            ->addFieldToFilter("path",array("eq" => Mage_Core_Model_Url::XML_PATH_SECURE_IN_FRONT))
-            ->addFieldToFilter("scope",array("eq" => "default"))->getFirstItem();
-        $collection = null;
-        if($useInFrontEnd->getData("value") != "0" ){
-            $collection=Mage::getModel("core/config_data")->getCollection()
-                ->addFieldToFilter("path",array("eq" => Mage_Core_Model_Url::XML_PATH_SECURE_URL))
-                ->addFieldToFilter("scope",array("eq" => "default"))->getFirstItem();
+
+        /** @var Mage_Oauth_Model_Token $requestToken */
+        $requestToken = Mage::getModel('oauth/token');
+        $requestToken->createRequestToken($consumerModel->getId(), self::OAUTH_CALLBACK_URL);
+        $requestToken->convertToAccess();
+
+        $defaultStore           = Mage::app()->getDefaultStoreView();
+        $useSecureUrlInFrontEnd = (bool) Mage::getStoreConfig(Mage_Core_Model_Url::XML_PATH_SECURE_IN_FRONT, $defaultStore);
+        $urlConfigPath          = ($useSecureUrlInFrontEnd)? Mage_Core_Model_Url::XML_PATH_SECURE_URL : Mage_Core_Model_Url::XML_PATH_UNSECURE_URL;
+        $url                    = Mage::getStoreConfig($urlConfigPath, $defaultStore);
+
+        $requestToken->authorize($userId, Mage_Oauth_Model_Token::USER_TYPE_ADMIN);
+
+        /** @var Mage_Core_Model_Config $configModel */
+        $configModel = Mage::getModel('core/config');
+
+        $configModel->saveConfig(self::XML_PATH_CONSUMER_KEY, $consumerKey);
+        $configModel->saveConfig(self::XML_PATH_CONSUMER_SECRET, $consumerSecret);
+        $configModel->saveConfig(self::XML_PATH_AUTHORIZATION_TOKEN, $requestToken->getToken());
+        $configModel->saveConfig(self::XML_PATH_AUTHORIZATION_SECRET, $requestToken->getSecret());
+        $configModel->saveConfig(self::XML_PATH_AUTHORIZATION_URL, $url);
+        $configModel->saveConfig(self::XML_PATH_LAST_GENERATED, now());
+
+        $cacheToClear = 'config';
+        Mage::app()->getCacheInstance()->cleanType($cacheToClear);
+        Mage::dispatchEvent('adminhtml_cache_refresh_type', array('type' => $cacheToClear));
+
+        return $requestToken;
+    }
+
+    /***
+     * Setup OAuth for the dedicated System User
+     * @throws Exception
+     */
+    public function setupOAuth(){
+        $user = Mage::getModel('admin/user')->load(Ant_Api_Model_Resource_Setup::ANT_ADMIN_USER_USERNAME,'username');
+        if (!$user->getId()){
+            //generated
+            throw new Mage_Oauth_Exception($this->__(
+                    "AntHQ system user not found, please ensure user %s exists",
+                    Ant_Api_Model_Resource_Setup::ANT_ADMIN_USER_USERNAME
+                )
+            );
         }
-        else{
-            $collection=Mage::getModel("core/config_data")->getCollection()
-                ->addFieldToFilter("path",array("eq" => Mage_Core_Model_Url::XML_PATH_UNSECURE_URL))
-                ->addFieldToFilter("scope",array("eq" => "default"))->getFirstItem();
+        $this->autoGenerateOAuthForUser($user->getId());
+    }
+
+
+    /***
+     * @deprecated Please use setupOAuth() instead
+     * @param  bool $isSetup
+     * @return Mage_Oauth_Model_Token
+     * @throws Exception
+     */
+    public function autoGenerate($isSetup = false){
+        try {
+            $this->setupOAuth();
         }
-        $url = $collection->getData("value");
-        if ($user) {
-            $userId = $user->getId();
-        } else if ($isSetup) {
-            $userId = 1;
+        catch(Mage_Oauth_Exception $ex){
+            Mage::logException($ex);
         }
-        $token->authorize($userId, Mage_Oauth_Model_Token::USER_TYPE_ADMIN);
-        $reclaimHelper = Mage::helper('ant_api');
-        $reclaimHelper->setConsumerKey($consumerKey);
-        $reclaimHelper->setConsumerSecret($consumerSecret);
-        $reclaimHelper->setAuthorizationToken($requestToken);
-        $reclaimHelper->setAuthorizationSecret($requestTokenSecret);
-        $reclaimHelper->setUrl($url);
-        return $token;
+
     }
 
     /**
