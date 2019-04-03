@@ -234,12 +234,15 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Guest_V1 extends Ant_Api_Model_Api2_
                     if ($this->_checkAttribute("inventories", $data)) {
                         if ($this->_checkAttribute("quantity", $data["inventories"])) {
                             $qty = $data["inventories"]["quantity"];
-                            //TODO: add in manage stock as expected
+
                             $stockData = $product->getStockData();
                             $minQty = (isset($stockData['min_qty']))? $stockData['min_qty'] : 0;
 
                             $stockData['qty']         = $qty;
                             $stockData['is_in_stock'] = ($qty > $minQty)? Mage_CatalogInventory_Model_Stock_Status::STATUS_IN_STOCK : Mage_CatalogInventory_Model_Stock_Status::STATUS_OUT_OF_STOCK;
+
+                            $stockData['use_config_manage_stock'] = 0;
+                            $stockData['manage_stock'] = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
 
                             $product->setStockData($stockData);
 
@@ -363,12 +366,15 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Guest_V1 extends Ant_Api_Model_Api2_
                     if ($this->_checkAttribute("inventories", $data)) {
                         if ($this->_checkAttribute("quantity", $data["inventories"])) {
                             $qty = $data["inventories"]["quantity"];
-                            //TODO: add in manage stock as expected
+
                             $stockData = $product->getStockData();
                             $minQty = (isset($stockData['min_qty']))? $stockData['min_qty'] : 0;
 
                             $stockData['qty']         = $qty;
                             $stockData['is_in_stock'] = ($qty > $minQty)? Mage_CatalogInventory_Model_Stock_Status::STATUS_IN_STOCK : Mage_CatalogInventory_Model_Stock_Status::STATUS_OUT_OF_STOCK;
+
+                            $stockData['use_config_manage_stock'] = 0;
+                            $stockData['manage_stock'] = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
 
                             $product->setStockData($stockData);
 //                            $managerStock = 1;
@@ -499,7 +505,8 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Guest_V1 extends Ant_Api_Model_Api2_
         if($this->_checkAttribute("inventories",$data)) {
             if($this->_checkAttribute("quantity",$data["inventories"])) {
                 $qty = $data["inventories"]["quantity"];
-                //TODO: add in manage stock as expected
+                $manageStock = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
+
                 if (!$isCreate) {
                     $stockData = $product->getStockData();
                     $minQty = (isset($stockData['min_qty']))? $stockData['min_qty'] : 0;
@@ -507,11 +514,14 @@ class Ant_Api_Model_Api2_ProductEntity_Rest_Guest_V1 extends Ant_Api_Model_Api2_
                     $stockData['qty']         = $qty;
                     $stockData['is_in_stock'] = ($qty > $minQty)? Mage_CatalogInventory_Model_Stock_Status::STATUS_IN_STOCK : Mage_CatalogInventory_Model_Stock_Status::STATUS_OUT_OF_STOCK;
 
+                    $stockData['use_config_manage_stock'] = 0;
+                    $stockData['manage_stock'] = $manageStock;
+
                 }
                 else{
                     $helper = Mage::helper('ant_api/product_inventory_data');
                     /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
-                    $stockData = $helper->prepareDefaultStockArray($qty);
+                    $stockData = $helper->prepareDefaultStockArray($qty, $manageStock);
                 }
                 $product->setStockData($stockData);
 //                $product->setStockData(array(

@@ -7,9 +7,10 @@ class Ant_Api_Model_Api2_Inventory_Rest_Guest_V1 extends Ant_Api_Model_Api2_Inve
             $id_product = $this->getRequest()->getParam("id_product");
             $product = Mage::getModel("catalog/product")->load($id_product);
             $qty = $data["quantity"];
-            $manager_stock = $data["manage_stock"];
 
-            //todo: add in manage stock as expected
+            //NB: !important! Don't update manage_stock status during inventory updates
+            //$manager_stock = $data["manage_stock"];
+
             $stockData = $product->getStockData();
             $minQty = (isset($stockData['min_qty']))? $stockData['min_qty'] : 0;
 

@@ -62,6 +62,10 @@ class Ant_Api_Model_Api2_Inventory_Rest_Admin_V1 extends Ant_Api_Model_Api2_Inve
 
             $qty = (float) $data["quantity"];
 
+
+            //NB: !important! Don't update manage_stock status during inventory updates
+            //$manager_stock = $data["manage_stock"];
+
             $stockData = $product->getStockData();
             $minQty = (isset($stockData['min_qty']))? $stockData['min_qty'] : 0;
 

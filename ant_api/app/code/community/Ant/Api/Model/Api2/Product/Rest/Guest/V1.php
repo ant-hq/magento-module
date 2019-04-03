@@ -234,10 +234,11 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
 
 
                     $qty = (isset($data["inventories"]))? $data["inventories"]["quantity"] : 0;
+                    $manageStock = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
 
                     $helper = Mage::helper('ant_api/product_inventory_data');
                     /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
-                    $stockData = $helper->prepareDefaultStockArray($qty);
+                    $stockData = $helper->prepareDefaultStockArray($qty, $manageStock);
 
                     $product->setStockData($stockData);
 
@@ -338,10 +339,11 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                     }
                     //TODO: add in manage stock as expected
                     $qty = (isset($data["inventories"]) && isset($data["inventories"]["quantity"]))? (float) $data["inventories"]["quantity"] : 0;
+                    $manageStock = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
 
                     $helper = Mage::helper('ant_api/product_inventory_data');
                     /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
-                    $stockData = $helper->prepareDefaultStockArray($qty);
+                    $stockData = $helper->prepareDefaultStockArray($qty, $manageStock);
                     $product->setStockData($stockData);
 
 //                    if(isset($data["inventories"])) {
@@ -512,10 +514,11 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
 
                     //TODO: add in manage stock as expected
                     $qty = ($this->_checkAttribute("inventories", $data) && $this->_checkAttribute("quantity", $data["inventories"]))? (float) $data["inventories"]["quantity"] : 0;
+                    $manageStock = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
 
                     $helper = Mage::helper('ant_api/product_inventory_data');
                     /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
-                    $stockData = $helper->prepareDefaultStockArray($qty);
+                    $stockData = $helper->prepareDefaultStockArray($qty, $manageStock);
                     $product->setStockData($stockData);
 
 //                    if ($this->_checkAttribute("inventories", $data)) {
@@ -579,10 +582,11 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                 }
                 //TODO: add in manage stock as expected
                 $qty = ($this->_checkAttribute("inventories", $data) && $this->_checkAttribute("quantity", $data["inventories"]))? (float) $data["inventories"]["quantity"] : 0;
+                $manageStock = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
 
                 $helper = Mage::helper('ant_api/product_inventory_data');
                 /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
-                $stockData = $helper->prepareDefaultStockArray($qty);
+                $stockData = $helper->prepareDefaultStockArray($qty, $manageStock);
                 $product->setStockData($stockData);
 
 //                if ($this->_checkAttribute("inventories", $data)) {
@@ -649,6 +653,9 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
 
             $stockData['qty']         = $qty;
             $stockData['is_in_stock'] = ($qty > $minQty)? Mage_CatalogInventory_Model_Stock_Status::STATUS_IN_STOCK : Mage_CatalogInventory_Model_Stock_Status::STATUS_OUT_OF_STOCK;
+
+            $stockData['use_config_manage_stock'] = 0;
+            $stockData['manage_stock'] = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
 
             $product->setStockData($stockData);
 
