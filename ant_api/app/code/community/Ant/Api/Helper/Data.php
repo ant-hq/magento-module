@@ -477,7 +477,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayDetailProduct["store_front_url"] = $detailProduct->getProductUrl();
         $arrayDetailProduct["backend_url"] = $this->getUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getid()."/";
         $arrayDetailProduct["weight"] = $detailProduct->getWeight();
-        $arrayDetailProduct["full_price"] = $detailProduct->getFinalPrice();
+        $arrayDetailProduct["full_price"] = $detailProduct->getPrice();
         //$arrayDetailProduct["special_price"] = $detailProduct->getSpecialPrice();
         $arrayDetailProduct["tags"] = $this->getTagsProduct($detailProduct->getid());
         $arrayTags=explode(",",$detailProduct->getMetaKeyword());
@@ -542,7 +542,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $arrayDetailProduct["name"] = $detailProduct->getName();
         $arrayDetailProduct["sku"] = $detailProduct->getSku();
         $arrayDetailProduct["description"] = $detailProduct->getDescription();
-        $arrayDetailProduct["full_price"] = $detailProduct->getFinalPrice();
+        $arrayDetailProduct["full_price"] = $detailProduct->getPrice();
         $arrayDetailProduct["short_description"] = $detailProduct->getShortDescription();
         $arrayDetailProduct["visibility"] = $detailProduct->getVisibility();
         //$arrayDetailProduct["store_front_url"] = $this->getUrl().$detailProduct->getUrlKey().$suffix;
@@ -629,7 +629,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $arrayChildProduct["id"]           = $childProduct->getId();
             $arrayChildProduct["sku"]          = $childProduct->getSku();
             $arrayChildProduct["supply_price"] = $childProduct->getData("supply_price");
-            $arrayChildProduct["full_price"]   = $childProduct->getFinalPrice();
+            $arrayChildProduct["full_price"]   = $childProduct->getPrice();
             $arrayChildProduct["tax"]          = $this->getTaxCalculation($childProduct);
             $arrayChildProduct["markup"]       = $childProduct->getData("markup");
             $arrayChildProduct["weight"]       = $childProduct->getWeight();
