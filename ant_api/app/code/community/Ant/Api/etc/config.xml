@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Ant_Api>
-            <version>0.0.4</version>
+            <version>0.0.5</version>
         </Ant_Api>
     </modules>
     <global>
@@ -246,7 +246,11 @@
         <ant_api_config>
             <tax_class_ant>
                 <ant_taxs>1</ant_taxs>
+                <website_default>1</website_default>
             </tax_class_ant>
+            <sync_source>
+                <pricing>1</pricing>
+            </sync_source>
         </ant_api_config>
     </default>
 </config>
