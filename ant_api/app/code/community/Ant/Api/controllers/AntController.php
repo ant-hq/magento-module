@@ -15,17 +15,12 @@ class Ant_Api_AntController extends Mage_Adminhtml_Controller_Action{
         return $this->_helper;
     }
 
-    /***
-     * Controller action for regenerate button in backend
-     * @return $this
-     * @throws Exception
-     */
     public function oauthkeysAction(){
 
         try {
             $helper = $this->getHelper();
             $helper->setupOAuth();
-            $this->_getSession()->addSuccess($helper->__('OAuth Successfully Regenerated'));
+            $this->_getSession()->addSuccess($helper->__('OAuth Successfully Re-generated for AntHQ User'));
         }
         catch(Mage_Oauth_Exception $e){
             $this->_getSession()->addError($e->getMessage());

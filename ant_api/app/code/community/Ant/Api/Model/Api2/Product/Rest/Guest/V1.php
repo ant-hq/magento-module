@@ -174,7 +174,10 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                     }
                     $product->setMetaKeyword($stringMeta);
                     //$product->setMetaDescription($stringMeta);
-                    $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
+                    /** @var Ant_Api_Helper_Data $helperAnt */
+                    $helperAnt = Mage::helper("ant_api");
+
+                    $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
                     $product->setAttributeSetId($defaultAttributeSetId); //ID of a attribute set named 'default'
                     $product->setTypeId('simple'); //product type
                     $product->setCreatedAt(strtotime('now')); //product creation time
@@ -228,24 +231,17 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                     }else{
                         $product->setCategoryIds($helperAnt->getRootCategory());
                     }
-                    if(isset($data["inventories"])) {
-                        $qty = $data["inventories"]["quantity"];
-                        $product->setStockData(array(
-                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                                'manage_stock' => $data["manage_stock"], //manage stock
-                                'is_in_stock' => 1, //Stock Availability
-                                'qty' => $qty //qty
-                            )
-                        );
-                    }else{
-                        $product->setStockData(array(
-                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                                'manage_stock' => 0, //manage stock
-                                'is_in_stock' => 1, //Stock Availability
-                                'qty' => 0 //qty
-                            )
-                        );
-                    }
+
+
+                    $qty = (isset($data["inventories"]))? $data["inventories"]["quantity"] : 0;
+                    $manageStock = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
+
+                    $helper = Mage::helper('ant_api/product_inventory_data');
+                    /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
+                    $stockData = $helper->prepareDefaultStockArray($qty, $manageStock);
+
+                    $product->setStockData($stockData);
+
                     if($isErrorImage==false) {
                         Mage::register('is_new_product_api',"noevent");
                         $product->save();
@@ -267,7 +263,10 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                             $product->setData($key, $value);
                         }
                     }
-                    $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
+                    /** @var Ant_Api_Helper_Data $helperAnt */
+                    $helperAnt = Mage::helper("ant_api");
+
+                    $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
                     $product->setAttributeSetId($attributeSetId); //ID of a attribute set named 'default'
                     $product->setTypeId("configurable"); //product type
                     $product->setCreatedAt(strtotime('now')); //product creation time
@@ -338,30 +337,43 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                     }else{
                         $product->setCategoryIds($helperAnt->getRootCategory());
                     }
-                    if(isset($data["inventories"])) {
-                        $qty = $data["inventories"]["quantity"];
-                        $product->setStockData(array(
-                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                                'manage_stock' => $data["manage_stock"], //manage stock
-                                'is_in_stock' => 1, //Stock Availability
-                                'qty' => $qty //qty
-                            )
-                        );
-                    }else{
-                        $product->setStockData(array(
-                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                                'manage_stock' => 0, //manage stock
-                                'is_in_stock' => 1, //Stock Availability
-                                'qty' => 0 //qty
-                            )
-                        );
-                    }
+                    //TODO: add in manage stock as expected
+                    $qty = (isset($data["inventories"]) && isset($data["inventories"]["quantity"]))? (float) $data["inventories"]["quantity"] : 0;
+                    $manageStock = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
+
+                    $helper = Mage::helper('ant_api/product_inventory_data');
+                    /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
+                    $stockData = $helper->prepareDefaultStockArray($qty, $manageStock);
+                    $product->setStockData($stockData);
+
+//                    if(isset($data["inventories"])) {
+//                        $qty = $data["inventories"]["quantity"];
+//                        $product->setStockData(array(
+//                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
+//                                'manage_stock' => $data["manage_stock"], //manage stock
+//                                'is_in_stock' => 1, //Stock Availability
+//                                'qty' => $qty //qty
+//                            )
+//                        );
+//                    }else{
+//                        $product->setStockData(array(
+//                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
+//                                'manage_stock' => 0, //manage stock
+//                                'is_in_stock' => 1, //Stock Availability
+//                                'qty' => 0 //qty
+//                            )
+//                        );
+//                    }
+                    /** @var Ant_Api_Helper_Formatting $formattingHelper */
+                    $formattingHelper = Mage::helper('ant_api/format');
+
                     //Check Product Options is Exist Or Not
                     if($this->_checkAttribute("product_options",$data)) {
                         $product_options = $data["product_options"];
                         foreach ($product_options as $p_opt) {
                             $nameAttribute = $p_opt["name"];
-                            $attribute_id=Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$nameAttribute);
+                            $attributeCode = $formattingHelper->createAttributeNameSlugFromLabel($nameAttribute);
+                            $attribute_id=Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$attributeCode);
                             $attr_object = Mage::getModel('catalog/resource_eav_attribute')->load($attribute_id);
                             $attributes = Mage::getModel('catalog/product_attribute_api')->items($attributeSetId);
                             $isBelongtoDefault = false;
@@ -384,12 +396,12 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                                 $v = $_val["name"];
                                 $valStringArray[] = $v;
                             }
-                            if (!$helperAnt->checkExistAttribute($nameAttribute)) {
-                                $helperAnt->createAttribute($nameAttribute, $nameAttribute, -1, -1, -1,
+                            if (!$helperAnt->checkExistAttribute($attributeCode)) {
+                                $helperAnt->createAttribute($nameAttribute, $attributeCode, -1, -1, -1,
                                     $valStringArray);
                             }
                             else {
-                                $helperAnt->updateAttributeValue($nameAttribute, $valStringArray);
+                                $helperAnt->updateAttributeValue($attributeCode, $valStringArray);
                             }
                         }
                     }
@@ -397,9 +409,13 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                     $dataVariants = $data["variants"];
                     $arrayProductIds = array();
                     $errorOnChildProduct=false;
+                    $tagsParent = "";
+                    if(isset($data["tags"])) {
+                        $tagsParent = $data["tags"];
+                    }
                     if ($dataVariants && is_array($dataVariants)) {
                         foreach ($dataVariants as $_variant) {
-                            $arrayProductIds[] = $this->setSimpleProductToConfigruableProduct($_variant, $attributeSetId);
+                            $arrayProductIds[] = $this->setSimpleProductToConfigruableProduct($_variant, $attributeSetId,$tagsParent);
                         }
                         Mage::register('is_new_product_api',"noevent");
                         $arrayAttributeToset = array();
@@ -446,12 +462,14 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
             $this->_critical($e->getMessage(), Mage_Api2_Model_Server::HTTP_INTERNAL_ERROR);
         }
     }
-    public function setSimpleProductToConfigruableProduct($data,$attributeSetId){
+    public function setSimpleProductToConfigruableProduct($data,$attributeSetId,$tagsParent){
         Mage::register('is_new_product_api',"noevent");
+        /** @var Ant_Api_Helper_Data $helperAnt */
+        $helperAnt = Mage::helper("ant_api");
         if(isset($data["id"])){
             $product=Mage::getModel("catalog/product")->load($data["id"]);
             if($product->getId()){
-                $this->setSimpleProductToConfigruableProductCaseUpdate($data["id"],$data);
+                $this->setSimpleProductToConfigruableProductCaseUpdate($data["id"],$data,$tagsParent);
             }
             else{
                 if ($this->_validateVariantBeforeUpdate($data) == "") {
@@ -463,7 +481,7 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                         }
                     }
                     $product->setName($data["product_name"]);
-                    $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
+                    $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
                     $product->setAttributeSetId($attributeSetId); //ID of a attribute set named 'default'
                     $product->setTypeId("simple"); //product type
                     $product->setCreatedAt(strtotime('now')); //product creation time
@@ -493,25 +511,35 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                             $product->setData($attribute_code,$value);
                         }
                     }
-                    if ($this->_checkAttribute("inventories", $data)) {
-                        if ($this->_checkAttribute("quantity", $data["inventories"])) {
-                            $qty = $data["inventories"]["quantity"];
-                            $product->setStockData(array(
-                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                                'manage_stock' => 1, //manage stock
-                                'is_in_stock' => 1, //Stock Availability
-                                'qty' => $qty //qty
-                            ));
-                        }
-                    }else{
-                        $product->setStockData(array(
-                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                                'manage_stock' => 0, //manage stock
-                                'is_in_stock' => 1, //Stock Availability
-                                'qty' => 0 //qty
-                            )
-                        );
-                    }
+
+                    //TODO: add in manage stock as expected
+                    $qty = ($this->_checkAttribute("inventories", $data) && $this->_checkAttribute("quantity", $data["inventories"]))? (float) $data["inventories"]["quantity"] : 0;
+                    $manageStock = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
+
+                    $helper = Mage::helper('ant_api/product_inventory_data');
+                    /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
+                    $stockData = $helper->prepareDefaultStockArray($qty, $manageStock);
+                    $product->setStockData($stockData);
+
+//                    if ($this->_checkAttribute("inventories", $data)) {
+//                        if ($this->_checkAttribute("quantity", $data["inventories"])) {
+//                            $qty = $data["inventories"]["quantity"];
+//                            $product->setStockData(array(
+//                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
+//                                'manage_stock' => 1, //manage stock
+//                                'is_in_stock' => 1, //Stock Availability
+//                                'qty' => $qty //qty
+//                            ));
+//                        }
+//                    }else{
+//                        $product->setStockData(array(
+//                                'use_config_manage_stock' => 0, //'Use config settings' checkbox
+//                                'manage_stock' => 0, //manage stock
+//                                'is_in_stock' => 1, //Stock Availability
+//                                'qty' => 0 //qty
+//                            )
+//                        );
+//                    }
                     $product->save();
                     return $product->getId();
                 }
@@ -527,7 +555,7 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                     }
                 }
                 $product->setName($data["product_name"]);
-                $product->setWebsiteIds(array(1)); //website ID the product is assigned to, as an array
+                $product->setWebsiteIds($helperAnt->getProductWebsiteIds()); //website ID the product is assigned to, as an array
                 $product->setAttributeSetId($attributeSetId); //ID of a attribute set named 'default'
                 $product->setTypeId("simple"); //product type
                 $product->setCreatedAt(strtotime('now')); //product creation time
@@ -552,32 +580,41 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                         $product->setData($attribute_code,$value);
                     }
                 }
-                if ($this->_checkAttribute("inventories", $data)) {
-                    if ($this->_checkAttribute("quantity", $data["inventories"])) {
-                        $qty = $data["inventories"]["quantity"];
-                        $product->setStockData(array(
-                            'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                            'manage_stock' => 1, //manage stock
-                            'is_in_stock' => 1, //Stock Availability
-                            'qty' => $qty //qty
-                        ));
-                    }
-                }else{
-                    $product->setStockData(array(
-                            'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                            'manage_stock' => 0, //manage stock
-                            'is_in_stock' => 1, //Stock Availability
-                            'qty' => 0 //qty
-                        )
-                    );
-                }
+                //TODO: add in manage stock as expected
+                $qty = ($this->_checkAttribute("inventories", $data) && $this->_checkAttribute("quantity", $data["inventories"]))? (float) $data["inventories"]["quantity"] : 0;
+                $manageStock = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
+
+                $helper = Mage::helper('ant_api/product_inventory_data');
+                /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
+                $stockData = $helper->prepareDefaultStockArray($qty, $manageStock);
+                $product->setStockData($stockData);
+
+//                if ($this->_checkAttribute("inventories", $data)) {
+//                    if ($this->_checkAttribute("quantity", $data["inventories"])) {
+//                        $qty = $data["inventories"]["quantity"];
+//                        $product->setStockData(array(
+//                            'use_config_manage_stock' => 0, //'Use config settings' checkbox
+//                            'manage_stock' => 1, //manage stock
+//                            'is_in_stock' => 1, //Stock Availability
+//                            'qty' => $qty //qty
+//                        ));
+//                    }
+//                }else{
+//                    $product->setStockData(array(
+//                            'use_config_manage_stock' => 0, //'Use config settings' checkbox
+//                            'manage_stock' => 0, //manage stock
+//                            'is_in_stock' => 1, //Stock Availability
+//                            'qty' => 0 //qty
+//                        )
+//                    );
+//                }
                 $product->save();
                 return $product->getId();
             }
             return false;
         }
     }
-    public function setSimpleProductToConfigruableProductCaseUpdate($id_product,$data){
+    public function setSimpleProductToConfigruableProductCaseUpdate($id_product,$data,$tagsParent){
         Mage::register('is_new_product_api',"noevent");
         if ($this->_validateVariantBeforeUpdate($data) == "") {
             $product = Mage::getModel("catalog/product")->load($id_product);
@@ -607,26 +644,48 @@ class Ant_Api_Model_Api2_Product_Rest_Guest_V1 extends Ant_Api_Model_Api2_Produc
                     $product->setData($attribute_code,$value);
                 }
             }
-            if ($this->_checkAttribute("inventories", $data)) {
-                if ($this->_checkAttribute("quantity", $data["inventories"])) {
-                    $qty = $data["inventories"]["quantity"];
-                    $product->setStockData(array(
-                        'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                        'manage_stock' => 1, //manage stock
-                        'is_in_stock' => 1, //Stock Availability
-                        'qty' => $qty //qty
-                    ));
-                }
-            }else{
-                $product->setStockData(array(
-                        'use_config_manage_stock' => 0, //'Use config settings' checkbox
-                        'manage_stock' => 0, //manage stock
-                        'is_in_stock' => 1, //Stock Availability
-                        'qty' => 0 //qty
-                    )
-                );
-            }
+
+            //TODO: add in manage stock as expected
+            $qty = ($this->_checkAttribute("inventories", $data) && $this->_checkAttribute("quantity", $data["inventories"]))? (float) $data["inventories"]["quantity"] : 0;
+
+            $stockData = $product->getStockData();
+            $minQty = (isset($stockData['min_qty']))? $stockData['min_qty'] : 0;
+
+            $stockData['qty']         = $qty;
+            $stockData['is_in_stock'] = ($qty > $minQty)? Mage_CatalogInventory_Model_Stock_Status::STATUS_IN_STOCK : Mage_CatalogInventory_Model_Stock_Status::STATUS_OUT_OF_STOCK;
+
+            $stockData['use_config_manage_stock'] = 0;
+            $stockData['manage_stock'] = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
+
+            $product->setStockData($stockData);
+
+//            if ($this->_checkAttribute("inventories", $data)) {
+//                if ($this->_checkAttribute("quantity", $data["inventories"])) {
+//                    $qty = $data["inventories"]["quantity"];
+//                    $product->setStockData(array(
+//                        'use_config_manage_stock' => 0, //'Use config settings' checkbox
+//                        'manage_stock' => 1, //manage stock
+//                        'is_in_stock' => 1, //Stock Availability
+//                        'qty' => $qty //qty
+//                    ));
+//                }
+//            }else{
+//                $product->setStockData(array(
+//                        'use_config_manage_stock' => 0, //'Use config settings' checkbox
+//                        'manage_stock' => 0, //manage stock
+//                        'is_in_stock' => 1, //Stock Availability
+//                        'qty' => 0 //qty
+//                    )
+//                );
+//            }
             $product->save();
+            if($tagsParent != "") {
+                if (is_array($tagsParent)) {
+                    /** @var Ant_Api_Helper_Data $helperAnt */
+                    $helperAnt = Mage::helper("ant_api");
+                    $helperAnt->setTagsProduct($tagsParent, $product);
+                }
+            }
             return $product->getId();
         }
         return false;
