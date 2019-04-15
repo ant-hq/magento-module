@@ -1770,8 +1770,9 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS,$postData);
         curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
-        curl_exec($ch);
+        $response = curl_exec($ch);
         curl_close($ch);
+        return $response['body'];
     }
     public function rewriteUrl($name=null,$handle){
         //$url = preg_replace('#[^0-9a-z]+#i', '-', $name);
@@ -1884,5 +1885,54 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             Mage::logException($ex);
         }
 
+    }
+
+    /**
+     * Get the webhook url for the given type of webhook and specify the entity id
+     *
+     * @param $type
+     * @param $entityId
+     *
+     * @return null|string
+     */
+    public function getWebhookUrl($type, $entityId) {
+        if (!$type) {
+            return null;
+        }
+        if (!$entityId) {
+            return null;
+        }
+        switch ($type) {
+            case Ant_Api_Model_Webhook::ORDER_CREATE:
+                $path = 'adminhtml/ant_api/syncOrder';
+                $entity_key = 'order_id';
+                break;
+            case Ant_Api_Model_Webhook::CUSTOMER_CREATE:
+                $path = 'adminhtml/ant_api/syncCustomer';
+                $entity_key = 'customer_id';
+                break;
+            case Ant_Api_Model_Webhook::PRODUCT_CREATE:
+                $path = 'adminhtml/ant_api/syncProduct';
+                $entity_key = 'product_id';
+                break;
+            default:
+                Mage::log('Unhandled webhook type: ' . $type, Zend_Log::NOTICE, 'exception.log');
+                return null;
+        }
+        $url = Mage::helper("adminhtml")->getUrl($path, array($entity_key => $entityId));
+        return $url;
+    }
+
+    /**
+     * Get module version as a string
+     * @return string
+     */
+    public function getModuleVersion() {
+        $antConfig = Mage::getConfig()->getModuleConfig('Ant_Api');
+        if (!isset($antConfig->version)) {
+            Mage::log('Ant_Api module config is malformed. ' . json_encode($antConfig), Zend_Log::ERR, 'exception.log');
+            return "Invalid Version";
+        }
+        return (string) $antConfig->version;
     }
 }

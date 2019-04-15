@@ -15,6 +15,13 @@
             <ant_api>
                 <class>Ant_Api_Block</class>
             </ant_api>
+            <adminhtml>
+                <rewrite>
+                    <catalog_product_edit>Ant_Api_Block_Adminhtml_Catalog_Product_Edit</catalog_product_edit>
+                    <customer_edit>Ant_Api_Block_Adminhtml_Customer_Edit</customer_edit>
+                    <sales_order_view>Ant_Api_Block_Adminhtml_Sales_Order_View</sales_order_view>
+                </rewrite>
+            </adminhtml>
         </blocks>
         <models>
             <ant_api>
@@ -62,7 +69,7 @@
             <adminhtml>
                 <args>
                     <modules>
-                        <Ant_Api after="Mage_Adminhtml">Ant_Api</Ant_Api>
+                        <Ant_Api after="Mage_Adminhtml">Ant_Api_Adminhtml</Ant_Api>
                     </modules>
                 </args>
             </adminhtml>
