@@ -24,6 +24,15 @@
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
                     <fields>
+                        <module_version>
+                            <label>Ant Module Version</label>
+                            <type>hidden</type>
+                            <frontend_model>ant_api/adminhtml_system_config_form_field_module_version</frontend_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </module_version>
                         <enabled translate="label">
                             <label>Enabled</label>
                             <frontend_type>select</frontend_type>
@@ -167,6 +176,25 @@
                         </ant_taxs>
                     </fields>
                 </tax_class_ant>
+                <syncing translate="label">
+                    <label>Sync Settings</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>20</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <is_live_sync translate="label">
+                            <label>Live Update</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </is_live_sync>
+                    </fields>
+                </syncing>
             </groups>
         </ant_api_config>
     </sections>

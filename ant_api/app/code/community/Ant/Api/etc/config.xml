@@ -15,6 +15,12 @@
             <ant_api>
                 <class>Ant_Api_Block</class>
             </ant_api>
+            <adminhtml>
+                <rewrite>
+                    <catalog_product_edit>Ant_Api_Block_Adminhtml_Catalog_Product_Edit</catalog_product_edit>
+                    <sales_order_view>Ant_Api_Block_Adminhtml_Sales_Order_View</sales_order_view>
+                </rewrite>
+            </adminhtml>
         </blocks>
         <models>
             <ant_api>
@@ -27,6 +33,9 @@
                     <webhook>
                         <table>ant_api_webhook</table>
                     </webhook>
+                    <webhook_cron_schedule>
+                        <table>ant_api_webhook_cron_schedule</table>
+                    </webhook_cron_schedule>
                 </entities>
             </ant_api_mysql4>
             <product_attribute_media_api>
@@ -62,7 +71,7 @@
             <adminhtml>
                 <args>
                     <modules>
-                        <Ant_Api after="Mage_Adminhtml">Ant_Api</Ant_Api>
+                        <Ant_Api after="Mage_Adminhtml">Ant_Api_Adminhtml</Ant_Api>
                     </modules>
                 </args>
             </adminhtml>
@@ -253,4 +262,24 @@
             </sync_source>
         </ant_api_config>
     </default>
+    <crontab>
+        <jobs>
+            <ant_api_webhooks_process_all>
+                <schedule>
+                    <cron_expr>* * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>ant_api/webhook_cron::processWebhooks</model>
+                </run>
+            </ant_api_webhooks_process_all>
+        </jobs>
+        <default>
+            <observers>
+                <ant_api_clean_old_webhook_cron_entries>
+                    <class>ant_api/webhook_cron</class>
+                    <method>cleanOldWebhooks</method>
+                </ant_api_clean_old_webhook_cron_entries>
+            </observers>
+        </default>
+    </crontab>
 </config>

@@ -50,6 +50,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     const XML_PATH_LAST_GENERATED = 'ant_api_config/general/last_generated';
 
     /**
+     * Path to store config whether live updating is enabled
+     * @var string
+     */
+    const XML_PATH_SYNC_LIVE_UPDATE = 'ant_api_config/syncing/is_live_sync';
      * Path to store config where sync source pricing is stored
      * @var string
      */
@@ -132,6 +136,16 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     public function getAuthorizationSecret($store=null)
     {
         return Mage::getStoreConfig(self::XML_PATH_AUTHORIZATION_SECRET, $store);
+    }
+
+    /**
+     * Return the store's Live Updating value
+     * @param integer|string|Mage_Core_Model_Store $store
+     * @return string
+     */
+    public function isLiveUpdating($store=null)
+    {
+        return Mage::getStoreConfig(self::XML_PATH_SYNC_LIVE_UPDATE, $store);
     }
 
     /**
@@ -1758,9 +1772,62 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         );
         return $customer;
     }
+
+    /***
+     * @deprecated
+     * @param Ant_Api_Model_Mysql4_Webhook $url Object from the
+     * @param $postData
+     */
     public function callUrl($url,$postData){
-        $requestUrl=$url->getData("ant_api_webhook_url");
+        $this->triggerWebhook($url, $postData);
+        return;
+    }
+
+    /**
+     * Trigger the webhook
+     *
+     * @param $webhook
+     * @param $postData
+     *
+     * @return mixed
+     */
+    public function triggerWebhook($webhook, $postData){
+        if (!$this->isLiveUpdating()) {
+            // queue webhook
+            $webhookCron = Mage::getModel('ant_api/webhook_cron_schedule');
+            $checksum = $this->createChecksum($postData);
+            $webhookCron->setChecksum($checksum);
+            $webhookCron->setRequestData($postData);
+            $webhookCron->setStatus(Ant_Api_Model_Webhook_Cron_Schedule::STATUS_QUEUED);
+            $webhookCron->setWebhookId($webhook->getAntApiWebhookId());
+            if (!$webhookCron->needsChecksumUpdated($checksum)) {
+                return array('result' => $this->__("Already synchronised the changes to Ant"));
+            }
+            $webhookCron->save();
+            return array('result' => $this->__("Update should happen shortly. Allow 1 minute for it to take place or change the settings to \"Live Updates\""));
+        }
+        if (!$webhook->hasData("ant_api_webhook_url")) {
+            return array(
+                'error' => $this->__("Unable to process webhook. No URL specified."),
+                'message' => $this->__("No Ant API Webhook URL data for webhook: " . json_encode($webhook->getData()))
+            );
+        }
+        $requestUrl=$webhook->getData("ant_api_webhook_url");
         $postData=json_encode($postData);
+        return $this->forceWebhook($requestUrl, $postData);
+    }
+
+    /**
+     * Actually run the webhook with the post data
+     * @param $requestUrl
+     * @param $postData
+     *
+     * @return mixed
+     */
+    public function forceWebhook($requestUrl, $postData) {
+        if (is_array($postData)) {
+            $postData = json_encode($postData);
+        }
         $header=array(
             "Accept:application/json",
             "Content-Type:application/json",
@@ -1776,9 +1843,21 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS,$postData);
         curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
-        curl_exec($ch);
+        $response = curl_exec($ch);
         curl_close($ch);
+        return json_decode($response, JSON_OBJECT_AS_ARRAY);
     }
+
+    /**
+     * Generate a checksum with all the data to compare with Ant's data
+     *
+     * @param $data
+     */
+    public function createChecksum($data) {
+        $checksum = hash('md5', serialize($data));
+        return $checksum;
+    }
+
     public function rewriteUrl($name=null,$handle){
         //$url = preg_replace('#[^0-9a-z]+#i', '-', $name);
         //$url = strtolower($url);
@@ -1890,5 +1969,54 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             Mage::logException($ex);
         }
 
+    }
+
+    /**
+     * Get the webhook url for the given type of webhook and specify the entity id
+     *
+     * @param $type
+     * @param $entityId
+     *
+     * @return null|string
+     */
+    public function getWebhookUrl($type, $entityId) {
+        if (!$type) {
+            return null;
+        }
+        if (!$entityId) {
+            return null;
+        }
+        switch ($type) {
+            case Ant_Api_Model_Webhook::ORDER_CREATE:
+                $path = 'adminhtml/ant_api/syncOrder';
+                $entity_key = 'order_id';
+                break;
+            case Ant_Api_Model_Webhook::CUSTOMER_CREATE:
+                $path = 'adminhtml/ant_api/syncCustomer';
+                $entity_key = 'customer_id';
+                break;
+            case Ant_Api_Model_Webhook::PRODUCT_CREATE:
+                $path = 'adminhtml/ant_api/syncProduct';
+                $entity_key = 'product_id';
+                break;
+            default:
+                Mage::log('Unhandled webhook type: ' . $type, Zend_Log::NOTICE, 'exception.log');
+                return null;
+        }
+        $url = Mage::helper("adminhtml")->getUrl($path, array($entity_key => $entityId));
+        return $url;
+    }
+
+    /**
+     * Get module version as a string
+     * @return string
+     */
+    public function getModuleVersion() {
+        $antConfig = Mage::getConfig()->getModuleConfig('Ant_Api');
+        if (!isset($antConfig->version)) {
+            Mage::log('Ant_Api module config is malformed. ' . json_encode($antConfig), Zend_Log::ERR, 'exception.log');
+            return "Invalid Version";
+        }
+        return (string) $antConfig->version;
     }
 }
