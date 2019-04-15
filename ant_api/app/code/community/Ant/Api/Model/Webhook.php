@@ -1,6 +1,8 @@
 <?php
 class Ant_Api_Model_Webhook extends Mage_Core_Model_Abstract{
 
+    const CRON_SCHEDULE_LIFETIME = 2592000;
+
     const PRODUCT_CREATE = "product.create";
     const PRODUCT_DELETE = "product.delete";
     const PRODUCT_UPDATE = "product.update";

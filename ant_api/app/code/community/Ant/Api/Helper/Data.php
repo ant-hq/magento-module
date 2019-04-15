@@ -5,8 +5,8 @@
  * @author EdgeWorks Team
  */
 set_time_limit(0);
-class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
-{
+
+class Ant_Api_Helper_Data extends Mage_Core_Helper_Data {
     /**
      * Path to store config if frontend output is enabled
      * @var string
@@ -55,21 +55,28 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      */
     const XML_PATH_SYNC_SOURCE_PRICING = 'ant_api_config/sync_source/pricing';
 
-    const KEY_NAME_IMAGE="image_name";
+    /**
+     * Path to store config whether live updating is enabled
+     * @var string
+     */
+    const XML_PATH_SYNC_LIVE_UPDATE = 'ant_api_config/syncing/is_live_sync';
 
-    const KEY_ABSOLUTE_PATH_IMG="absolute_path";
+    const KEY_NAME_IMAGE = "image_name";
 
-    const OAUTH_CALLBACK_URL="http://requestb.in/q9g0w6q9";
+    const KEY_ABSOLUTE_PATH_IMG = "absolute_path";
+
+    const OAUTH_CALLBACK_URL = "http://requestb.in/q9g0w6q9";
 
     const OAUTH_CONSUMER_NAME = 'ANT REST';
 
     /**
      * Utility for fetching settings for our extension.
+     *
      * @param integer|string|Mage_Core_Model_Store $store
+     *
      * @return mixed
      */
-    public function getConfigSetting($setting_key, $store=null)
-    {
+    public function getConfigSetting($setting_key, $store = null) {
         $store = is_null($store) ? Mage::app()->getStore() : $store;
 
         $request_store = Mage::app()->getRequest()->getParam('store');
@@ -85,52 +92,57 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
     /**
      * Checks whether the extension is enabled
+     *
      * @param integer|string|Mage_Core_Model_Store $store
+     *
      * @return boolean
      */
-    public function isEnabled($store=null)
-    {
+    public function isEnabled($store = null) {
         return Mage::getStoreConfigFlag(self::XML_PATH_ENABLED, $store);
     }
 
 
     /**
      * Return the store's OAuth Consumer Key
+     *
      * @param integer|string|Mage_Core_Model_Store $store
+     *
      * @return string
      */
-    public function getConsumerKey($store=null)
-    {
+    public function getConsumerKey($store = null) {
         return Mage::getStoreConfig(self::XML_PATH_CONSUMER_KEY, $store);
     }
 
     /**
      * Return the store's OAuth Consumer Secret
+     *
      * @param integer|string|Mage_Core_Model_Store $store
+     *
      * @return string
      */
-    public function getConsumerSecret($store=null)
-    {
+    public function getConsumerSecret($store = null) {
         return Mage::getStoreConfig(self::XML_PATH_CONSUMER_SECRET, $store);
     }
 
     /**
      * Return the store's OAuth Authorization Token
+     *
      * @param integer|string|Mage_Core_Model_Store $store
+     *
      * @return string
      */
-    public function getAuthorizationToken($store=null)
-    {
+    public function getAuthorizationToken($store = null) {
         return Mage::getStoreConfig(self::XML_PATH_AUTHORIZATION_TOKEN, $store);
     }
 
     /**
      * Return the store's OAuth Authorization Secret
+     *
      * @param integer|string|Mage_Core_Model_Store $store
+     *
      * @return string
      */
-    public function getAuthorizationSecret($store=null)
-    {
+    public function getAuthorizationSecret($store = null) {
         return Mage::getStoreConfig(self::XML_PATH_AUTHORIZATION_SECRET, $store);
     }
 
@@ -138,155 +150,180 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * Returns whether the current user is an admin.
      * @return bool
      */
-    public function isAdmin()
-    {
+    public function isAdmin() {
         return Mage::getSingleton('admin/session')->isLoggedIn();
     }
 
     /**
      * Set the store's OAuth Consumer Key
-     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
+     * @deprecated This setter was incorrectly used to save config, please use
+     *     Mage::getModel('core/config')->saveConfig() directly
+     *
      * @param string
+     *
      * @return void
      */
-    public function setConsumerKey($consumerKey)
-    {
+    public function setConsumerKey($consumerKey) {
         Mage::getModel('core/config')->saveConfig(self::XML_PATH_CONSUMER_KEY, $consumerKey);
     }
 
     /**
      * Set the store's OAuth Consumer Secret
-     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
+     * @deprecated This setter was incorrectly used to save config, please use
+     *     Mage::getModel('core/config')->saveConfig() directly
+     *
      * @param string
+     *
      * @return void
      */
-    public function setConsumerSecret($consumerSecret)
-    {
+    public function setConsumerSecret($consumerSecret) {
         Mage::getModel('core/config')->saveConfig(self::XML_PATH_CONSUMER_SECRET, $consumerSecret);
     }
 
     /**
      * Set the store's OAuth Authorization Token
-     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
+     * @deprecated This setter was incorrectly used to save config, please use
+     *     Mage::getModel('core/config')->saveConfig() directly
+     *
      * @param string
+     *
      * @return void
      */
-    public function setAuthorizationToken($authorizationToken)
-    {
+    public function setAuthorizationToken($authorizationToken) {
         Mage::getModel('core/config')->saveConfig(self::XML_PATH_AUTHORIZATION_TOKEN, $authorizationToken);
     }
 
     /**
      * Set the store's OAuth Authroization Secret
-     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
+     * @deprecated This setter was incorrectly used to save config, please use
+     *     Mage::getModel('core/config')->saveConfig() directly
+     *
      * @param string
+     *
      * @return void
      */
-    public function setAuthorizationSecret($authorizationSecret)
-    {
+    public function setAuthorizationSecret($authorizationSecret) {
         Mage::getModel('core/config')->saveConfig(self::XML_PATH_AUTHORIZATION_SECRET, $authorizationSecret);
     }
 
     /**
+     * Return the store's Live Updating value
+     *
+     * @param integer|string|Mage_Core_Model_Store $store
+     *
+     * @return string
+     */
+    public function isLiveUpdating($store = null) {
+        return Mage::getStoreConfig(self::XML_PATH_SYNC_LIVE_UPDATE, $store);
+    }
+
+    /**
      * Set the store's Url
-     * @deprecated This setter was incorrectly used to save config, please use Mage::getModel('core/config')->saveConfig() directly
+     * @deprecated This setter was incorrectly used to save config, please use
+     *     Mage::getModel('core/config')->saveConfig() directly
+     *
      * @param string
+     *
      * @return void
      */
-    public function setUrl($url){
+    public function setUrl($url) {
         Mage::getModel('core/config')->saveConfig(self::XML_PATH_AUTHORIZATION_URL, $url);
     }
 
-    public function getUrl($store=null){
-        return Mage::getStoreConfig(self::XML_PATH_AUTHORIZATION_URL,$store);
+    public function getUrl($store = null) {
+        return Mage::getStoreConfig(self::XML_PATH_AUTHORIZATION_URL, $store);
     }
 
-    public function log($data, $filename)
-    {
+    public function log($data, $filename) {
         if ($this->config('enable_log') != 0) {
             return Mage::getModel('core/log_adapter', $filename)->log($data);
         }
     }
 
-    public function logHistory($message,$isError = false){
-        if($isError == true) {
+    public function logHistory($message, $isError = false) {
+        if ($isError == true) {
             Mage::log($message, null, "error_log_ant_api.log");
-        }else{
+        } else {
             Mage::log($message, null, "log_ant_api.log");
         }
     }
+
     /** Begin Save Tax Product **/
-    public function createCustomer(){
+    public function createCustomer() {
         $websiteId = 1;
-        $store =  Mage::getModel('core/store')->load(0); ;
+        $store     = Mage::getModel('core/store')->load(0);;
         $customer = Mage::getModel("customer/customer");
-        $customer   ->setWebsiteId($websiteId)
-            ->setStore($store)
-            ->setFirstname('Tag Admin')
-            ->setLastname('Tag Admin')
-            ->setEmail('tagAdmin@gmail.com')
-            ->setPassword('1234567');
-        try{
+        $customer->setWebsiteId($websiteId)
+                 ->setStore($store)
+                 ->setFirstname('Tag Admin')
+                 ->setLastname('Tag Admin')
+                 ->setEmail('tagAdmin@gmail.com')
+                 ->setPassword('1234567');
+        try {
             $customer->save();
+
             return $customer->getId();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
 
         }
     }
-    public function getCustomerId(){
-        $collectionCustomer=Mage::getModel('customer/customer')->getCollection();
-        $idCustomer = 0 ;
-        if($collectionCustomer->count() > 0) {
+
+    public function getCustomerId() {
+        $collectionCustomer = Mage::getModel('customer/customer')->getCollection();
+        $idCustomer         = 0;
+        if ($collectionCustomer->count() > 0) {
             foreach ($collectionCustomer as $_customer) {
                 $idCustomer = $_customer->getId();
                 break;
             }
-        }else{
+        } else {
             $idCustomer = $this->createCustomer();
         }
+
         return $idCustomer;
     }
-    public function setTagsProduct($tagArray,$product){
-        $tagName = "" ;
-        foreach ( $tagArray as $_tag){
-            $tagName.=$_tag." ";
+
+    public function setTagsProduct($tagArray, $product) {
+        $tagName = "";
+        foreach ($tagArray as $_tag) {
+            $tagName .= $_tag . " ";
         }
-        if(!$product->getId()){
-            $this->logHistory("Product id doest not exsit",true);
+        if ( ! $product->getId()) {
+            $this->logHistory("Product id doest not exsit", true);
         } else {
             try {
-                $customerId = $this->getCustomerId(); //$customerSession->getCustomerId();
-                $storeId = 0;
-                $productId = $product->getId();
-                $tagNamesArr = $this->_cleanTags($this->_extractTags($tagName));
-                $counter = new Varien_Object(array(
-                        "new" => 0,
-                        "exist" => array(),
-                        "success" => array(),
-                        "recurrence" => array())
+                $customerId       = $this->getCustomerId(); //$customerSession->getCustomerId();
+                $storeId          = 0;
+                $productId        = $product->getId();
+                $tagNamesArr      = $this->_cleanTags($this->_extractTags($tagName));
+                $counter          = new Varien_Object(array(
+                        "new"        => 0,
+                        "exist"      => array(),
+                        "success"    => array(),
+                        "recurrence" => array()
+                    )
                 );
-                $tagModel = Mage::getModel('tag/tag');
+                $tagModel         = Mage::getModel('tag/tag');
                 $tagRelationModel = Mage::getModel('tag/tag_relation');
 
                 foreach ($tagNamesArr as $tagName) {
                     $tagModel->unsetData()
-                        ->loadByName($tagName)
-                        ->setStoreId($storeId)
-                        ->setName($tagName);
+                             ->loadByName($tagName)
+                             ->setStoreId($storeId)
+                             ->setName($tagName);
 
                     $tagRelationModel->unsetData()
-                        ->setStoreId($storeId)
-                        ->setProductId($productId)
-                        ->setCustomerId($customerId)
-                        ->setActive(1)
-                        ->setCreatedAt( $tagRelationModel->getResource()->formatDate(time()) );
+                                     ->setStoreId($storeId)
+                                     ->setProductId($productId)
+                                     ->setCustomerId($customerId)
+                                     ->setActive(1)
+                                     ->setCreatedAt($tagRelationModel->getResource()->formatDate(time()));
 
-                    if (!$tagModel->getId()) {
+                    if ( ! $tagModel->getId()) {
                         $tagModel->setFirstCustomerId($customerId)
-                            ->setFirstStoreId($storeId)
-                            ->setStatus($tagModel->getApprovedStatus())
-                            ->save();
+                                 ->setFirstStoreId($storeId)
+                                 ->setStatus($tagModel->getApprovedStatus())
+                                 ->save();
 
                         $tagRelationModel->setTagId($tagModel->getId())->save();
                         $counter->setNew($counter->getNew() + 1);
@@ -294,12 +331,12 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                         $tagStatus = $tagModel->getStatus();
                         $tagRelationModel->setTagId($tagModel->getId());
 
-                        switch($tagStatus) {
+                        switch ($tagStatus) {
                             case $tagModel->getApprovedStatus():
-                                if($this->_checkLinkBetweenTagProduct($tagRelationModel)) {
-                                    $relation =$this->_getLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel);
+                                if ($this->_checkLinkBetweenTagProduct($tagRelationModel)) {
+                                    $relation = $this->_getLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel);
                                     if ($relation->getId()) {
-                                        if (!$relation->getActive()) {
+                                        if ( ! $relation->getActive()) {
                                             $tagRelationModel
                                                 ->setId($relation->getId())
                                                 ->save();
@@ -316,7 +353,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                             case $tagModel->getPendingStatus():
                                 $relation = $this->_getLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel);
                                 if ($relation->getId()) {
-                                    if (!$relation->getActive()) {
+                                    if ( ! $relation->getActive()) {
                                         $tagRelationModel
                                             ->setId($relation->getId())
                                             ->save();
@@ -327,7 +364,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                                 $counter->setNew($counter->getNew() + 1);
                                 break;
                             case $tagModel->getDisabledStatus():
-                                if($this->_checkLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel)) {
+                                if ($this->_checkLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel)) {
                                     $counter->setRecurrence(array_merge($counter->getRecurrence(), array($tagName)));
                                 } else {
                                     $tagModel->setStatus($tagModel->getPendingStatus())->save();
@@ -340,76 +377,84 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                 }
 
             } catch (Exception $e) {
-                $this->logHistory("Unable to save tags",true);
+                $this->logHistory("Unable to save tags", true);
             }
         }
     }
-    public function getTagsProduct($product_id){
-        $model = Mage::getModel('tag/tag');
+
+    public function getTagsProduct($product_id) {
+        $model         = Mage::getModel('tag/tag');
         $tagCollection = $model->getResourceCollection()
-            ->addPopularity()
-            ->addProductFilter($product_id);
-        $arrayTags = array ();
-        foreach($tagCollection as $_tag){
-            $arrayTags[] =$_tag->getName();
+                               ->addPopularity()
+                               ->addProductFilter($product_id);
+        $arrayTags     = array();
+        foreach ($tagCollection as $_tag) {
+            $arrayTags[] = $_tag->getName();
         }
+
         return $arrayTags;
     }
-    function _extractTags($tagNamesInString)
-    {
+
+    function _extractTags($tagNamesInString) {
         return explode("\n", preg_replace("/(\'(.*?)\')|(\s+)/i", "$1\n", $tagNamesInString));
     }
+
     /**
      * Clears the tag from the separating characters.
      *
      * @param array $tagNamesArr
+     *
      * @return array
      */
-    function _cleanTags(array $tagNamesArr)
-    {
-        foreach( $tagNamesArr as $key => $tagName ) {
+    function _cleanTags(array $tagNamesArr) {
+        foreach ($tagNamesArr as $key => $tagName) {
             $tagNamesArr[$key] = trim($tagNamesArr[$key], '\'');
             $tagNamesArr[$key] = trim($tagNamesArr[$key]);
-            if( $tagNamesArr[$key] == '' ) {
+            if ($tagNamesArr[$key] == '') {
                 unset($tagNamesArr[$key]);
             }
         }
+
         return $tagNamesArr;
     }
+
     /**
      * Checks whether the already marked this product in this store by this tag.
      *
      * @param Mage_Tag_Model_Tag_Relation $tagRelationModel
+     *
      * @return boolean
      */
-    function _checkLinkBetweenTagProduct($tagRelationModel)
-    {
+    function _checkLinkBetweenTagProduct($tagRelationModel) {
         $customerId = $tagRelationModel->getCustomerId();
         $tagRelationModel->setCustomerId(null);
         $res = in_array($tagRelationModel->getProductId(), $tagRelationModel->getProductIds());
         $tagRelationModel->setCustomerId($customerId);
+
         return $res;
     }
+
     /**
      * Checks whether the already marked this product in this store by this tag and by this customer.
      *
      * @param Mage_Tag_Model_Tag_Relation $tagRelationModel
-     * @param Mage_Tag_Model_Tag $tagModel
+     * @param Mage_Tag_Model_Tag          $tagModel
+     *
      * @return boolean
      */
-    function _checkLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel)
-    {
+    function _checkLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel) {
         return (count($this->_getLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel)->getProductIds()) > 0);
     }
+
     /**
      * Get relation model for marked product in this store by this tag and by this customer.
      *
      * @param Mage_Tag_Model_Tag_Relation $tagRelationModel
-     * @param Mage_Tag_Model_Tag $tagModel
+     * @param Mage_Tag_Model_Tag          $tagModel
+     *
      * @return Mage_Tag_Model_Tag_Relation
      */
-    function _getLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel)
-    {
+    function _getLinkBetweenTagCustomerProduct($tagRelationModel, $tagModel) {
         return Mage::getModel('tag/tag_relation')->loadByTagCustomer(
             $tagRelationModel->getProductId(),
             $tagModel->getId(),
@@ -422,96 +467,103 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     /**
      * Function Config default tax was set by Extension
      **/
-    public function getConfigTaxAnt(){
+    public function getConfigTaxAnt() {
         $path = "ant_api_config/tax_class_ant/ant_taxs";
+
         return Mage::getStoreConfig($path);
     }
+
     /**
      * @param Mage_Core_Catalog_Product
      * Get rate tax base on tax class id of product
+     *
      * @return Mage_Core_Tax_Calculation_Rate
      **/
-    public function getTaxCalculation($_product){
+    public function getTaxCalculation($_product) {
         //$taxClasses  = Mage::helper("core")->jsonDecode(Mage::helper("tax")->getAllRatesByProductClass());
-        $collection=Mage::getModel('tax/calculation')->getCollection()->addFieldToFilter("product_tax_class_id",array("eq" => $_product->getTaxClassId()))->getFirstItem();
-        $rate=Mage::getModel("tax/calculation_rate")->load($collection->getData("tax_calculation_rate_id"));
+        $collection = Mage::getModel('tax/calculation')->getCollection()->addFieldToFilter("product_tax_class_id", array("eq" => $_product->getTaxClassId()))->getFirstItem();
+        $rate       = Mage::getModel("tax/calculation_rate")->load($collection->getData("tax_calculation_rate_id"));
         //$taxClassId = $_product->getTaxClassId();
         //$taxRate   = $taxClasses["value_".$taxClassId];
         $taxRate = $rate->getRate();
+
         return $taxRate;
     }
-    public function getCountProductInStore(){
+
+    public function getCountProductInStore() {
         $collectionProduct = Mage::getModel("catalog/product")->getCollection();
-        $countProduct = 0;
-        foreach($collectionProduct as $_product){
-            $idProduct=$_product->getId();
-            switch ($_product->getTypeId()){
+        $countProduct      = 0;
+        foreach ($collectionProduct as $_product) {
+            $idProduct = $_product->getId();
+            switch ($_product->getTypeId()) {
                 case "simple":
-                    if(!Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct)) {
-                        $countProduct++;
+                    if ( ! Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($idProduct)) {
+                        $countProduct ++;
                     }
                     break;
                 case "configurable":
-                    $countProduct++;
+                    $countProduct ++;
                     break;
             }
         }
+
         return $countProduct;
     }
+
     /**
      * Make the function helper for hash product
      *
      **/
-    public function setTheHashProductSimple($idProduct){
+    public function setTheHashProductSimple($idProduct) {
 
-        $detailProduct = Mage::getModel("catalog/product")->load($idProduct);
-        $suffix = Mage::getStoreConfig('catalog/seo/product_url_suffix');
-        $arrayDetailProduct = array();
-        $arrayDetailProduct["id"] = $detailProduct->getId();
-        $arrayDetailProduct["name"] = $detailProduct->getName();
-        $arrayDetailProduct["sku"] = $detailProduct->getSku();
-        $arrayDetailProduct["description"] = $detailProduct->getdescription();
+        $detailProduct                           = Mage::getModel("catalog/product")->load($idProduct);
+        $suffix                                  = Mage::getStoreConfig('catalog/seo/product_url_suffix');
+        $arrayDetailProduct                      = array();
+        $arrayDetailProduct["id"]                = $detailProduct->getId();
+        $arrayDetailProduct["name"]              = $detailProduct->getName();
+        $arrayDetailProduct["sku"]               = $detailProduct->getSku();
+        $arrayDetailProduct["description"]       = $detailProduct->getdescription();
         $arrayDetailProduct["short_description"] = $detailProduct->getShortDescription();
-        $arrayDetailProduct["visibility"] = $detailProduct->getVisibility();
+        $arrayDetailProduct["visibility"]        = $detailProduct->getVisibility();
         //$arrayDetailProduct["store_front_url"] = $this->getUrl().$detailProduct->getUrlKey().$suffix;
         $arrayDetailProduct["store_front_url"] = $detailProduct->getProductUrl();
-        $arrayDetailProduct["backend_url"] = $this->getUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getid()."/";
-        $arrayDetailProduct["weight"] = $detailProduct->getWeight();
-        $arrayDetailProduct["full_price"] = $detailProduct->getPrice();
+        $arrayDetailProduct["backend_url"]     = $this->getUrl() . "admin/catalog_product/edit/store/0/id/" . $detailProduct->getid() . "/";
+        $arrayDetailProduct["weight"]          = $detailProduct->getWeight();
+        $arrayDetailProduct["full_price"]      = $detailProduct->getPrice();
         //$arrayDetailProduct["special_price"] = $detailProduct->getSpecialPrice();
         $arrayDetailProduct["tags"] = $this->getTagsProduct($detailProduct->getid());
-        $arrayTags=explode(",",$detailProduct->getMetaKeyword());
-        $arrayOutPutTags=array();
-        foreach($arrayTags as $_tag){
-            $arrayOutPutTags[]=$_tag;
+        $arrayTags                  = explode(",", $detailProduct->getMetaKeyword());
+        $arrayOutPutTags            = array();
+        foreach ($arrayTags as $_tag) {
+            $arrayOutPutTags[] = $_tag;
         }
-        $arrayDetailProduct["meta"] = $arrayOutPutTags;
-        $percent = $this->getTaxCalculation($detailProduct);
-        $arrayDetailProduct["tax"] = $percent;
+        $arrayDetailProduct["meta"]         = $arrayOutPutTags;
+        $percent                            = $this->getTaxCalculation($detailProduct);
+        $arrayDetailProduct["tax"]          = $percent;
         $arrayDetailProduct["supply_price"] = $detailProduct->getData("supply_price");
-        $arrayDetailProduct["markup"] = $detailProduct->getData("markup");
-        $_categories = $detailProduct->getCategoryCollection()->addAttributeToSelect("name");
-        $arrayCategory=array();
-        foreach ($_categories as $_category){
-            $arrayCate=array(
-                "name"=>$_category->getData("name"),
-                "id"=>$_category->getId(),
-                "parent_id"=>$_category->getParentId()
+        $arrayDetailProduct["markup"]       = $detailProduct->getData("markup");
+        $_categories                        = $detailProduct->getCategoryCollection()->addAttributeToSelect("name");
+        $arrayCategory                      = array();
+        foreach ($_categories as $_category) {
+            $arrayCate       = array(
+                "name"      => $_category->getData("name"),
+                "id"        => $_category->getId(),
+                "parent_id" => $_category->getParentId()
             );
-            $arrayCategory[]=$arrayCate;
+            $arrayCategory[] = $arrayCate;
         }
-        $arrayDetailProduct["categories"]=$arrayCategory;
-        $galleryData = $detailProduct->getMediaGalleryImages();
-        $arrayPutImageIn = array();
+        $arrayDetailProduct["categories"] = $arrayCategory;
+        $galleryData                      = $detailProduct->getMediaGalleryImages();
+        $arrayPutImageIn                  = array();
         foreach ($galleryData as &$image) {
-            $arrayImage = array();
-            $id = $image->getId();
-            $url = $image->getUrl();
-            $position = $image->getPosition();
-            $arrayImage["id"] = $id;
-            $arrayImage["url"] = $url;
+            $arrayImage             = array();
+            $id                     = $image->getId();
+            $url                    = $image->getUrl();
+            $position               = $image->getPosition();
+            $arrayImage["id"]       = $id;
+            $arrayImage["url"]      = $url;
             $arrayImage["position"] = $position;
-            $arrayPutImageIn[] = $arrayImage;
+            $arrayPutImageIn[]      = $arrayImage;
         }
         $arrayDetailProduct["images"] = $arrayPutImageIn;
 
@@ -521,9 +573,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $stock->loadByProduct($detailProduct);
 
         $arrayDetailProduct["manage_stock"] = (int) ($stock->getManageStock() == "1");;
-        $arrayDetailProduct["inventories"]  = array("quantity" => $stock->getQty());
-        $arrayDetailProduct["brand"]        = $detailProduct->getBrand();
-        $arrayDetailProduct["supplier"]     = $detailProduct->getSupplier();
+        $arrayDetailProduct["inventories"] = array("quantity" => $stock->getQty());
+        $arrayDetailProduct["brand"]       = $detailProduct->getBrand();
+        $arrayDetailProduct["supplier"]    = $detailProduct->getSupplier();
+
         return $arrayDetailProduct;
     }
 
@@ -532,55 +585,55 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * Make the function helper for hash product
      *
      */
-    public function setTheHashConfigruableProduct($idProduct){
+    public function setTheHashConfigruableProduct($idProduct) {
         /** @var Mage_Catalog_Model_Product $detailProduct */
         $detailProduct = Mage::getModel("catalog/product")->load($idProduct);
 
-        $arrayDetailProduct = array();
-        $arrayDetailProduct["id"] = $detailProduct->getId();
-        $arrayDetailProduct["name"] = $detailProduct->getName();
-        $arrayDetailProduct["sku"] = $detailProduct->getSku();
-        $arrayDetailProduct["description"] = $detailProduct->getDescription();
-        $arrayDetailProduct["full_price"] = $detailProduct->getPrice();
+        $arrayDetailProduct                      = array();
+        $arrayDetailProduct["id"]                = $detailProduct->getId();
+        $arrayDetailProduct["name"]              = $detailProduct->getName();
+        $arrayDetailProduct["sku"]               = $detailProduct->getSku();
+        $arrayDetailProduct["description"]       = $detailProduct->getDescription();
+        $arrayDetailProduct["full_price"]        = $detailProduct->getPrice();
         $arrayDetailProduct["short_description"] = $detailProduct->getShortDescription();
-        $arrayDetailProduct["visibility"] = $detailProduct->getVisibility();
+        $arrayDetailProduct["visibility"]        = $detailProduct->getVisibility();
         //$arrayDetailProduct["store_front_url"] = $this->getUrl().$detailProduct->getUrlKey().$suffix;
         $arrayDetailProduct["store_front_url"] = $detailProduct->getProductUrl();
-        $arrayDetailProduct["backend_url"] = $this->getUrl()."admin/catalog_product/edit/store/0/id/".$detailProduct->getId()."/";
-        $arrayDetailProduct["weight"] = $detailProduct->getWeight();
+        $arrayDetailProduct["backend_url"]     = $this->getUrl() . "admin/catalog_product/edit/store/0/id/" . $detailProduct->getId() . "/";
+        $arrayDetailProduct["weight"]          = $detailProduct->getWeight();
         //$arrayDetailProduct["special_price"] = $detailProduct->getSpecialPrice();
         $arrayDetailProduct["tags"] = $this->getTagsProduct($detailProduct->getId());
-        $arrayTags = explode(",",$detailProduct->getMetaKeyword());
-        $arrayOutPutTags=array();
-        foreach($arrayTags as $_tag){
-            $arrayOutPutTags[]=$_tag;
+        $arrayTags                  = explode(",", $detailProduct->getMetaKeyword());
+        $arrayOutPutTags            = array();
+        foreach ($arrayTags as $_tag) {
+            $arrayOutPutTags[] = $_tag;
         }
         $arrayDetailProduct["meta"] = $arrayOutPutTags;
-        $galleryData = $detailProduct->getMediaGalleryImages();
-        $arrayPutImageIn = array();
+        $galleryData                = $detailProduct->getMediaGalleryImages();
+        $arrayPutImageIn            = array();
         foreach ($galleryData as &$image) {
-            $arrayImage = array();
-            $id = $image->getId();
-            $url = $image->getUrl();
-            $position = $image->getPosition();
-            $arrayImage["id"] = $id;
-            $arrayImage["url"] = $url;
+            $arrayImage             = array();
+            $id                     = $image->getId();
+            $url                    = $image->getUrl();
+            $position               = $image->getPosition();
+            $arrayImage["id"]       = $id;
+            $arrayImage["url"]      = $url;
             $arrayImage["position"] = $position;
-            $arrayPutImageIn[] = $arrayImage;
+            $arrayPutImageIn[]      = $arrayImage;
         }
-        $arrayDetailProduct["images"] = $arrayPutImageIn;
+        $arrayDetailProduct["images"]   = $arrayPutImageIn;
         $arrayDetailProduct["variants"] = array();
 
         /** @var Mage_Catalog_Model_Product_Type_Configurable $configurableProductType */
-        $configurableProductType  = $detailProduct->getTypeInstance(true);
+        $configurableProductType = $detailProduct->getTypeInstance(true);
 
         //$childProducts = $configurableProductType->getUsedProducts(null, $detailProduct);
 
         //$detailProduct->setStoreFilter(null);
-        /** @var Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Type_Configurable_Product_Collection $childProducts **/
+        /** @var Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Type_Configurable_Product_Collection $childProducts * */
         $childProducts = $configurableProductType->getUsedProductCollection($detailProduct)
-            ->addAttributeToselect('*')
-            ->joinMinimalPrice();
+                                                 ->addAttributeToselect('*')
+                                                 ->joinMinimalPrice();
         //    ->addFinalPrice();
         //$childProducts->addFinalPrice();
 
@@ -589,38 +642,38 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $usedConfigurableAttributes = $configurableProductType->getConfigurableAttributes($detailProduct);
 
         $options[$idProduct] = array();
-        $arrayProductOptions=array();
+        $arrayProductOptions = array();
 
-        foreach($childProducts as $childProduct) {
-            $arrayChildProduct=array();
-            $arrayOptionsAll=array();
+        foreach ($childProducts as $childProduct) {
+            $arrayChildProduct = array();
+            $arrayOptionsAll   = array();
             // $childProduct = Mage::getModel('catalog/product')->load($child->getId());
             /** @var Mage_Catalog_Model_Product_Type_Configurable_Attribute $configurableAttribute */
             foreach ($usedConfigurableAttributes as $configurableAttribute) {
-                /** @var Mage_Eav_Model_Attribute  $attributeModel */
-                $attributeModel = $configurableAttribute->getProductAttribute();
-                $usedValue  = $childProduct->getData($attributeModel->getAttributeCode());
-                $position   = $this->getAttributeValuePositionByValue($usedValue, $attributeModel->getAttributeCode());
-                $valueLabel = $attributeModel->getFrontend()->getOption($usedValue);
+                /** @var Mage_Eav_Model_Attribute $attributeModel */
+                $attributeModel        = $configurableAttribute->getProductAttribute();
+                $usedValue             = $childProduct->getData($attributeModel->getAttributeCode());
+                $position              = $this->getAttributeValuePositionByValue($usedValue, $attributeModel->getAttributeCode());
+                $valueLabel            = $attributeModel->getFrontend()->getOption($usedValue);
                 $options[$idProduct][] = array(
                     $childProduct->getSku() => array(
                         "attribute_code" => $attributeModel->getStoreLabel(), // $attributeModel->getStoreLabel(0),
-                        "value" => $valueLabel,
-                        "position" => $position,
-                        "code" => $attributeModel->getAttributeCode() //$optionValues["attribute_code"]
+                        "value"          => $valueLabel,
+                        "position"       => $position,
+                        "code"           => $attributeModel->getAttributeCode() //$optionValues["attribute_code"]
                     )
                 );
-                $arrayOptions = array(
-                    "code" => $attributeModel->getStoreLabel(),
+                $arrayOptions          = array(
+                    "code"  => $attributeModel->getStoreLabel(),
                     "value" => $valueLabel
                 );
-                $arrayValues=array(
-                    "name" => $valueLabel,
+                $arrayValues           = array(
+                    "name"     => $valueLabel,
                     "position" => $position
                 );
-                $arrayOptionsAll[]=$arrayOptions;
-                $key = $arrayOptions['code']."|".$attributeModel->getAttributeCode();
-                if (!isset($arrayProductOptions[$key])) {
+                $arrayOptionsAll[]     = $arrayOptions;
+                $key                   = $arrayOptions['code'] . "|" . $attributeModel->getAttributeCode();
+                if ( ! isset($arrayProductOptions[$key])) {
                     $arrayProductOptions[$key] = [];
                 }
                 $arrayProductOptions[$key][] = $arrayValues;
@@ -637,12 +690,12 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $stock = Mage::getModel('cataloginventory/stock_item');
             $stock->loadByProduct($childProduct);
             $arrayChildProduct["manage_stock"] = (int) ($stock->getManageStock() == "1");
-            $arrayChildProduct["inventories"]  = array('quantity' => $stock->getQty()) ;
+            $arrayChildProduct["inventories"]  = array('quantity' => $stock->getQty());
 
             unset($stock);
 
-            $arrayChildProduct["options"]=$arrayOptionsAll;
-            $arrayDetailProduct["variants"][]=$arrayChildProduct;
+            $arrayChildProduct["options"]     = $arrayOptionsAll;
+            $arrayDetailProduct["variants"][] = $arrayChildProduct;
         }
 
         /** @var Mage_CatalogInventory_Model_Stock_Item $stock */
@@ -650,75 +703,81 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $stock->loadByProduct($detailProduct);
 
         $arrayDetailProduct["manage_stock"] = (int) ($stock->getManageStock() == "1");
-        $arrayDetailProduct["inventories"]  = array('quantity' => $stock->getQty()) ;
-        $arrayDetailProduct["brand"] = $detailProduct->getBrand();
-        $arrayDetailProduct["supplier"] = $detailProduct->getSupplier();
+        $arrayDetailProduct["inventories"]  = array('quantity' => $stock->getQty());
+        $arrayDetailProduct["brand"]        = $detailProduct->getBrand();
+        $arrayDetailProduct["supplier"]     = $detailProduct->getSupplier();
 
-        $_categories = $detailProduct->getCategoryCollection()->addAttributeToSelect("name");
-        $arrayCategory=array();
-        foreach ($_categories as $_category){
-            $arrayCate=array(
-                "name"=>$_category->getData("name"),
-                "id"=>$_category->getId(),
-                "parent_id"=>$_category->getParentId()
+        $_categories   = $detailProduct->getCategoryCollection()->addAttributeToSelect("name");
+        $arrayCategory = array();
+        foreach ($_categories as $_category) {
+            $arrayCate       = array(
+                "name"      => $_category->getData("name"),
+                "id"        => $_category->getId(),
+                "parent_id" => $_category->getParentId()
             );
-            $arrayCategory[]=$arrayCate;
+            $arrayCategory[] = $arrayCate;
         }
-        $arrayDetailProduct["categories"]=$arrayCategory;
-        $arrayDetailProduct["product_options"]=array();
-        foreach($arrayProductOptions as $_key => $values){
-            $arrayKey      = explode("|",$_key);
-            $arrayRetValue = $this->getValueAttributeByCode($arrayKey[1]);
-            $arrayParent   = array(
-                "name"=>$arrayKey[0],
-                "position"=>$arrayRetValue[0]["position_parent"],
-                "values"=>$values
+        $arrayDetailProduct["categories"]      = $arrayCategory;
+        $arrayDetailProduct["product_options"] = array();
+        foreach ($arrayProductOptions as $_key => $values) {
+            $arrayKey                                = explode("|", $_key);
+            $arrayRetValue                           = $this->getValueAttributeByCode($arrayKey[1]);
+            $arrayParent                             = array(
+                "name"     => $arrayKey[0],
+                "position" => $arrayRetValue[0]["position_parent"],
+                "values"   => $values
             );
-            $arrayDetailProduct["product_options"][]=$arrayParent;
+            $arrayDetailProduct["product_options"][] = $arrayParent;
         }
+
         return $arrayDetailProduct;
     }
+
     //Check Attribute Code Exits
-    public function checkExistAttribute($code){
-        $attribute_id=Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$code);
+    public function checkExistAttribute($code) {
+        $attribute_id = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product', $code);
         //$attr=Mage::getModel("eav/attribute")->loadByCode("catalog_product",$code);
-        if($attribute_id){
+        if ($attribute_id) {
             return true;
         }
+
         return false;
     }
 
     /***
      * Create an attribute.
      * For reference, see Mage_Adminhtml_Catalog_Product_AttributeController::saveAction().
-     * @param $labelText
-     * @param $attributeCode
+     *
+     * @param     $labelText
+     * @param     $attributeCode
      * @param int $values
      * @param int $productTypes
      * @param int $setInfo
      * @param int $options
+     *
      * @return bool|int
      */
-    public function createAttribute($labelText, $attributeCode, $values = -1, $productTypes = -1, $setInfo = -1, $options = -1)
-    {
-        $labelText = trim($labelText);
+    public function createAttribute($labelText, $attributeCode, $values = - 1, $productTypes = - 1, $setInfo = - 1, $options = - 1) {
+        $labelText     = trim($labelText);
         $attributeCode = trim($attributeCode);
 
-        if($labelText == '' || $attributeCode == '')
-        {
-            echo "Can't import the attribute with an empty label or code.  LABEL= [$labelText]  CODE= [$attributeCode]"."<br/>";
+        if ($labelText == '' || $attributeCode == '') {
+            echo "Can't import the attribute with an empty label or code.  LABEL= [$labelText]  CODE= [$attributeCode]" . "<br/>";
+
             return false;
         }
 
-        if($values === -1)
+        if ($values === - 1) {
             $values = array();
+        }
 
-        if($productTypes === -1)
+        if ($productTypes === - 1) {
             $productTypes = array();
+        }
 
-        if($setInfo !== -1 && (isset($setInfo['SetID']) == false || isset($setInfo['GroupID']) == false))
-        {
-            echo "Please provide both the set-ID and the group-ID of the attribute-set if you'd like to subscribe to one."."<br/>";
+        if ($setInfo !== - 1 && (isset($setInfo['SetID']) == false || isset($setInfo['GroupID']) == false)) {
+            echo "Please provide both the set-ID and the group-ID of the attribute-set if you'd like to subscribe to one." . "<br/>";
+
             return false;
         }
         //Build the data structure that will define the attribute. See
@@ -762,9 +821,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         );
 
         // Now, overlay the incoming values on to the defaults.
-        foreach($values as $key => $newValue) {
+        foreach ($values as $key => $newValue) {
             if (isset($data[$key]) == false) {
                 echo "Attribute feature [$key] is not valid." . "<br/>";
+
                 return false;
             } else {
                 $data[$key] = $newValue;
@@ -781,12 +841,11 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             2 => '',
             4 => '',
         );
-        $model = Mage::getModel('catalog/resource_eav_attribute');
+        $model                  = Mage::getModel('catalog/resource_eav_attribute');
 
         $model->addData($data);
 
-        if($setInfo !== -1)
-        {
+        if ($setInfo !== - 1) {
             $model->setAttributeSetId($setInfo['SetID']);
             $model->setAttributeGroupId($setInfo['GroupID']);
         }
@@ -795,24 +854,22 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         $model->setEntityTypeId($entityTypeID);
 
         $model->setIsUserDefined(1);
-        try
-        {
+        try {
             $model->save();
-        }
-        catch(Exception $ex)
-        {
-            echo "Attribute [$labelText] could not be saved: " . $ex->getMessage()."<br/>";
-            if($ex->getMessage() == "Attribute with the same code already exists."){
-                if(is_array($options)){
-                    foreach($options as $_opt){
+        } catch (Exception $ex) {
+            echo "Attribute [$labelText] could not be saved: " . $ex->getMessage() . "<br/>";
+            if ($ex->getMessage() == "Attribute with the same code already exists.") {
+                if (is_array($options)) {
+                    foreach ($options as $_opt) {
                         $this->addAttributeValue($attributeCode, $_opt);
                     }
                 }
             }
+
             return false;
         }
-        if(is_array($options)){
-            foreach($options as $_opt){
+        if (is_array($options)) {
+            foreach ($options as $_opt) {
                 $this->addAttributeValue($attributeCode, $_opt);
             }
         }
@@ -820,69 +877,66 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
         //echo "Attribute [$labelText] has been saved as ID ($id).<br/>";
 
         // Asssign to attribute set.
-        $model1 = Mage::getModel('eav/entity_setup','core_setup');
+        $model1 = Mage::getModel('eav/entity_setup', 'core_setup');
         $model1->addAttributeToSet(
             'catalog_product', 'Default', 'General', $attributeCode
         ); //Default = attribute set, General = attribute group
 
         return $id;
     }
+
     public function updateAttributeValue($arg_attribute, $arg_value) {
-        $attribute_model        = Mage::getModel('eav/entity_attribute');
-        $attribute_code         = $attribute_model->getIdByCode('catalog_product', $arg_attribute);
-        $attribute              = $attribute_model->load($attribute_code);
-        foreach($arg_value as $_opt) {
-            if (!$this->attributeValueExists($arg_attribute, $_opt)) {
-                $value['option'] = array($_opt,$_opt);
-                $result = array('value' => $value);
+        $attribute_model = Mage::getModel('eav/entity_attribute');
+        $attribute_code  = $attribute_model->getIdByCode('catalog_product', $arg_attribute);
+        $attribute       = $attribute_model->load($attribute_code);
+        foreach ($arg_value as $_opt) {
+            if ( ! $this->attributeValueExists($arg_attribute, $_opt)) {
+                $value['option'] = array($_opt, $_opt);
+                $result          = array('value' => $value);
                 $attribute->setData('option', $result);
                 $attribute->save();
             }
         }
     }
-    function addAttributeValue($arg_attribute, $arg_value)
-    {
-        $attribute_model        = Mage::getModel('eav/entity_attribute');
 
-        $attribute_code         = $attribute_model->getIdByCode('catalog_product', $arg_attribute);
-        $attribute              = $attribute_model->load($attribute_code);
+    function addAttributeValue($arg_attribute, $arg_value) {
+        $attribute_model = Mage::getModel('eav/entity_attribute');
 
-        if(!$this->attributeValueExists($arg_attribute, $arg_value))
-        {
-            $value['option'] = array($arg_value,$arg_value);
-            $result = array('value' => $value);
-            $attribute->setData('option',$result);
+        $attribute_code = $attribute_model->getIdByCode('catalog_product', $arg_attribute);
+        $attribute      = $attribute_model->load($attribute_code);
+
+        if ( ! $this->attributeValueExists($arg_attribute, $arg_value)) {
+            $value['option'] = array($arg_value, $arg_value);
+            $result          = array('value' => $value);
+            $attribute->setData('option', $result);
             $attribute->save();
         }
 
-        $attribute_options_model= Mage::getModel('eav/entity_attribute_source_table') ;
-        $attribute_table        = $attribute_options_model->setAttribute($attribute);
-        $options                = $attribute_options_model->getAllOptions(false);
+        $attribute_options_model = Mage::getModel('eav/entity_attribute_source_table');
+        $attribute_table         = $attribute_options_model->setAttribute($attribute);
+        $options                 = $attribute_options_model->getAllOptions(false);
 
-        foreach($options as $option)
-        {
-            if ($option['label'] == $arg_value)
-            {
+        foreach ($options as $option) {
+            if ($option['label'] == $arg_value) {
                 return $option['value'];
             }
         }
+
         return false;
     }
-    public function attributeValueExists($arg_attribute, $arg_value)
-    {
-        $attribute_model        = Mage::getModel('eav/entity_attribute');
-        $attribute_options_model= Mage::getModel('eav/entity_attribute_source_table') ;
 
-        $attribute_code         = $attribute_model->getIdByCode('catalog_product', $arg_attribute);
-        $attribute              = $attribute_model->load($attribute_code);
+    public function attributeValueExists($arg_attribute, $arg_value) {
+        $attribute_model         = Mage::getModel('eav/entity_attribute');
+        $attribute_options_model = Mage::getModel('eav/entity_attribute_source_table');
 
-        $attribute_table        = $attribute_options_model->setAttribute($attribute);
-        $options                = $attribute_options_model->getAllOptions(false);
+        $attribute_code = $attribute_model->getIdByCode('catalog_product', $arg_attribute);
+        $attribute      = $attribute_model->load($attribute_code);
 
-        foreach($options as $option)
-        {
-            if ($option['label'] == $arg_value)
-            {
+        $attribute_table = $attribute_options_model->setAttribute($attribute);
+        $options         = $attribute_options_model->getAllOptions(false);
+
+        foreach ($options as $option) {
+            if ($option['label'] == $arg_value) {
                 return true;
             }
         }
@@ -895,21 +949,20 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      *
      * @param $value
      * @param $attribute_code
+     *
      * @return int
      */
-    private function getAttributeValuePositionByValue($value, $attribute_code){
-        $attribute_model        = Mage::getModel('eav/entity_attribute');
-        $attribute_options_model= Mage::getModel('eav/entity_attribute_source_table') ;
-        $attribute_code         = $attribute_model->getIdByCode('catalog_product', $attribute_code);
-        $attribute              = $attribute_model->load($attribute_code);
-        $attribute_table        = $attribute_options_model->setAttribute($attribute);
-        $options                = $attribute_options_model->getAllOptions(false);
-        $index=0;
-        foreach($options as $option)
-        {
-            $index++;
-            if ($option['value'] == $value)
-            {
+    private function getAttributeValuePositionByValue($value, $attribute_code) {
+        $attribute_model         = Mage::getModel('eav/entity_attribute');
+        $attribute_options_model = Mage::getModel('eav/entity_attribute_source_table');
+        $attribute_code          = $attribute_model->getIdByCode('catalog_product', $attribute_code);
+        $attribute               = $attribute_model->load($attribute_code);
+        $attribute_table         = $attribute_options_model->setAttribute($attribute);
+        $options                 = $attribute_options_model->getAllOptions(false);
+        $index                   = 0;
+        foreach ($options as $option) {
+            $index ++;
+            if ($option['value'] == $value) {
                 return $index;
             }
         }
@@ -920,97 +973,104 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      *
      * Input of Value must be as a label
      *
-     * Deprecated, no longer using this  in a public space, added to private method, not alternative for developers using this publicly will be provided.
-     * in the private class, the function getAttributeValuePositionByValue should be used instead.
+     * Deprecated, no longer using this  in a public space, added to private method, not alternative for developers
+     * using this publicly will be provided. in the private class, the function getAttributeValuePositionByValue should
+     * be used instead.
      *
      * @param $value
      * @param $attribute_code
+     *
      * @deprecated
      * @return int
      */
-    public function getPositionByValue($value, $attribute_code){
-        $attribute_model        = Mage::getModel('eav/entity_attribute');
-        $attribute_options_model= Mage::getModel('eav/entity_attribute_source_table') ;
-        $attribute_code         = $attribute_model->getIdByCode('catalog_product', $attribute_code);
-        $attribute              = $attribute_model->load($attribute_code);
-        $attribute_table        = $attribute_options_model->setAttribute($attribute);
-        $options                = $attribute_options_model->getAllOptions(false);
-        $index=0;
-        foreach($options as $option)
-        {
-            $index++;
-            if ($option['label'] == $value)
-            {
+    public function getPositionByValue($value, $attribute_code) {
+        $attribute_model         = Mage::getModel('eav/entity_attribute');
+        $attribute_options_model = Mage::getModel('eav/entity_attribute_source_table');
+        $attribute_code          = $attribute_model->getIdByCode('catalog_product', $attribute_code);
+        $attribute               = $attribute_model->load($attribute_code);
+        $attribute_table         = $attribute_options_model->setAttribute($attribute);
+        $options                 = $attribute_options_model->getAllOptions(false);
+        $index                   = 0;
+        foreach ($options as $option) {
+            $index ++;
+            if ($option['label'] == $value) {
                 //return $option["value"];
                 return $index;
             }
         }
     }
 
-    public function getValueAttributeByCode($attributeName){
-        $attribute_model        = Mage::getModel('eav/entity_attribute');
-        $attribute_options_model= Mage::getModel('eav/entity_attribute_source_table') ;
-        $attribute_code         = $attribute_model->getIdByCode('catalog_product',$attributeName);
-        $attribute              = $attribute_model->load($attribute_code);
-        $attribute_table        = $attribute_options_model->setAttribute($attribute);
-        $options                = $attribute_options_model->getAllOptions(false);
-        $valueArray=array();
-        $index=1;
-        foreach($options as $option) {
-            $arrayDetail=array(
-                "value"=>$option['label'],
-                "position"=>$index,
-                "position_parent"=>$attribute->getPosition()
+    public function getValueAttributeByCode($attributeName) {
+        $attribute_model         = Mage::getModel('eav/entity_attribute');
+        $attribute_options_model = Mage::getModel('eav/entity_attribute_source_table');
+        $attribute_code          = $attribute_model->getIdByCode('catalog_product', $attributeName);
+        $attribute               = $attribute_model->load($attribute_code);
+        $attribute_table         = $attribute_options_model->setAttribute($attribute);
+        $options                 = $attribute_options_model->getAllOptions(false);
+        $valueArray              = array();
+        $index                   = 1;
+        foreach ($options as $option) {
+            $arrayDetail  = array(
+                "value"           => $option['label'],
+                "position"        => $index,
+                "position_parent" => $attribute->getPosition()
             );
-            $valueArray[]=$arrayDetail;
-            $index++;
+            $valueArray[] = $arrayDetail;
+            $index ++;
         }
+
         return $valueArray;
     }
-    public function getRootCategory(){
-        $dataParent=Mage::getModel("catalog/category")->getCollection()->addFieldToFilter("level",array("eq"=>1))->getFirstItem();
-        $parentId = $dataParent->getId();
+
+    public function getRootCategory() {
+        $dataParent = Mage::getModel("catalog/category")->getCollection()->addFieldToFilter("level", array("eq" => 1))->getFirstItem();
+        $parentId   = $dataParent->getId();
+
         return $parentId;
     }
-    public function getCategory($categoryData){
-        $modelCategory = Mage::getModel('catalog/category');
-        $entityCategory=null;
-        if(isset($categoryData["id"])){
-            $entityCategory=$modelCategory->load($categoryData["id"]);
+
+    public function getCategory($categoryData) {
+        $modelCategory  = Mage::getModel('catalog/category');
+        $entityCategory = null;
+        if (isset($categoryData["id"])) {
+            $entityCategory = $modelCategory->load($categoryData["id"]);
         }
-        if(isset($categoryData["name"])){
-            $entityCategory=Mage::getResourceModel('catalog/category_collection')
-                ->addFieldToFilter('name',array("eq"=>$categoryData["name"]))
-                ->getFirstItem();
+        if (isset($categoryData["name"])) {
+            $entityCategory = Mage::getResourceModel('catalog/category_collection')
+                                  ->addFieldToFilter('name', array("eq" => $categoryData["name"]))
+                                  ->getFirstItem();
         }
-        if($entityCategory->getId()){
+        if ($entityCategory->getId()) {
             return $entityCategory->getId();
 
-        }else {
-            $category = Mage::getModel('catalog/category');
-            $nameCateogry=$categoryData["name"];
+        } else {
+            $category     = Mage::getModel('catalog/category');
+            $nameCateogry = $categoryData["name"];
             $category->setName($nameCateogry);
             $category->setUrlKey($nameCateogry);
             $category->setIsActive(1);
             $category->setDisplayMode('PRODUCTS');
             $category->setIsAnchor(1); //for active anchor
-            $parentId=0;
-            if(isset($categoryData["parent_id"])){
-                $parentId=$categoryData["parent_id"];
-            }else{
-                $dataParent=Mage::getModel("catalog/category")->getCollection()->addFieldToFilter("level",array("eq"=>1))->getFirstItem();
-                $parentId = $dataParent->getId();
+            $parentId = 0;
+            if (isset($categoryData["parent_id"])) {
+                $parentId = $categoryData["parent_id"];
+            } else {
+                $dataParent = Mage::getModel("catalog/category")->getCollection()->addFieldToFilter("level", array("eq" => 1))->getFirstItem();
+                $parentId   = $dataParent->getId();
             }
             $parentCategory = Mage::getModel('catalog/category')->load($parentId);
             $category->setPath($parentCategory->getPath());
             $category->save();
+
             return $category->getId();
         }
     }
-    protected function _checkAttribute($attribute_name,$data){
-        if(!isset($data[$attribute_name])){
+
+    protected function _checkAttribute($attribute_name, $data) {
+        if ( ! isset($data[$attribute_name])) {
             return false;
         }
+
         return true;
     }
 
@@ -1018,59 +1078,72 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * Returns Whether ant_hq should be syncing the special price from AntHQ
      * @return bool
      */
-    public function getShouldSyncSpecialPriceFromAntHQ(){
-        return ( (int) Mage::getStoreConfig(Ant_Api_Helper_Data::XML_PATH_SYNC_SOURCE_PRICING) == Ant_Api_Model_System_Config_Sync_Source_Framework::OPTION_VALUE_ANTHQ);
+    public function getShouldSyncSpecialPriceFromAntHQ() {
+        return ((int) Mage::getStoreConfig(Ant_Api_Helper_Data::XML_PATH_SYNC_SOURCE_PRICING) == Ant_Api_Model_System_Config_Sync_Source_Framework::OPTION_VALUE_ANTHQ);
     }
 
 
-    public function _update(array $data,$idProduct){
+    public function _update(array $data, $idProduct) {
         //$idProduct=$this->getRequest()->getParam("id_product");
         $product = Mage::getModel("catalog/product")->load($idProduct);
         // attribute set and product type cannot be updated
-        $arrayToExclude=array("id","images","inventories","full_price","tags","tax","meta","manage_stock","special_price","product_options","categories","product_type");
+        $arrayToExclude = array(
+            "id",
+            "images",
+            "inventories",
+            "full_price",
+            "tags",
+            "tax",
+            "meta",
+            "manage_stock",
+            "special_price",
+            "product_options",
+            "categories",
+            "product_type"
+        );
         try {
-            foreach($data as $key=>$value){
-                if(!in_array($key,$arrayToExclude)) {
+            foreach ($data as $key => $value) {
+                if ( ! in_array($key, $arrayToExclude)) {
                     $product->setData($key, $value);
                 }
             }
-            if($this->_checkAttribute("tax",$data)) {
+            if ($this->_checkAttribute("tax", $data)) {
                 $product->setTaxClassId($data["tax"]);
             }
-            if($this->_checkAttribute("full_price",$data)) {
+            if ($this->_checkAttribute("full_price", $data)) {
                 $product->setPrice($data["full_price"]);
             }
-            if( $this->getShouldSyncSpecialPriceFromAntHQ() && $this->_checkAttribute("special_price",$data)) {
+            if ($this->getShouldSyncSpecialPriceFromAntHQ() && $this->_checkAttribute("special_price", $data)) {
                 $product->setSpecialPrice($data["special_price"]);
             }
-            if($this->_checkAttribute("tags",$data)) {
+            if ($this->_checkAttribute("tags", $data)) {
                 $stringTags = "";
                 foreach ($data["tags"] as $_tags) {
                     $stringTags .= $_tags . ",";
                 }
                 $product->setMetaKeyword($stringTags);
             }
-            if($this->_checkAttribute("meta",$data)) {
-                $stringMeta="";
-                foreach($data["meta"] as $_meta){
-                    $stringMeta.=$_meta.",";
+            if ($this->_checkAttribute("meta", $data)) {
+                $stringMeta = "";
+                foreach ($data["meta"] as $_meta) {
+                    $stringMeta .= $_meta . ",";
                 }
                 $product->setMetaDescription($stringMeta);
             }
 
-            if($this->_checkAttribute("inventories",$data)) {
-                if($this->_checkAttribute("quantity",$data["inventories"])) {
+            if ($this->_checkAttribute("inventories", $data)) {
+                if ($this->_checkAttribute("quantity", $data["inventories"])) {
                     $qty = $data["inventories"]["quantity"];
 
 
                     $stockData = $product->getStockData();
 
-                    $minQty = (isset($stockData['min_qty']))? $stockData['min_qty'] : 0;
-                    $stockData['qty'] = $qty;
-                    $stockData['is_in_stock'] = ($qty > $minQty)? Mage_CatalogInventory_Model_Stock_Status::STATUS_IN_STOCK : Mage_CatalogInventory_Model_Stock_Status::STATUS_OUT_OF_STOCK;
+                    $minQty                   = (isset($stockData['min_qty'])) ? $stockData['min_qty'] : 0;
+                    $stockData['qty']         = $qty;
+                    $stockData['is_in_stock'] = ($qty > $minQty) ? Mage_CatalogInventory_Model_Stock_Status::STATUS_IN_STOCK : Mage_CatalogInventory_Model_Stock_Status::STATUS_OUT_OF_STOCK;
 
                     $stockData['use_config_manage_stock'] = 0;
-                    $stockData['manage_stock'] = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
+                    $stockData['manage_stock']            = ($this->_checkAttribute("manage_stock", $data)) ? (int) filter_var($data["manage_stock"], FILTER_VALIDATE_BOOLEAN) : 1;
 
                     $product->setStockData($stockData);
 
@@ -1086,20 +1159,20 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 //                            ));
                 }
             }
-            if($this->_checkAttribute("images",$data)) {
+            if ($this->_checkAttribute("images", $data)) {
                 //Image
-                $count=0;
-                $dataImage=$data["images"];
-                foreach($dataImage as $_image) {
-                    if($this->_checkAttribute("id",$_image) && $this->_checkAttribute("url",$_image) && $this->_checkAttribute("position",$_image)) {
-                        $urlImageInput = $_image["url"];
-                        $position = $_image["position"];
-                        $helperAnt = Mage::helper("ant_api");
-                        $arrayImageInfor = $helperAnt->setImageProduct($urlImageInput);
-                        $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
+                $count     = 0;
+                $dataImage = $data["images"];
+                foreach ($dataImage as $_image) {
+                    if ($this->_checkAttribute("id", $_image) && $this->_checkAttribute("url", $_image) && $this->_checkAttribute("position", $_image)) {
+                        $urlImageInput     = $_image["url"];
+                        $position          = $_image["position"];
+                        $helperAnt         = Mage::helper("ant_api");
+                        $arrayImageInfor   = $helperAnt->setImageProduct($urlImageInput);
+                        $nameImage         = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
                         $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
-                        $mediaApi = Mage::getModel("catalog/product_attribute_media_api");
-                        $mimeType = "";
+                        $mediaApi          = Mage::getModel("catalog/product_attribute_media_api");
+                        $mimeType          = "";
                         if (file_exists("$absolutePathImage")) {
                             $pathInfo = pathinfo("$absolutePathImage");
                             switch ($pathInfo['extension']) {
@@ -1114,44 +1187,48 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                                     break;
                             }
                         }
-                        $items = $mediaApi->items($idProduct, Mage_Core_Model_App::ADMIN_STORE_ID);
-                        $isEmptyImage=true;
+                        $items        = $mediaApi->items($idProduct, Mage_Core_Model_App::ADMIN_STORE_ID);
+                        $isEmptyImage = true;
                         foreach ($items as $item) {
                             if ($item["position"] == $position) {
-                                $count++;
-                                $isEmptyImage=false;
-                                $dataImage = array(
-                                    'file' => array(
-                                        'name' => $nameImage,
+                                $count ++;
+                                $isEmptyImage = false;
+                                $dataImage    = array(
+                                    'file'     => array(
+                                        'name'    => $nameImage,
                                         'content' => base64_encode(file_get_contents($absolutePathImage)),
-                                        'mime' => $mimeType
+                                        'mime'    => $mimeType
                                     ),
-                                    'label' => $item["label"],
+                                    'label'    => $item["label"],
                                     'position' => $position,
-                                    'types' => $item["types"],
-                                    'exclude' => 0
+                                    'types'    => $item["types"],
+                                    'exclude'  => 0
                                 );
                                 $mediaApi->update($idProduct, $item['file'], $dataImage, Mage_Core_Model_App::ADMIN_STORE_ID);
                             }
                         }
-                        if($isEmptyImage){
-                            if ($count == 0){
-                                $product->addImageToMediaGallery( $absolutePathImage , array('image', 'thumbnail', 'small_image'), true, false );
-                            }else {
-                                $product->addImageToMediaGallery( $absolutePathImage , null, true, false );
+                        if ($isEmptyImage) {
+                            if ($count == 0) {
+                                $product->addImageToMediaGallery($absolutePathImage, array(
+                                    'image',
+                                    'thumbnail',
+                                    'small_image'
+                                ), true, false);
+                            } else {
+                                $product->addImageToMediaGallery($absolutePathImage, null, true, false);
                             }
-                            $count++;
+                            $count ++;
                         }
                     }
                 }
             }
 
-            switch($product->getTypeId()){
+            switch ($product->getTypeId()) {
                 case 'simple':
 
                     //QTY
-                    if($this->_checkAttribute("categories",$data)) {
-                        $categories = $data["categories"];
+                    if ($this->_checkAttribute("categories", $data)) {
+                        $categories       = $data["categories"];
                         $arrayCategoryIds = array();
                         foreach ($categories as $_cate) {
                             $arrayCategoryIds[] = $helperAnt->getCategory($_cate);
@@ -1162,31 +1239,31 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                     break;
                 case 'configurable':
 
-                    if($this->_checkAttribute("product_options",$data)) {
+                    if ($this->_checkAttribute("product_options", $data)) {
                         $product_options = $data["product_options"];
 
                         /** @var Ant_Api_Helper_Formatting $formattingHelper */
                         $formattingHelper = Mage::helper('ant_api/format');
 
                         foreach ($product_options as $p_opt) {
-                            $nameAttribute = $p_opt["name"];
-                            $p_values = $p_opt["values"];
+                            $nameAttribute  = $p_opt["name"];
+                            $p_values       = $p_opt["values"];
                             $valStringArray = array();
                             foreach ($p_values as $_val) {
-                                $v = $_val["name"];
+                                $v                = $_val["name"];
                                 $valStringArray[] = $v;
                             }
                             $attributeCode = $formattingHelper->createAttributeNameSlugFromLabel($nameAttribute);
-                            if (!$helperAnt->checkExistAttribute($attributeCode)) {
-                                $helperAnt->createAttribute($nameAttribute, $attributeCode, -1, -1, -1, $valStringArray);
+                            if ( ! $helperAnt->checkExistAttribute($attributeCode)) {
+                                $helperAnt->createAttribute($nameAttribute, $attributeCode, - 1, - 1, - 1, $valStringArray);
                             } else {
                                 $helperAnt->updateAttributeValue($attributeCode, $valStringArray);
                             }
                         }
                     }
                     //assign simple product to configruable product
-                    $dataVariants=$data["variants"];
-                    if($dataVariants && is_array($dataVariants)) {
+                    $dataVariants = $data["variants"];
+                    if ($dataVariants && is_array($dataVariants)) {
                         foreach ($dataVariants as $_variant) {
                             $id_variant = $_variant["id"];
                             $this->setSimpleProductToConfigruableProduct($id_variant, $_variant);
@@ -1204,102 +1281,122 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $this->_critical($e->getMessage(), Mage_Api2_Model_Server::HTTP_INTERNAL_ERROR);
         }
     }
-    protected $_arrayIdSimpleProduct=array();
-    protected function _validateImages($attribute_name,$data){
-        $stringError="";
-        if(!isset($data[$attribute_name]) || $data[$attribute_name] == "" ){
-            $stringError="Properties image is empty or null . Please check your data";
+
+    protected $_arrayIdSimpleProduct = array();
+
+    protected function _validateImages($attribute_name, $data) {
+        $stringError = "";
+        if ( ! isset($data[$attribute_name]) || $data[$attribute_name] == "") {
+            $stringError = "Properties image is empty or null . Please check your data";
         }
-        if($stringError != "") {
+        if ($stringError != "") {
             $this->_criticalCustom($stringError, "400");
         }
-        return $stringError;
-    }
-    protected function _validateDataBeforeUpdate($data){
-        $stringError="";
-        $product=Mage::getModel("catalog/product")->loadByAttribute("sku",$data["sku"]);
-        if(!$this->_checkAttribute("product_type",$data)){
-            $stringError.="Product Type can not be empty";
-        }
-        if(!$this->_checkAttribute("name",$data)){
-            $stringError.="Product name can not be empty , ";
-        }
-        if(!$this->_checkAttribute("sku",$data)){
-            $stringError.="Product sku can not be empty , ";
-        }
-        if(!$this->_checkAttribute("description",$data)){
-            $stringError.="Product description can not be empty , ";
-        }
-        if(!$this->_checkAttribute("full_price",$data)){
-            $stringError.="Product full_price can not be empty , ";
-        }
-        if(!$this->_checkAttribute("inventories",$data)){
-            $stringError.="Product inventories can not be empty , ";
-        }
-        if(!$this->_checkAttribute("quantity",$data["inventories"])){
-            $stringError.="Product quantity can not be empty , ";
-        }
-        if(!$this->_checkAttribute("images",$data)){
-            $stringError.="Product image can not be empty , ";
-        }
-        if($product){
-            $stringError.="Product has sku ".$data['sku']." has existed.Please check your sku data on product listing";
-        }
-        if($stringError != "") {
-            $this->_criticalCustom($stringError, "400");
-        }
-        return $stringError;
-    }
-    protected function _criticalCustom($message, $code = null)
-    {
-        throw new Exception($message,$code);
-    }
-    protected function _validateVariantBeforeUpdate($data){
-        $stringError="";
-        $product=Mage::getModel("catalog/product")->loadByAttribute("sku",$data["sku"]);
-        if(!$this->_checkAttribute("name",$data)){
-            $stringError.="Product name can not be empty , ";
-        }
-        if(!$this->_checkAttribute("sku",$data)){
-            $stringError.="Product sku can not be empty , ";
-        }
-        if(!$this->_checkAttribute("full_price",$data)){
-            $stringError.="Product full_price can not be empty , ";
-        }
-        if(!$this->_checkAttribute("inventories",$data)){
-            $stringError.="Product inventories can not be empty , ";
-        }
-        if(!$this->_checkAttribute("quantity",$data["inventories"])){
-            $stringError.="Product quantity can not be empty , ";
-        }
-        if($product){
-            $stringError.="Product has sku ".$data['sku']." has existed.Please check your sku data on product listing";
-        }
-        if($stringError != "") {
-            $this->_criticalCustom($stringError, "400");
-        }
+
         return $stringError;
     }
 
-    public function getProductWebsiteIds(){
+    protected function _validateDataBeforeUpdate($data) {
+        $stringError = "";
+        $product     = Mage::getModel("catalog/product")->loadByAttribute("sku", $data["sku"]);
+        if ( ! $this->_checkAttribute("product_type", $data)) {
+            $stringError .= "Product Type can not be empty";
+        }
+        if ( ! $this->_checkAttribute("name", $data)) {
+            $stringError .= "Product name can not be empty , ";
+        }
+        if ( ! $this->_checkAttribute("sku", $data)) {
+            $stringError .= "Product sku can not be empty , ";
+        }
+        if ( ! $this->_checkAttribute("description", $data)) {
+            $stringError .= "Product description can not be empty , ";
+        }
+        if ( ! $this->_checkAttribute("full_price", $data)) {
+            $stringError .= "Product full_price can not be empty , ";
+        }
+        if ( ! $this->_checkAttribute("inventories", $data)) {
+            $stringError .= "Product inventories can not be empty , ";
+        }
+        if ( ! $this->_checkAttribute("quantity", $data["inventories"])) {
+            $stringError .= "Product quantity can not be empty , ";
+        }
+        if ( ! $this->_checkAttribute("images", $data)) {
+            $stringError .= "Product image can not be empty , ";
+        }
+        if ($product) {
+            $stringError .= "Product has sku " . $data['sku'] . " has existed.Please check your sku data on product listing";
+        }
+        if ($stringError != "") {
+            $this->_criticalCustom($stringError, "400");
+        }
+
+        return $stringError;
+    }
+
+    protected function _criticalCustom($message, $code = null) {
+        throw new Exception($message, $code);
+    }
+
+    protected function _validateVariantBeforeUpdate($data) {
+        $stringError = "";
+        $product     = Mage::getModel("catalog/product")->loadByAttribute("sku", $data["sku"]);
+        if ( ! $this->_checkAttribute("name", $data)) {
+            $stringError .= "Product name can not be empty , ";
+        }
+        if ( ! $this->_checkAttribute("sku", $data)) {
+            $stringError .= "Product sku can not be empty , ";
+        }
+        if ( ! $this->_checkAttribute("full_price", $data)) {
+            $stringError .= "Product full_price can not be empty , ";
+        }
+        if ( ! $this->_checkAttribute("inventories", $data)) {
+            $stringError .= "Product inventories can not be empty , ";
+        }
+        if ( ! $this->_checkAttribute("quantity", $data["inventories"])) {
+            $stringError .= "Product quantity can not be empty , ";
+        }
+        if ($product) {
+            $stringError .= "Product has sku " . $data['sku'] . " has existed.Please check your sku data on product listing";
+        }
+        if ($stringError != "") {
+            $this->_criticalCustom($stringError, "400");
+        }
+
+        return $stringError;
+    }
+
+    public function getProductWebsiteIds() {
         return explode(',', Mage::getStoreConfig('ant_api_config/tax_class_ant/website_default'));
     }
 
-    public function _createProduct(array $data){
+    public function _createProduct(array $data) {
         try {
             Mage::app()->setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
             $defaultAttributeSetId = Mage::getSingleton('eav/config')->getEntityType(Mage_Catalog_Model_Product::ENTITY)->getDefaultAttributeSetId();
-            $product = Mage::getModel('catalog/product');
-            $arrayToExclude=array("id","images","inventories","full_price","tags","tax","meta","manage_stock","manage_stock","special_price","product_options","product_type");
+            $product               = Mage::getModel('catalog/product');
+            $arrayToExclude        = array(
+                "id",
+                "images",
+                "inventories",
+                "full_price",
+                "tags",
+                "tax",
+                "meta",
+                "manage_stock",
+                "manage_stock",
+                "special_price",
+                "product_options",
+                "product_type"
+            );
             $this->_validateDataBeforeUpdate($data);
-            $product_type=$data["product_type"];
-            if($this->_validateDataBeforeUpdate($data) !== ""){
+            $product_type = $data["product_type"];
+            if ($this->_validateDataBeforeUpdate($data) !== "") {
                 //would normally throw an exception, but we're keeping compatiblity
                 return;
             }
             $product->setWebsiteIds($this->getProductWebsiteIds()); //website ID the product is assigned to, as an array
-            foreach($data as $key=>$value){
-                if(!in_array($key,$arrayToExclude)) {
+            foreach ($data as $key => $value) {
+                if ( ! in_array($key, $arrayToExclude)) {
                     $product->setData($key, $value);
                 }
             }
@@ -1311,9 +1408,9 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $product->setPrice($data["full_price"]);
 
             $product->setMetaTitle($data["name"]);
-            $stringTags="";
-            foreach($data["tags"] as $_tags){
-                $stringTags.=$_tags.",";
+            $stringTags = "";
+            foreach ($data["tags"] as $_tags) {
+                $stringTags .= $_tags . ",";
             }
             $product->setMetaKeyword($stringTags);
             $product->setMetaDescription($data["meta"]);
@@ -1325,8 +1422,8 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             $product->setAttributeSetId($defaultAttributeSetId); //ID of a attribute set named 'default'
 
 
-            $qty = (isset($data["inventories"]) && isset($data["inventories"]["quantity"]))? (float) $data["inventories"]["quantity"] : 0;
-            $manageStock = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
+            $qty         = (isset($data["inventories"]) && isset($data["inventories"]["quantity"])) ? (float) $data["inventories"]["quantity"] : 0;
+            $manageStock = ($this->_checkAttribute("manage_stock", $data)) ? (int) filter_var($data["manage_stock"], FILTER_VALIDATE_BOOLEAN) : 1;
 
             $helper = Mage::helper('ant_api/product_inventory_data');
             /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
@@ -1337,35 +1434,38 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                 $product->setData("special_price", $data["special_price"]);
             }
             $dataImage = $data["images"];
-            $count = 0;
+            $count     = 0;
             $product->setMediaGallery(array('images' => array(), 'values' => array()));
-            $isErrorImage=false;
-            if(count($dataImage) > 0) {
+            $isErrorImage = false;
+            if (count($dataImage) > 0) {
                 foreach ($dataImage as $_image) {
                     if ($this->_validateImages("id", $_image) == "" && $this->_validateImages("url", $_image) == "" && $this->_validateImages("position", $_image) == "") {
-                        $urlImageInput = $_image["url"];
-                        $position = $_image["position"];
-                        $arrayImageInfor = $this->setImageProduct($urlImageInput);
-                        $nameImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
+                        $urlImageInput     = $_image["url"];
+                        $position          = $_image["position"];
+                        $arrayImageInfor   = $this->setImageProduct($urlImageInput);
+                        $nameImage         = $arrayImageInfor[Ant_Api_Helper_Data::KEY_NAME_IMAGE];
                         $absolutePathImage = $arrayImageInfor[Ant_Api_Helper_Data::KEY_ABSOLUTE_PATH_IMG];
                         if ($count == 0) {
-                            $product->addImageToMediaGallery($absolutePathImage, array('image', 'thumbnail', 'small_image'), true, false);
+                            $product->addImageToMediaGallery($absolutePathImage, array(
+                                'image',
+                                'thumbnail',
+                                'small_image'
+                            ), true, false);
                         } else {
                             $product->addImageToMediaGallery($absolutePathImage, null, true, false);
                         }
-                        $count++;
+                        $count ++;
                     } else {
                         $isErrorImage = true;
                         break;
                     }
                 }
-            }
-            else{
-                $isErrorImage=true;
+            } else {
+                $isErrorImage = true;
                 $this->_criticalCustom("attribute image is not array or empty value", "400");
             }
             $shouldSaveProduct = false;
-            switch($product_type){
+            switch ($product_type) {
                 case 'configurable':
                     $attributeSetId = $defaultAttributeSetId;
 
@@ -1373,32 +1473,32 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                     $formattingHelper = Mage::helper('ant_api/format');
 
                     //Check Product Options is Exist Or Not
-                    $product_options=$data["product_options"];
-                    foreach($product_options as $p_opt){
-                        $nameAttribute=$p_opt["name"];
-                        $p_values=$p_opt["values"];
-                        $valStringArray=array();
-                        foreach($p_values as $_val){
-                            $v=$_val["name"];
-                            $valStringArray[]=$v;
+                    $product_options = $data["product_options"];
+                    foreach ($product_options as $p_opt) {
+                        $nameAttribute  = $p_opt["name"];
+                        $p_values       = $p_opt["values"];
+                        $valStringArray = array();
+                        foreach ($p_values as $_val) {
+                            $v                = $_val["name"];
+                            $valStringArray[] = $v;
                         }
                         $attributeCode = $formattingHelper->createAttributeNameSlugFromLabel($nameAttribute);
-                        if(!$this->checkExistAttribute($attributeCode)) {
-                            $this->createAttribute($nameAttribute, $attributeCode,-1,-1,-1,$valStringArray);
+                        if ( ! $this->checkExistAttribute($attributeCode)) {
+                            $this->createAttribute($nameAttribute, $attributeCode, - 1, - 1, - 1, $valStringArray);
                         }
                     }
 
                     //Get Configruable Product
-                    $dataVariants = $data["variants"];
+                    $dataVariants    = $data["variants"];
                     $arrayProductIds = array();
                     if ($dataVariants && is_array($dataVariants)) {
                         foreach ($dataVariants as $_variant) {
                             $arrayProductIds[] = $this->setSimpleProductToConfigruableProduct($_variant, $attributeSetId);
                         }
                         $arrayAttributeToset = array();
-                        $firstData = $dataVariants[0]["options"];
+                        $firstData           = $dataVariants[0]["options"];
                         foreach ($firstData as $first_options) {
-                            $attribute = Mage::getSingleton('eav/config')->getAttribute(Mage_Catalog_Model_Product::ENTITY, $first_options["code"]);
+                            $attribute             = Mage::getSingleton('eav/config')->getAttribute(Mage_Catalog_Model_Product::ENTITY, $first_options["code"]);
                             $arrayAttributeToset[] = $attribute->getId();
                         }
                         $product->getTypeInstance()->setUsedProductAttributeIds($arrayAttributeToset); //attribute ID of attribute 'color' in my store
@@ -1407,11 +1507,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                         $product->setCanSaveConfigurableAttributes(true);
                         $product->setConfigurableAttributesData($configurableAttributesData);
                         $configurableProductsData = array();
-                        $errorOnChildProduct=false;
+                        $errorOnChildProduct      = false;
                         foreach ($arrayProductIds as $key => $value) {
-                            if($value==false)
-                            {
-                                $errorOnChildProduct=true;
+                            if ($value == false) {
+                                $errorOnChildProduct = true;
                                 break;
                             }
                             $configurableProductsData[$value] = array( //['value'] = id of a simple product associated with this configurable
@@ -1421,7 +1520,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                         $product->setConfigurableProductsData($configurableProductsData);
                     }
 
-                    $shouldSaveProduct = ($isErrorImage == false && $errorOnChildProduct==false);
+                    $shouldSaveProduct = ($isErrorImage == false && $errorOnChildProduct == false);
                     break;
                 case 'simple':
                 default:
@@ -1432,23 +1531,23 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                 $product->save();
             }
             unset($product);
-        }
-        catch (Mage_Eav_Model_Entity_Attribute_Exception $e) {
+        } catch (Mage_Eav_Model_Entity_Attribute_Exception $e) {
             $this->_critical(sprintf('Invalid attribute "%s": %s', $e->getAttributeCode(), $e->getMessage()),
                 Mage_Api2_Model_Server::HTTP_BAD_REQUEST);
         } catch (Mage_Core_Exception $e) {
             $this->_critical($e->getMessage(), Mage_Api2_Model_Server::HTTP_INTERNAL_ERROR);
         }
     }
-    public function setSimpleProductToConfigruableProduct($data,$attributeSetId){
-        if(isset($data["id"])){
-            $this->setSimpleProductToConfigruableProductCaseUpdate($data["id"],$data);
-        }else {
+
+    public function setSimpleProductToConfigruableProduct($data, $attributeSetId) {
+        if (isset($data["id"])) {
+            $this->setSimpleProductToConfigruableProductCaseUpdate($data["id"], $data);
+        } else {
             if ($this->_validateVariantBeforeUpdate($data) == "") {
-                $product = Mage::getModel("catalog/product");
+                $product        = Mage::getModel("catalog/product");
                 $arrayToExclude = array("id", "images", "inventories", "tax", "full_price");
                 foreach ($data as $key => $value) {
-                    if (!in_array($key, $arrayToExclude)) {
+                    if ( ! in_array($key, $arrayToExclude)) {
                         $product->setData($key, $value);
                     }
                 }
@@ -1467,16 +1566,16 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                 if ($this->_checkAttribute("options", $data)) {
                     $codeArray = $data["options"];
                     foreach ($codeArray as $_item) {
-                        $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
-                        $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
-                        $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
-                        $product->setData($_item["code"],$value);
+                        $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product', $_item["code"]);
+                        $attr        = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
+                        $value       = $attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
+                        $product->setData($_item["code"], $value);
                     }
                 }
 
 
-                $qty = ($this->_checkAttribute("inventories", $data) && $this->_checkAttribute("quantity", $data["inventories"]) )? $data["inventories"]["quantity"] : 0;
-                $manageStock = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
+                $qty         = ($this->_checkAttribute("inventories", $data) && $this->_checkAttribute("quantity", $data["inventories"])) ? $data["inventories"]["quantity"] : 0;
+                $manageStock = ($this->_checkAttribute("manage_stock", $data)) ? (int) filter_var($data["manage_stock"], FILTER_VALIDATE_BOOLEAN) : 1;
 
                 $helper = Mage::helper('ant_api/product_inventory_data');
                 /** @var Ant_Api_Helper_Product_Inventory_Data $helper */
@@ -1496,17 +1595,20 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 //                    }
 //                }
                 $product->save();
+
                 return $product->getId();
             }
+
             return false;
         }
     }
-    public function setSimpleProductToConfigruableProductCaseUpdate($id_product,$data){
+
+    public function setSimpleProductToConfigruableProductCaseUpdate($id_product, $data) {
         if ($this->_validateVariantBeforeUpdate($data) == "") {
-            $product = Mage::getModel("catalog/product")->load($id_product);
+            $product        = Mage::getModel("catalog/product")->load($id_product);
             $arrayToExclude = array("id", "images", "inventories", "tax", "full_price");
             foreach ($data as $key => $value) {
-                if (!in_array($key, $arrayToExclude)) {
+                if ( ! in_array($key, $arrayToExclude)) {
                     $product->setData($key, $value);
                 }
             }
@@ -1519,10 +1621,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
             if ($this->_checkAttribute("options", $data)) {
                 $codeArray = $data["options"];
                 foreach ($codeArray as $_item) {
-                    $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product',$_item["code"]);
-                    $attr = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
-                    $value=$attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
-                    $product->setData($_item["code"],$value);
+                    $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product', $_item["code"]);
+                    $attr        = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
+                    $value       = $attr->setStoreId(0)->getSource()->getOptionId($_item["value"]);
+                    $product->setData($_item["code"], $value);
                 }
             }
             if ($this->_checkAttribute("inventories", $data)) {
@@ -1530,13 +1632,13 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                     $qty = $data["inventories"]["quantity"];
                     //todo: add in manage stock as expected
                     $stockData = $product->getStockData();
-                    $minQty = (isset($stockData['min_qty']))? $stockData['min_qty'] : 0;
+                    $minQty    = (isset($stockData['min_qty'])) ? $stockData['min_qty'] : 0;
 
                     $stockData['qty']         = $qty;
-                    $stockData['is_in_stock'] = ($qty > $minQty)? Mage_CatalogInventory_Model_Stock_Status::STATUS_IN_STOCK : Mage_CatalogInventory_Model_Stock_Status::STATUS_OUT_OF_STOCK;
+                    $stockData['is_in_stock'] = ($qty > $minQty) ? Mage_CatalogInventory_Model_Stock_Status::STATUS_IN_STOCK : Mage_CatalogInventory_Model_Stock_Status::STATUS_OUT_OF_STOCK;
 
                     $stockData['use_config_manage_stock'] = 0;
-                    $stockData['manage_stock'] = ($this->_checkAttribute("manage_stock", $data))? (int) filter_var($data["manage_stock"],FILTER_VALIDATE_BOOLEAN) : 1;
+                    $stockData['manage_stock']            = ($this->_checkAttribute("manage_stock", $data)) ? (int) filter_var($data["manage_stock"], FILTER_VALIDATE_BOOLEAN) : 1;
 
                     $product->setStockData($stockData);
 //                    $product->setStockData(array(
@@ -1548,279 +1650,357 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
                 }
             }
             $product->save();
+
             return $product->getId();
         }
+
         return false;
     }
+
     /**
      * Make the function helper for customer hash
      *
      */
-    public function setTheHashCustomer($customerId){
-        $customer=Mage::getModel('customer/customer')->load($customerId);
-        $arrayCustomerHash=array();
-        $firstName=$customer->getData("firstname");
-        $lastName=$customer->getData("lastname");
-        $arrayCustomerHash["customer_id"]=$customerId;
-        $arrayCustomerHash["first_name"]=$firstName;
-        $arrayCustomerHash["last_name"]=$lastName;
-        $arrayCustomerHash["full_name"]=$firstName.' '.$lastName;
-        $arrayCustomerHash["email"]=$customer->getEmail();
-        $arrayCustomerHash["address"]=array();
-        $addressShipping = $customer->getDefaultShipping();
-        if($addressShipping){
-            $address = Mage::getModel('customer/address')->load($addressShipping);
-            $arrayAddressShipping=array();
-            $street = $address->getStreet();
-            $arrayAddressShipping["address1"]=$street[0];
-            $arrayAddressShipping["address2"]=$street[1];
-            $arrayAddressShipping["suburb"]=$address->getRegion();
-            $arrayAddressShipping["postcode"]=$address->getPostcode();
-            $arrayAddressShipping["country"]=$address->getCountry();
-            $arrayCustomerHash["address"][]=$arrayAddressShipping;
+    public function setTheHashCustomer($customerId) {
+        $customer                         = Mage::getModel('customer/customer')->load($customerId);
+        $arrayCustomerHash                = array();
+        $firstName                        = $customer->getData("firstname");
+        $lastName                         = $customer->getData("lastname");
+        $arrayCustomerHash["customer_id"] = $customerId;
+        $arrayCustomerHash["first_name"]  = $firstName;
+        $arrayCustomerHash["last_name"]   = $lastName;
+        $arrayCustomerHash["full_name"]   = $firstName . ' ' . $lastName;
+        $arrayCustomerHash["email"]       = $customer->getEmail();
+        $arrayCustomerHash["address"]     = array();
+        $addressShipping                  = $customer->getDefaultShipping();
+        if ($addressShipping) {
+            $address                          = Mage::getModel('customer/address')->load($addressShipping);
+            $arrayAddressShipping             = array();
+            $street                           = $address->getStreet();
+            $arrayAddressShipping["address1"] = $street[0];
+            $arrayAddressShipping["address2"] = $street[1];
+            $arrayAddressShipping["suburb"]   = $address->getRegion();
+            $arrayAddressShipping["postcode"] = $address->getPostcode();
+            $arrayAddressShipping["country"]  = $address->getCountry();
+            $arrayCustomerHash["address"][]   = $arrayAddressShipping;
         }
 
-        $addressBlling=$customer->getDefaultBilling();
-        if($addressBlling){
-            $address = Mage::getModel('customer/address')->load($addressBlling);
-            $arrayAddressBlling=array();
-            $street = $address->getStreet();
-            $arrayAddressBlling["address1"]=$street[0];
-            $arrayAddressBlling["address2"]=$street[1];
-            $arrayAddressBlling["suburb"]=$address->getRegion();
-            $arrayAddressBlling["postcode"]=$address->getPostcode();
-            $arrayAddressBlling["country"]=$address->getCountry();
-            $arrayCustomerHash["address"][]=$arrayAddressBlling;
+        $addressBlling = $customer->getDefaultBilling();
+        if ($addressBlling) {
+            $address                        = Mage::getModel('customer/address')->load($addressBlling);
+            $arrayAddressBlling             = array();
+            $street                         = $address->getStreet();
+            $arrayAddressBlling["address1"] = $street[0];
+            $arrayAddressBlling["address2"] = $street[1];
+            $arrayAddressBlling["suburb"]   = $address->getRegion();
+            $arrayAddressBlling["postcode"] = $address->getPostcode();
+            $arrayAddressBlling["country"]  = $address->getCountry();
+            $arrayCustomerHash["address"][] = $arrayAddressBlling;
         }
+
         return $arrayCustomerHash;
     }
+
     /**
      * Make the function helper for order hash
      *
      */
-    public function setTheHashOrder($order,$taxOnFrontEnd=null,$status=null){
-        $arrayOrder=array();
-        $total_tax=0;
-        $statusLabel="Pending";
-        $quote = $order->getQuote();
-        if($taxOnFrontEnd !=null){
-            $total_tax=$taxOnFrontEnd;
+    public function setTheHashOrder($order, $taxOnFrontEnd = null, $status = null) {
+        $arrayOrder  = array();
+        $total_tax   = 0;
+        $statusLabel = "Pending";
+        $quote       = $order->getQuote();
+        if ($taxOnFrontEnd != null) {
+            $total_tax = $taxOnFrontEnd;
+        } else {
+            $total_tax = $order->getData("shipping_tax_amount");
         }
-        else{
-            $total_tax=$order->getData("shipping_tax_amount");
+        if ($status != null) {
+            $statusLabel = $status;
+        } else {
+            $statusLabel = $order->getStatusLabel();
         }
-        if($status != null){
-            $statusLabel=$status;
-        }else{
-            $statusLabel=$order->getStatusLabel();
-        }
-        $arrayOrder["id"]=$order->getId();
-        $arrayOrder["order_number"]=$order->getIncrementId();
-        $arrayOrder["placed_on"]=$order->getData("created_at");
-        $arrayOrder["total_price"]=$order->getData("base_grand_total");
-        $arrayOrder["total_tax"]=$total_tax;
-        $arrayOrder["status"]=$statusLabel;
-        $arrayOrder["items"]=array();
-        $qtyParent=0;
-        $priceParent=0;
-        $taxAmountParent=0;
-        $taxPercentParent=0;
-        $disCountParent=0;
+        $arrayOrder["id"]           = $order->getId();
+        $arrayOrder["order_number"] = $order->getIncrementId();
+        $arrayOrder["placed_on"]    = $order->getData("created_at");
+        $arrayOrder["total_price"]  = $order->getData("base_grand_total");
+        $arrayOrder["total_tax"]    = $total_tax;
+        $arrayOrder["status"]       = $statusLabel;
+        $arrayOrder["items"]        = array();
+        $qtyParent                  = 0;
+        $priceParent                = 0;
+        $taxAmountParent            = 0;
+        $taxPercentParent           = 0;
+        $disCountParent             = 0;
 
-        foreach($order->getAllItems() as $_item){
+        foreach ($order->getAllItems() as $_item) {
             $arrayOtherDataProduct = array();
-            if($_item->getData("parent_item_id")!= ""){
+            if ($_item->getData("parent_item_id") != "") {
                 $arrayOrder["items"][] = array(
-                    "id" => $_item->getId(),
-                    "name" => $_item->getData("name"),
-                    "product_id" => $_item->getData("product_id"),
-                    "sku" => $_item->getData("sku"),
-                    "type" => "variant",
-                    "shipments" => array("quantity" => $qtyParent),
-                    "tax_amount" => $taxAmountParent,
+                    "id"          => $_item->getId(),
+                    "name"        => $_item->getData("name"),
+                    "product_id"  => $_item->getData("product_id"),
+                    "sku"         => $_item->getData("sku"),
+                    "type"        => "variant",
+                    "shipments"   => array("quantity" => $qtyParent),
+                    "tax_amount"  => $taxAmountParent,
                     "tax_percent" => $taxPercentParent,
-                    "sale_price" => $priceParent,
-                    "discount" => $disCountParent
+                    "sale_price"  => $priceParent,
+                    "discount"    => $disCountParent
                 );
-                foreach($_item->getData() as $key => $val){
-                    if($key !="method_instance") {
-                        $arrayOtherDataProduct[$key]=$val;
+                foreach ($_item->getData() as $key => $val) {
+                    if ($key != "method_instance") {
+                        $arrayOtherDataProduct[$key] = $val;
                     }
                 }
-                $arrayOrder["other_data_product"][]=$arrayOtherDataProduct;
+                $arrayOrder["other_data_product"][] = $arrayOtherDataProduct;
                 continue;
             }
-            if($_item->getData("product_type")=="simple") {
+            if ($_item->getData("product_type") == "simple") {
 
-                if(!Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($_item->getData("product_id"))) {
+                if ( ! Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($_item->getData("product_id"))) {
                     $arrayOrder["items"][] = array(
-                        "id" => $_item->getId(),
-                        "name" => $_item->getData("name"),
-                        "product_id" => $_item->getData("product_id"),
-                        "sku" => $_item->getData("sku"),
-                        "type" => "product",
-                        "shipments" => array("quantity" => $_item->getQtyOrdered()),
-                        "sale_price" => $_item->getData("base_row_total_incl_tax"),
-                        "tax_amount" => $_item->getData("tax_amount"),
+                        "id"          => $_item->getId(),
+                        "name"        => $_item->getData("name"),
+                        "product_id"  => $_item->getData("product_id"),
+                        "sku"         => $_item->getData("sku"),
+                        "type"        => "product",
+                        "shipments"   => array("quantity" => $_item->getQtyOrdered()),
+                        "sale_price"  => $_item->getData("base_row_total_incl_tax"),
+                        "tax_amount"  => $_item->getData("tax_amount"),
                         "tax_percent" => $_item->getData("tax_percent"),
-                        "discount" => $_item->getData("discount_amount")
+                        "discount"    => $_item->getData("discount_amount")
                     );
-                }else{
+                } else {
                     $arrayOrder["items"][] = array(
-                        "id" => $_item->getId(),
-                        "name" => $_item->getData("name"),
-                        "product_id" => $_item->getData("product_id"),
-                        "sku" => $_item->getData("sku"),
-                        "type" => "variant",
-                        "shipments" => array("quantity" => $_item->getQtyOrdered()),
-                        "sale_price" => $_item->getData("base_row_total_incl_tax"),
-                        "tax_amount" => $_item->getData("tax_amount"),
+                        "id"          => $_item->getId(),
+                        "name"        => $_item->getData("name"),
+                        "product_id"  => $_item->getData("product_id"),
+                        "sku"         => $_item->getData("sku"),
+                        "type"        => "variant",
+                        "shipments"   => array("quantity" => $_item->getQtyOrdered()),
+                        "sale_price"  => $_item->getData("base_row_total_incl_tax"),
+                        "tax_amount"  => $_item->getData("tax_amount"),
                         "tax_percent" => $_item->getData("tax_percent"),
-                        "discount" => $_item->getData("discount_amount")
+                        "discount"    => $_item->getData("discount_amount")
                     );
                 }
-                $qtyParent=0;
-                $priceParent=0;
-                $taxAmountParent=0;
-                $taxPercentParent=0;
-                $disCountParent=0;
-            }else{
-                $qtyParent=$_item->getQtyOrdered();
-                $priceParent=$_item->getData("base_row_total_incl_tax");
-                $taxAmountParent=$_item->getData("tax_amount");
-                $taxPercentParent=$_item->getData("tax_percent");
-                $disCountParent=$_item->getData("discount_amount");
+                $qtyParent        = 0;
+                $priceParent      = 0;
+                $taxAmountParent  = 0;
+                $taxPercentParent = 0;
+                $disCountParent   = 0;
+            } else {
+                $qtyParent        = $_item->getQtyOrdered();
+                $priceParent      = $_item->getData("base_row_total_incl_tax");
+                $taxAmountParent  = $_item->getData("tax_amount");
+                $taxPercentParent = $_item->getData("tax_percent");
+                $disCountParent   = $_item->getData("discount_amount");
                 continue;
             }
-            foreach($_item->getData() as $key => $val){
-                if($key !="method_instance") {
-                    $arrayOtherDataProduct[$key]=$val;
+            foreach ($_item->getData() as $key => $val) {
+                if ($key != "method_instance") {
+                    $arrayOtherDataProduct[$key] = $val;
                 }
             }
-            $arrayOrder["other_data_product"][]=$arrayOtherDataProduct;
+            $arrayOrder["other_data_product"][] = $arrayOtherDataProduct;
         }
-        $billing_address=$order->getBillingAddress();
-        $arrayBillingAddress=$this->getCustomerHashFromOrder($billing_address);
-        $arrayOrder["billing_address"]=$arrayBillingAddress;
-        $shippingAddress=$order->getShippingAddress();
-        $arrayShippingAddress=$this->getCustomerHashFromOrder($shippingAddress);
-        $arrayOrder["shipping_address"]=$arrayShippingAddress;
-        $arrayOrder["payment"] = array ();
-        $arrayOrder["payment"]["payment_code"]=$order->getPayment()->getMethodInstance()->getCode();
-        $arrayOrder["payment"]["payment_title"]=$order->getPayment()->getMethodInstance()->getTitle();
-        $arrayOrder["payment"]["payment_provider"]=$order->getPayment()->getData('cc_type');
-        $arrayOrder["shipping_other_data"]=array();
-        foreach($shippingAddress->getData() as $key => $val){
+        $billing_address                           = $order->getBillingAddress();
+        $arrayBillingAddress                       = $this->getCustomerHashFromOrder($billing_address);
+        $arrayOrder["billing_address"]             = $arrayBillingAddress;
+        $shippingAddress                           = $order->getShippingAddress();
+        $arrayShippingAddress                      = $this->getCustomerHashFromOrder($shippingAddress);
+        $arrayOrder["shipping_address"]            = $arrayShippingAddress;
+        $arrayOrder["payment"]                     = array();
+        $arrayOrder["payment"]["payment_code"]     = $order->getPayment()->getMethodInstance()->getCode();
+        $arrayOrder["payment"]["payment_title"]    = $order->getPayment()->getMethodInstance()->getTitle();
+        $arrayOrder["payment"]["payment_provider"] = $order->getPayment()->getData('cc_type');
+        $arrayOrder["shipping_other_data"]         = array();
+        foreach ($shippingAddress->getData() as $key => $val) {
             $arrayOrder["shipping_other_data"][$key] = $val;
         }
-        $arrayOrder["payment_other_data"]=array();
-        $payment=$order->getPayment();
-        foreach($payment->getData() as $key => $val){
-            if($key!="method_instance") {
+        $arrayOrder["payment_other_data"] = array();
+        $payment                          = $order->getPayment();
+        foreach ($payment->getData() as $key => $val) {
+            if ($key != "method_instance") {
                 $arrayOrder["payment_other_data"][$key] = $val;
             }
         }
         $arrayOrder["other_data"] = array();
-        $order = Mage::getModel("sales/order")->load($order->getId());
-        foreach($order->getData() as $key => $val){
+        $order                    = Mage::getModel("sales/order")->load($order->getId());
+        foreach ($order->getData() as $key => $val) {
             $arrayOrder["other_data"][$key] = $val;
         }
 
         return $arrayOrder;
     }
-    public function getCustomerHashFromOrder($objectAddress){
-        $customer=array();
-        $customer["customer_id"]=$objectAddress->customer_id;
-        $customer["first_name"]=$objectAddress->firstname;
-        $customer["last_name"]=$objectAddress->lastname;
-        $customer["full_name"]=$objectAddress->lastname;
-        $customer["email"]=$objectAddress->email;
-        $customer["phone"]=$objectAddress->telephone;
-        $customer["customer_company"]=$objectAddress->company;
-        $street_address=$objectAddress->street;
-        $street=explode(".",$street_address);
-        if(count($street) < 2){
-            $street[0]=$street_address;
-            $street[1]="";
+
+    public function getCustomerHashFromOrder($objectAddress) {
+        $customer                     = array();
+        $customer["customer_id"]      = $objectAddress->customer_id;
+        $customer["first_name"]       = $objectAddress->firstname;
+        $customer["last_name"]        = $objectAddress->lastname;
+        $customer["full_name"]        = $objectAddress->lastname;
+        $customer["email"]            = $objectAddress->email;
+        $customer["phone"]            = $objectAddress->telephone;
+        $customer["customer_company"] = $objectAddress->company;
+        $street_address               = $objectAddress->street;
+        $street                       = explode(".", $street_address);
+        if (count($street) < 2) {
+            $street[0] = $street_address;
+            $street[1] = "";
         }
-        $customer["address"]=array(
-            "address1"  =>  $street[0],
-            "address2"  =>  $street[1],
-            "suburb"    =>  $objectAddress->region,
-            "postcode"  =>  $objectAddress->postcode,
-            "country"   =>  $objectAddress->country_id,
+        $customer["address"] = array(
+            "address1" => $street[0],
+            "address2" => $street[1],
+            "suburb"   => $objectAddress->region,
+            "postcode" => $objectAddress->postcode,
+            "country"  => $objectAddress->country_id,
         );
+
         return $customer;
     }
-    public function callUrl($url,$postData){
-        $requestUrl=$url->getData("ant_api_webhook_url");
-        $postData=json_encode($postData);
-        $header=array(
+    /***
+     * @deprecated
+     * @param Ant_Api_Model_Mysql4_Webhook $url Object from the
+     * @param $postData
+     */
+    public function callUrl($url, $postData) {
+        $this->triggerWebhook($url, $postData);
+        return;
+    }
+
+    /**
+     * Trigger the webhook
+     *
+     * @param $webhook
+     * @param $postData
+     *
+     * @return mixed
+     */
+    public function triggerWebhook($webhook, $postData) {
+        if (!$this->isLiveUpdating()) {
+            // queue webhook
+            $webhookCron = Mage::getModel('ant_api/webhook_cron_schedule');
+            $checksum = $this->createChecksum($postData);
+            $webhookCron->setChecksum($checksum);
+            $webhookCron->setRequestData($postData);
+            $webhookCron->setStatus(Ant_Api_Model_Webhook_Cron_Schedule::STATUS_QUEUED);
+            $webhookCron->setWebhookId($webhook->getAntApiWebhookId());
+            if ($webhookCron->checkChecksumExists($checksum)) {
+                return array('result' => $this->__("Already synchronised the changes to Ant"));
+            }
+            $webhookCron->save();
+
+            return array('result' => $this->__("Update should happen shortly. Allow 1 minute for it to take place or change the settings to \"Live Updates\""));
+        }
+        if ( ! $webhook->hasData("ant_api_webhook_url")) {
+            return array(
+                'error'   => $this->__("Unable to process webhook. No URL specified."),
+                'message' => $this->__("No Ant API Webhook URL data for webhook: " . json_encode($webhook->getData()))
+            );
+        }
+        $requestUrl = $webhook->getData("ant_api_webhook_url");
+        $postData   = json_encode($postData);
+        return $this->forceWebhook($requestUrl, $postData);
+    }
+    /**
+     * Actually run the webhook with the post data
+     * @param $requestUrl
+     * @param $postData
+     *
+     * @return mixed
+     */
+    public function forceWebhook($requestUrl, $postData) {
+        if (is_array($postData)) {
+            $postData = json_encode($postData);
+        }
+        $header     = array(
             "Accept:application/json",
             "Content-Type:application/json",
-            "X-ANTHQ-TOKEN:".$this->getAuthorizationToken(0),
+            "X-ANTHQ-TOKEN:" . $this->getAuthorizationToken(0),
         );
-        $ch = curl_init();
+        $ch         = curl_init();
         curl_setopt($ch, CURLOPT_URL, $requestUrl);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_NOSIGNAL, true);
         curl_setopt($ch, CURLOPT_TIMEOUT_MS, 3000);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,$postData);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
         curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
         $response = curl_exec($ch);
         curl_close($ch);
-        return $response['body'];
+
+        return json_decode($response, JSON_OBJECT_AS_ARRAY);
     }
-    public function rewriteUrl($name=null,$handle){
+
+    /**
+     * Generate a checksum with all the data to compare with Ant's data
+     *
+     * @param $data
+     *
+     * @return string
+     */
+    public function createChecksum($data) {
+        $checksum = hash('md5', serialize($data));
+        return $checksum;
+    }
+
+    public function rewriteUrl($name = null, $handle) {
         //$url = preg_replace('#[^0-9a-z]+#i', '-', $name);
         //$url = strtolower($url);
         //return $url."-".$handle;
         return $handle;
     }
-    public function setImageProduct($url){
-        $image_name=basename($url); // replace https tp http
-        $image_type = "jpg"; //find the image extension
-        $filename   = "upload_api"; //give a new name, you can modify as per your requirement
+
+    public function setImageProduct($url) {
+        $image_name    = basename($url); // replace https tp http
+        $image_type    = "jpg"; //find the image extension
+        $filename      = "upload_api"; //give a new name, you can modify as per your requirement
         $directoryName = Mage::getBaseDir("var") . DS . $filename;
-        if(!is_dir($directoryName)){
+        if ( ! is_dir($directoryName)) {
             //Directory does not exist, so lets create it.
             mkdir($directoryName, 0755);
         }
-        $filePathOnDir   = Mage::getBaseDir('var') . DS  . $filename. DS . $image_name; //path for temp storage folder: ./media/import/ , absolute path
-        file_put_contents($filePathOnDir,file_get_contents($url)); //store the image from external url to the temp storage folder file_get_contents(trim($image_url))
-        $absolutePath=$filePathOnDir;
+        $filePathOnDir = Mage::getBaseDir('var') . DS . $filename . DS . $image_name; //path for temp storage folder: ./media/import/ , absolute path
+        file_put_contents($filePathOnDir, file_get_contents($url)); //store the image from external url to the temp storage folder file_get_contents(trim($image_url))
+        $absolutePath = $filePathOnDir;
+
         return array(
-            self::KEY_NAME_IMAGE    =>  $image_name,
-            self::KEY_ABSOLUTE_PATH_IMG =>  $absolutePath
+            self::KEY_NAME_IMAGE        => $image_name,
+            self::KEY_ABSOLUTE_PATH_IMG => $absolutePath
         );
     }
-    public function getDataWebHook($condition){
-        $modelWebhook=Mage::getModel("ant_api/webhook");
-        $data=$modelWebhook->getCollection()->addFieldToFilter("ant_api_webhook_action",array("like"=>"%".$condition."%"));
+
+    public function getDataWebHook($condition) {
+        $modelWebhook = Mage::getModel("ant_api/webhook");
+        $data         = $modelWebhook->getCollection()->addFieldToFilter("ant_api_webhook_action", array("like" => "%" . $condition . "%"));
+
         return $data;
     }
 
 
     /***
      * @param $userId
+     *
      * @return Mage_Oauth_Model_Token
      * @throws Exception
      */
-    public function autoGenerateOAuthForUser($userId){
+    public function autoGenerateOAuthForUser($userId) {
         /** @var Mage_Oauth_Helper_Data $oauthHelper */
-        $oauthHelper = Mage::helper('oauth');
-        $consumerKey = $oauthHelper->generateConsumerKey();
+        $oauthHelper    = Mage::helper('oauth');
+        $consumerKey    = $oauthHelper->generateConsumerKey();
         $consumerSecret = $oauthHelper->generateConsumerSecret();
 
         /** @var Mage_Oauth_Model_Consumer $consumerModel */
         $consumerModel = Mage::getModel('oauth/consumer');
-        $consumerData = array(
-            'name' => self::OAUTH_CONSUMER_NAME,
-            'key' => $consumerKey,
-            'secret' => $consumerSecret);
+        $consumerData  = array(
+            'name'   => self::OAUTH_CONSUMER_NAME,
+            'key'    => $consumerKey,
+            'secret' => $consumerSecret
+        );
         $consumerModel->addData($consumerData);
         $consumerModel->save();
 
@@ -1831,7 +2011,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
         $defaultStore           = Mage::app()->getDefaultStoreView();
         $useSecureUrlInFrontEnd = (bool) Mage::getStoreConfig(Mage_Core_Model_Url::XML_PATH_SECURE_IN_FRONT, $defaultStore);
-        $urlConfigPath          = ($useSecureUrlInFrontEnd)? Mage_Core_Model_Url::XML_PATH_SECURE_URL : Mage_Core_Model_Url::XML_PATH_UNSECURE_URL;
+        $urlConfigPath          = ($useSecureUrlInFrontEnd) ? Mage_Core_Model_Url::XML_PATH_SECURE_URL : Mage_Core_Model_Url::XML_PATH_UNSECURE_URL;
         $url                    = Mage::getStoreConfig($urlConfigPath, $defaultStore);
 
         $requestToken->authorize($userId, Mage_Oauth_Model_Token::USER_TYPE_ADMIN);
@@ -1857,9 +2037,9 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * Setup OAuth for the dedicated System User
      * @throws Exception
      */
-    public function setupOAuth(){
-        $user = Mage::getModel('admin/user')->load(Ant_Api_Model_Resource_Setup::ANT_ADMIN_USER_USERNAME,'username');
-        if (!$user->getId()){
+    public function setupOAuth() {
+        $user = Mage::getModel('admin/user')->load(Ant_Api_Model_Resource_Setup::ANT_ADMIN_USER_USERNAME, 'username');
+        if ( ! $user->getId()) {
             //generated
             throw new Mage_Oauth_Exception($this->__(
                 "AntHQ system user not found, please ensure user %s exists",
@@ -1873,15 +2053,16 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
 
     /***
      * @deprecated Please use setupOAuth() instead
+     *
      * @param  bool $isSetup
+     *
      * @return Mage_Oauth_Model_Token
      * @throws Exception
      */
-    public function autoGenerate($isSetup = false){
+    public function autoGenerate($isSetup = false) {
         try {
             $this->setupOAuth();
-        }
-        catch(Mage_Oauth_Exception $ex){
+        } catch (Mage_Oauth_Exception $ex) {
             Mage::logException($ex);
         }
 
@@ -1896,30 +2077,32 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * @return null|string
      */
     public function getWebhookUrl($type, $entityId) {
-        if (!$type) {
+        if ( ! $type) {
             return null;
         }
-        if (!$entityId) {
+        if ( ! $entityId) {
             return null;
         }
         switch ($type) {
             case Ant_Api_Model_Webhook::ORDER_CREATE:
-                $path = 'adminhtml/ant_api/syncOrder';
+                $path       = 'adminhtml/ant_api/syncOrder';
                 $entity_key = 'order_id';
                 break;
             case Ant_Api_Model_Webhook::CUSTOMER_CREATE:
-                $path = 'adminhtml/ant_api/syncCustomer';
+                $path       = 'adminhtml/ant_api/syncCustomer';
                 $entity_key = 'customer_id';
                 break;
             case Ant_Api_Model_Webhook::PRODUCT_CREATE:
-                $path = 'adminhtml/ant_api/syncProduct';
+                $path       = 'adminhtml/ant_api/syncProduct';
                 $entity_key = 'product_id';
                 break;
             default:
                 Mage::log('Unhandled webhook type: ' . $type, Zend_Log::NOTICE, 'exception.log');
+
                 return null;
         }
         $url = Mage::helper("adminhtml")->getUrl($path, array($entity_key => $entityId));
+
         return $url;
     }
 
@@ -1929,10 +2112,12 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      */
     public function getModuleVersion() {
         $antConfig = Mage::getConfig()->getModuleConfig('Ant_Api');
-        if (!isset($antConfig->version)) {
+        if ( ! isset($antConfig->version)) {
             Mage::log('Ant_Api module config is malformed. ' . json_encode($antConfig), Zend_Log::ERR, 'exception.log');
+
             return "Invalid Version";
         }
+
         return (string) $antConfig->version;
     }
 }

@@ -34,6 +34,9 @@
                     <webhook>
                         <table>ant_api_webhook</table>
                     </webhook>
+                    <webhook_cron_schedule>
+                        <table>ant_api_webhook_cron_schedule</table>
+                    </webhook_cron_schedule>
                 </entities>
             </ant_api_mysql4>
             <product_attribute_media_api>
@@ -260,4 +263,24 @@
             </sync_source>
         </ant_api_config>
     </default>
+    <crontab>
+        <jobs>
+            <ant_api_webhooks_process_all>
+                <schedule>
+                    <cron_expr>* * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>ant_api/webhook_cron::processWebhooks</model>
+                </run>
+            </ant_api_webhooks_process_all>
+        </jobs>
+        <default>
+            <observers>
+                <ant_api_clean_old_webhook_cron_entries>
+                    <class>ant_api/webhook_cron</class>
+                    <method>cleanOldWebhooks</method>
+                </ant_api_clean_old_webhook_cron_entries>
+            </observers>
+        </default>
+    </crontab>
 </config>
