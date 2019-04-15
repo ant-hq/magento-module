@@ -461,7 +461,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     /**
      * Make the function helper for hash product
      *
-     **/
+     * @param $idProduct int
+     *
+     * @return array product data for use in ant's API
+     */
     public function setTheHashProductSimple($idProduct){
 
         $detailProduct = Mage::getModel("catalog/product")->load($idProduct);
@@ -531,6 +534,9 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
     /**
      * Make the function helper for hash product
      *
+     * @param $idProduct int
+     *
+     * @return array configurable product data for use in ant's API
      */
     public function setTheHashConfigruableProduct($idProduct){
         /** @var Mage_Catalog_Model_Product $detailProduct */
