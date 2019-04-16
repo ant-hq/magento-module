@@ -513,7 +513,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data {
     /**
      * Make the function helper for hash product
      *
-     **/
+     * @param $idProduct int
+     *
+     * @return array product data for use in ant's API
+     */
     public function setTheHashProductSimple($idProduct) {
 
         $detailProduct                           = Mage::getModel("catalog/product")->load($idProduct);
@@ -584,6 +587,10 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data {
     /**
      * Make the function helper for hash product
      *
+     * @param $idProduct int
+     *
+     * @return array configurable product data for use in ant's API
+     * @throws \Varien_Exception
      */
     public function setTheHashConfigruableProduct($idProduct) {
         /** @var Mage_Catalog_Model_Product $detailProduct */
@@ -1887,7 +1894,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data {
             $webhookCron->setRequestData($postData);
             $webhookCron->setStatus(Ant_Api_Model_Webhook_Cron_Schedule::STATUS_QUEUED);
             $webhookCron->setWebhookId($webhook->getAntApiWebhookId());
-            if ($webhookCron->checkChecksumExists($checksum)) {
+            if (!$webhookCron->needsChecksumUpdated($checksum)) {
                 return array('result' => $this->__("Already synchronised the changes to Ant"));
             }
             $webhookCron->save();
