@@ -54,7 +54,7 @@ class Ant_Api_Helper_Data extends Mage_Core_Helper_Data
      * @var string
      */
     const XML_PATH_SYNC_LIVE_UPDATE = 'ant_api_config/syncing/is_live_sync';
-     * Path to store config where sync source pricing is stored
+     /** Path to store config where sync source pricing is stored
      * @var string
      */
     const XML_PATH_SYNC_SOURCE_PRICING = 'ant_api_config/sync_source/pricing';
