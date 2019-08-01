@@ -31,7 +31,7 @@ class Ant_Api_Model_Mysql4_Webhook_Cron_Schedule extends Mage_Core_Model_Mysql4_
     }
 
     public function buildIdentifier($object) {
-        $identifierParts = [];
+        $identifierParts = array();
         $webhookDataSelect = $this->_getReadAdapter()->select()->from($this->getTable('ant_api/webhook'))->where('ant_api_webhook_id = :webhookId');
         $webhookData = $this->_getReadAdapter()->fetchRow($webhookDataSelect, array('webhookId' => $object->getWebhookId()));
         if (isset($webhookData['ant_api_webhook_action'])) {

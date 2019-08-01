@@ -138,7 +138,7 @@ class Ant_Api_Adminhtml_Ant_ApiController extends Mage_Adminhtml_Controller_Acti
         try {
             $postData=$helperAntApi->setTheHashOrder($order,null,null);
         } catch (\Exception $exception) {
-            $postData = [];
+            $postData = array();
         }
         $createOrderWebhookCollection=$helperAntApi->getDataWebHook(Ant_Api_Model_Webhook::ORDER_CREATE);
         foreach($createOrderWebhookCollection as $webhook){
