@@ -1,6 +1,6 @@
 # Installing the module
 
-1. Clone (via git) or download the module to your server
+1. Clone (via git) or download [the latest stable](https://github.com/ant-hq/magento-module/tree/0.0.5) module to your server
 2. Copy the modules `ant_api` directy into the root folder of Magento this can be done by using a FTP client or running the command on a linux based machine:
 ```
 yes | cp ant_api/. /magento_root/ -Rf
